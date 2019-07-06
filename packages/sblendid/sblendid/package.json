@@ -1,0 +1,8 @@
+{
+  "name": "sblendid",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "repository": "git@github.com:LukasBombach/sblendid.git",
+  "author": "Lukas Bombach <lukas.bombach@googlemail.com>",
+  "license": "MIT"
+}

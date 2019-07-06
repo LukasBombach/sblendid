@@ -1,0 +1,11 @@
+{
+  "name": "sblendid-umbrella",
+  "version": "0.0.1",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "repository": "git@github.com:LukasBombach/sblendid.git",
+  "author": "Lukas Bombach <lukas.bombach@googlemail.com>",
+  "license": "MIT"
+}
