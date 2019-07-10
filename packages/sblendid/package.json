@@ -4,5 +4,9 @@
   "main": "dist/index.js",
   "repository": "git@github.com:LukasBombach/sblendid.git",
   "author": "Lukas Bombach <lukas.bombach@googlemail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "12.0.12",
+    "@types/web-bluetooth": "0.0.4"
+  }
 }
