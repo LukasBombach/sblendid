@@ -1,6 +1,6 @@
 import ExtendedEventEmitter from "./extendedEventEmitter";
 
-type Events = {
+type NobleAdapterEvents = {
   stateChange: string;
   addressChange: any;
   scanStart: any;
@@ -24,7 +24,7 @@ type Events = {
   handleNotify: any;
 };
 
-interface SblendidAdapter {
+interface NobleAdapter {
   init: () => void;
   startScanning: (
     serviceUuids?: BluetoothServiceUUID[],
