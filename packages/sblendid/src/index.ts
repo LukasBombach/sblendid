@@ -16,7 +16,9 @@ export default class Sblendid {
     const adapter = new Adapter();
     const sblendid = new Sblendid(adapter);
     await sblendid.powerOn();
-    return await sblendid.connect(name);
+    const peripheral = await sblendid.find(name);
+    await peripheral.connect();
+    return peripheral;
   }
 
   public async powerOn(): Promise<void> {
@@ -28,16 +30,10 @@ export default class Sblendid {
 
   public async find(name: string): Promise<Peripheral> {
     const [noblePeripheral] = await Promise.all([
-      this.adapter.when("discover", p => this.isName(p, name)),
+      this.adapter.when("discover", p => this.hasName(p, name)),
       this.adapter.startScanning()
     ]);
     return Peripheral.fromNoble(noblePeripheral);
-  }
-
-  public async connect(name: string): Promise<Peripheral> {
-    const peripheral = await this.find(name);
-    await peripheral.connect();
-    return peripheral;
   }
 
   public startScanning(listener?: ScanListener): void {
@@ -53,7 +49,7 @@ export default class Sblendid {
     this.adapter.stopScanning();
   }
 
-  private isName(noblePeripheral: NoblePeripheral, name: string): boolean {
+  private hasName(noblePeripheral: NoblePeripheral, name: string): boolean {
     return noblePeripheral.advertisement.localName === name;
   }
 }
