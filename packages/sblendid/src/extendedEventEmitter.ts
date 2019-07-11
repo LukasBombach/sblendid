@@ -1,11 +1,17 @@
-import { EventEmitter } from "events";
+//import { EventEmitter } from "events";
+import { EventEmitter } from "tsee";
+import { NobleAdapterEvents } from "../types/nobleAdapter";
 
-export default class ExtendedEventEmitter extends EventEmitter {
+export default class ExtendedEventEmitter extends EventEmitter<
+  NobleAdapterEvents
+> {
+  // todo 2nd parameter must be typed
+  // todo return type must be typed
   public when(
-    event: string | symbol,
+    event: keyof NobleAdapterEvents,
     condition: any,
     timeout?: number
-  ): Promise<void> {
+  ): Promise<any> {
     return new Promise((resolve, reject) => {
       const listener = async (...args: any[]) => {
         const conditionHasMet =
