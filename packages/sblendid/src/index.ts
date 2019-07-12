@@ -1,6 +1,7 @@
 import Adapter from "./adapter";
 import Peripheral from "./peripheral";
 import { NoblePeripheral } from "../types/noble";
+import { NobleAdapterEvents } from "../types/nobleAdapter";
 
 export type ScanListener = (peripheral: Peripheral) => void;
 
@@ -33,6 +34,7 @@ export default class Sblendid {
       this.adapter.when("discover", p => this.hasName(p, name)),
       this.adapter.startScanning()
     ]);
+    this.adapter.stopScanning();
     return Peripheral.fromNoble(noblePeripheral);
   }
 
@@ -47,6 +49,14 @@ export default class Sblendid {
     if (this.scanListener) this.adapter.off("discover", this.scanListener);
     this.scanListener = undefined;
     this.adapter.stopScanning();
+  }
+
+  public on(name: keyof NobleAdapterEvents, listener: ScanListener): void {
+    this.adapter.on(name, listener);
+  }
+
+  public off(name: keyof NobleAdapterEvents, listener: ScanListener): void {
+    this.adapter.off(name, listener);
   }
 
   private hasName(noblePeripheral: NoblePeripheral, name: string): boolean {
