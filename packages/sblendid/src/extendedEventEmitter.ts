@@ -9,13 +9,15 @@ export default class ExtendedEventEmitter extends EventEmitter<
   // todo return type must be typed
   public when(
     event: keyof NobleAdapterEvents,
-    condition: any,
+    condition?: any,
     timeout?: number
   ): Promise<any> {
     return new Promise((resolve, reject) => {
       const listener = async (...args: any[]) => {
         const conditionHasMet =
-          typeof condition === "function"
+          typeof condition === "undefined"
+            ? true
+            : typeof condition === "function"
             ? await condition(...args)
             : args[0] === condition;
         if (conditionHasMet) {
