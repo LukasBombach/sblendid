@@ -29,19 +29,37 @@ export default class Peripheral {
     this.state = peripheral.state;
   }
 
-  async connect(): Promise<void> {
+  public async connect(): Promise<void> {
     await Promise.all([
       Sblendid.adapter.when("connect"),
       Sblendid.adapter.connect(this.uuid)
     ]);
   }
-  async disconnect(): Promise<void> {
+
+  public async disconnect(): Promise<void> {
     await Promise.all([
       Sblendid.adapter.when("disconnect"),
       Sblendid.adapter.disconnect(this.uuid)
     ]);
   }
-  updateRssi(): Promise<number> {}
-  discoverServices(filter?: BluetoothServiceUUID[]): Promise<Service[]> {}
-  discoverAllServicesAndCharacteristics(): Promise<Service[]> {}
+
+  public async updateRssi(): Promise<number> {
+    const [rssi] = await Promise.all([
+      Sblendid.adapter.when("rssiUpdate"),
+      Sblendid.adapter.updateRssi(this.uuid)
+    ]);
+    return parseFloat(rssi);
+  }
+
+  public async discoverServices(
+    filter?: BluetoothServiceUUID[]
+  ): Promise<Service[]> {
+    const [services] = await Promise.all([
+      Sblendid.adapter.when("servicesDiscover"),
+      Sblendid.adapter.discoverServices(this.uuid, filter)
+    ]);
+    return services;
+  }
+
+  public async discoverAllServicesAndCharacteristics(): Promise<Service[]> {}
 }
