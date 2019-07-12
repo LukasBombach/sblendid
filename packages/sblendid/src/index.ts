@@ -3,19 +3,14 @@ import Peripheral from "./peripheral";
 import { NoblePeripheral } from "../types/noble";
 import { NobleAdapterEvents } from "../types/nobleAdapter";
 
-export type ScanListener = (peripheral: Peripheral) => void;
+export type ScanListener = (error: Error, peripheral: Peripheral) => void;
 
 export default class Sblendid {
-  public adapter: Adapter;
+  public static adapter: Adapter = new Adapter();
   private scanListener?: ScanListener;
 
-  constructor(adapter: Adapter) {
-    this.adapter = adapter;
-  }
-
   static async connect(name: string): Promise<Peripheral> {
-    const adapter = new Adapter();
-    const sblendid = new Sblendid(adapter);
+    const sblendid = new Sblendid();
     await sblendid.powerOn();
     const peripheral = await sblendid.find(name);
     await peripheral.connect();
@@ -24,39 +19,39 @@ export default class Sblendid {
 
   public async powerOn(): Promise<void> {
     await Promise.all([
-      this.adapter.when("stateChange", "poweredOn"),
-      this.adapter.init()
+      Sblendid.adapter.when("stateChange", "poweredOn"),
+      Sblendid.adapter.init()
     ]);
   }
 
   public async find(name: string): Promise<Peripheral> {
     const [noblePeripheral] = await Promise.all([
-      this.adapter.when("discover", p => this.hasName(p, name)),
-      this.adapter.startScanning()
+      Sblendid.adapter.when("discover", p => this.hasName(p, name)),
+      Sblendid.adapter.startScanning()
     ]);
-    this.adapter.stopScanning();
-    return Peripheral.fromNoble(noblePeripheral);
+    Sblendid.adapter.stopScanning();
+    return new Peripheral(noblePeripheral);
   }
 
   public startScanning(listener?: ScanListener): void {
-    if (this.scanListener) this.adapter.off("discover", this.scanListener);
-    if (listener) this.adapter.on("discover", listener);
+    if (this.scanListener) Sblendid.adapter.off("discover", this.scanListener);
+    if (listener) Sblendid.adapter.on("discover", listener);
     this.scanListener = listener;
-    this.adapter.startScanning();
+    Sblendid.adapter.startScanning();
   }
 
   public stopScanning(): void {
-    if (this.scanListener) this.adapter.off("discover", this.scanListener);
+    if (this.scanListener) Sblendid.adapter.off("discover", this.scanListener);
     this.scanListener = undefined;
-    this.adapter.stopScanning();
+    Sblendid.adapter.stopScanning();
   }
 
   public on(name: keyof NobleAdapterEvents, listener: ScanListener): void {
-    this.adapter.on(name, listener);
+    Sblendid.adapter.on(name, listener);
   }
 
   public off(name: keyof NobleAdapterEvents, listener: ScanListener): void {
-    this.adapter.off(name, listener);
+    Sblendid.adapter.off(name, listener);
   }
 
   private hasName(noblePeripheral: NoblePeripheral, name: string): boolean {
