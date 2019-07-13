@@ -8,7 +8,6 @@
     "url": "https://github.com/Timeular/noble-mac.git"
   },
   "main": "index.js",
-  "types": "module.d.ts",
   "gypfile": true,
   "engines": {
     "node": ">=6.14.2"

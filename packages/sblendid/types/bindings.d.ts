@@ -6,6 +6,9 @@ export type Address = string;
 export type AddressType = "public" | "random" | "unknown";
 export type Descriptor = string;
 
+export type EventName = keyof Events;
+export type EventListener<N extends EventName> = Events[N];
+
 export interface Advertisement {
   localName: string;
   txPowerLevel: number;

@@ -1,4 +1,4 @@
-import { EventEmitter } from "events";
+/* import { EventEmitter } from "events";
 import StrictEventEmitter from "strict-event-emitter-types";
 
 export type PeripheralUuid = string;
@@ -177,3 +177,4 @@ export interface Events {
 type Bindings = Methods & StrictEventEmitter<EventEmitter, Events>;
 
 export default Bindings;
+ */
