@@ -1,12 +1,12 @@
-import Adapter from "../../sblendid-trashbin/adapter";
+import BindingsMacOs from "sblendid-bindings-macos";
 import Peripheral from "./peripheral";
-import { NoblePeripheral } from "../../sblendid-trashbin/types/noble";
-import { NobleAdapterEvents } from "../../sblendid-trashbin/types/nobleAdapter";
+import { NoblePeripheral } from "../types/noble";
+import UnboundAdapter, { Adapter } from "./adapter";
 
 export type ScanListener = (error: Error, peripheral: Peripheral) => void;
 
 export default class Sblendid {
-  public static adapter: Adapter = new Adapter();
+  public static adapter: Adapter = UnboundAdapter.withBindings(BindingsMacOs);
   private scanListener?: ScanListener;
 
   static async connect(name: string): Promise<Peripheral> {

@@ -1,6 +1,6 @@
 {
-  "name": "noble-mac",
-  "description": "Noble (Node.js Bluetooth LE) bindings using CoreBluetooth API",
+  "name": "sblendid-bindings-macos",
+  "description": "Sblendid (Node.js Bluetooth LE) bindings using CoreBluetooth API",
   "version": "0.0.4",
   "author": "gv@timeular.com",
   "license": "MIT",
@@ -8,6 +8,7 @@
     "url": "https://github.com/Timeular/noble-mac.git"
   },
   "main": "index.js",
+  "types": "module.d.ts",
   "gypfile": true,
   "engines": {
     "node": ">=6.14.2"
