@@ -1,9 +1,10 @@
 import { EventEmitter } from "events";
+import StrictEventEmitter from "strict-event-emitter-types";
 
-type PeripheralUuid = string;
-type Address = string;
-type AddressType = "public" | "random" | "unknown";
-type Descriptor = string;
+export type PeripheralUuid = string;
+export type Address = string;
+export type AddressType = "public" | "random" | "unknown";
+export type Descriptor = string;
 
 export interface Advertisement {
   localName: string;
@@ -13,7 +14,82 @@ export interface Advertisement {
   serviceData?: Buffer;
 }
 
-interface Events {
+export interface Methods {
+  init(): void;
+  startScanning(
+    serviceUuids: BluetoothServiceUUID[],
+    allowDuplicates: boolean
+  ): void;
+  stopScanning(): void;
+  connect(peripheralUuid: PeripheralUuid): void;
+  disconnect(peripheralUuid: PeripheralUuid): void;
+  updateRssi(peripheralUuid: PeripheralUuid): void;
+  discoverServices(
+    peripheralUuid: PeripheralUuid,
+    serviceUuids: BluetoothServiceUUID[]
+  ): void;
+  discoverIncludedServices(
+    peripheralUuid: PeripheralUuid,
+    serviceUuid: BluetoothServiceUUID,
+    serviceUuids: BluetoothServiceUUID[]
+  ): void;
+  discoverCharacteristics(
+    peripheralUuid: PeripheralUuid,
+    serviceUuid: BluetoothServiceUUID,
+    characteristicUuids: BluetoothCharacteristicUUID[]
+  ): void;
+  read(
+    peripheralUuid: PeripheralUuid,
+    serviceUuid: BluetoothServiceUUID,
+    characteristicUuid: BluetoothCharacteristicUUID
+  ): void;
+  write(
+    peripheralUuid: PeripheralUuid,
+    serviceUuid: BluetoothServiceUUID,
+    characteristicUuid: BluetoothCharacteristicUUID,
+    data: Buffer,
+    withoutResponse: boolean
+  ): void;
+  broadcast(
+    peripheralUuid: PeripheralUuid,
+    serviceUuid: BluetoothServiceUUID,
+    characteristicUuid: BluetoothCharacteristicUUID,
+    broadcast: boolean
+  ): void;
+  notify(
+    peripheralUuid: PeripheralUuid,
+    serviceUuid: BluetoothServiceUUID,
+    characteristicUuid: BluetoothCharacteristicUUID,
+    notify: boolean
+  ): void;
+  discoverDescriptors(
+    peripheralUuid: PeripheralUuid,
+    serviceUuid: BluetoothServiceUUID,
+    characteristicUuid: BluetoothCharacteristicUUID
+  ): void;
+  readValue(
+    peripheralUuid: PeripheralUuid,
+    serviceUuid: BluetoothServiceUUID,
+    characteristicUuid: BluetoothCharacteristicUUID,
+    descriptorUuid: BluetoothDescriptorUUID
+  ): void;
+  writeValue(
+    peripheralUuid: PeripheralUuid,
+    serviceUuid: BluetoothServiceUUID,
+    characteristicUuid: BluetoothCharacteristicUUID,
+    descriptorUuid: BluetoothDescriptorUUID,
+    data: Buffer
+  ): void;
+  readHandle(peripheralUuid: PeripheralUuid, handle: number): void;
+  writeHandle(
+    peripheralUuid: PeripheralUuid,
+    handle: number,
+    data: Buffer,
+    withoutResponse: boolean
+  ): void;
+}
+
+export interface Events {
   stateChange: (state: string) => void;
   discover: (
     peripheralUuid: PeripheralUuid,
@@ -98,77 +174,6 @@ interface Events {
   scanStop: () => void;
 }
 
-export default interface Bindings {
-  init(): void;
-  startScanning(
-    serviceUuids: BluetoothServiceUUID[],
-    allowDuplicates: boolean
-  ): void;
-  stopScanning(): void;
-  connect(peripheralUuid: PeripheralUuid): void;
-  disconnect(peripheralUuid: PeripheralUuid): void;
-  updateRssi(peripheralUuid: PeripheralUuid): void;
-  discoverServices(
-    peripheralUuid: PeripheralUuid,
-    serviceUuids: BluetoothServiceUUID[]
-  ): void;
-  discoverIncludedServices(
-    peripheralUuid: PeripheralUuid,
-    serviceUuid: BluetoothServiceUUID,
-    serviceUuids: BluetoothServiceUUID[]
-  ): void;
-  discoverCharacteristics(
-    peripheralUuid: PeripheralUuid,
-    serviceUuid: BluetoothServiceUUID,
-    characteristicUuids: BluetoothCharacteristicUUID[]
-  ): void;
-  read(
-    peripheralUuid: PeripheralUuid,
-    serviceUuid: BluetoothServiceUUID,
-    characteristicUuid: BluetoothCharacteristicUUID
-  ): void;
-  write(
-    peripheralUuid: PeripheralUuid,
-    serviceUuid: BluetoothServiceUUID,
-    characteristicUuid: BluetoothCharacteristicUUID,
-    data: Buffer,
-    withoutResponse: boolean
-  ): void;
-  broadcast(
-    peripheralUuid: PeripheralUuid,
-    serviceUuid: BluetoothServiceUUID,
-    characteristicUuid: BluetoothCharacteristicUUID,
-    broadcast: boolean
-  ): void;
-  notify(
-    peripheralUuid: PeripheralUuid,
-    serviceUuid: BluetoothServiceUUID,
-    characteristicUuid: BluetoothCharacteristicUUID,
-    notify: boolean
-  ): void;
-  discoverDescriptors(
-    peripheralUuid: PeripheralUuid,
-    serviceUuid: BluetoothServiceUUID,
-    characteristicUuid: BluetoothCharacteristicUUID
-  ): void;
-  readValue(
-    peripheralUuid: PeripheralUuid,
-    serviceUuid: BluetoothServiceUUID,
-    characteristicUuid: BluetoothCharacteristicUUID,
-    descriptorUuid: BluetoothDescriptorUUID
-  ): void;
-  writeValue(
-    peripheralUuid: PeripheralUuid,
-    serviceUuid: BluetoothServiceUUID,
-    characteristicUuid: BluetoothCharacteristicUUID,
-    descriptorUuid: BluetoothDescriptorUUID,
-    data: Buffer
-  ): void;
-  readHandle(peripheralUuid: PeripheralUuid, handle: number): void;
-  writeHandle(
-    peripheralUuid: PeripheralUuid,
-    handle: number,
-    data: Buffer,
-    withoutResponse: boolean
-  ): void;
-}
+type Bindings = Methods & StrictEventEmitter<EventEmitter, Events>;
+
+export default Bindings;

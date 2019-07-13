@@ -8,7 +8,8 @@
   "devDependencies": {
     "@types/noble": "0.0.39",
     "@types/node": "12.0.12",
-    "@types/web-bluetooth": "0.0.4"
+    "@types/web-bluetooth": "0.0.4",
+    "strict-event-emitter-types": "2.0.0"
   },
   "dependencies": {
     "tsee": "1.2.1"
