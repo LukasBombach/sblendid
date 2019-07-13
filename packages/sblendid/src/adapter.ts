@@ -1,4 +1,12 @@
-import Bindings, { EventName, EventListener } from "../types/bindings";
+import Bindings, {
+  EventName,
+  EventListener,
+  EventParameters
+} from "../types/bindings";
+
+export type Condition<E extends EventName> =
+  | EventListener<E>
+  | EventParameters<E>[0];
 
 export default class Adapter {
   public bindings: Bindings;
@@ -19,23 +27,29 @@ export default class Adapter {
     this.bindings.once(event, listener);
   }
 
-  // todo any
   public when<E extends EventName>(
     event: E,
-    condition?: any,
+    condition?: Condition<E>,
     timeout?: number
-  ): Promise<any> {
+  ): Promise<EventParameters<E>> {
     let listener: EventListener<E>;
-    return new Promise((resolve, reject) => {
-      listener = async (...args: any[]) => {
-        const conditionIsMet = await this.conditionIsMet(condition, args);
-        if (conditionIsMet) resolve(args);
-      };
-      if (typeof timeout !== "undefined") global.setTimeout(reject, timeout);
+    return new Promise<EventParameters<E>>((resolve, reject) => {
+      listener = this.getConditionListener(resolve, condition);
+      if (typeof timeout !== "undefined") setTimeout(reject, timeout);
       this.on(event, listener);
     }).finally(() => {
       this.off(event, listener);
     });
+  }
+
+  private getConditionListener<E extends EventName>(
+    resolve: Function,
+    condition?: Condition<E>
+  ): EventListener<E> {
+    return (async (...args: EventParameters<E>) => {
+      const conditionIsMet = await this.conditionIsMet(condition, args);
+      if (conditionIsMet) resolve(args);
+    }) as any;
   }
 
   private async conditionIsMet(condition: any, args: any[]): Promise<boolean> {
