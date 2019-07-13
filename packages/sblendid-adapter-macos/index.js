@@ -1,4 +1,4 @@
-'use strict';
+/* 'use strict';
 
 const os = require('os');
 
@@ -11,3 +11,12 @@ if (os.platform() === 'darwin') {
 } else {
 	module.exports = require('noble');
 }
+ */
+
+const events = require("events");
+const util = require("util");
+const NobleMac = require("../native/noble_mac").NobleMac;
+
+util.inherits(NobleMac, events.EventEmitter);
+
+module.exports = new NobleMac();
