@@ -3,6 +3,7 @@ import { EventEmitter } from "events";
 type PeripheralUuid = string;
 type Address = string;
 type AddressType = "public" |"random" |"unknown";
+type Descriptor = string;
 
 export interface Advertisement {
   localName: string;
@@ -11,8 +12,6 @@ export interface Advertisement {
   manufacturerData?: Buffer;
   serviceData?: Buffer;
 }
-
-export interface Descriptor {}
 
 interface Events {
   stateChange: (state: string) => void;
@@ -38,9 +37,7 @@ interface Events {
 }
 
 export default interface Bindings {
-
   init(): void;
-
   startScanning(serviceUuids: BluetoothServiceUUID[], allowDuplicates: boolean): void;
   stopScanning(): void;
   connect(peripheralUuid: PeripheralUuid): void;
@@ -51,20 +48,12 @@ export default interface Bindings {
   discoverCharacteristics(peripheralUuid: PeripheralUuid, serviceUuid: BluetoothServiceUUID, characteristicUuids: BluetoothCharacteristicUUID[]): void;
   read(peripheralUuid: PeripheralUuid, serviceUuid: BluetoothServiceUUID, characteristicUuid: BluetoothCharacteristicUUID): void;
   write(peripheralUuid: PeripheralUuid,serviceUuid: BluetoothServiceUUID,characteristicUuid: BluetoothCharacteristicUUID,data: Buffer,withoutResponse: boolean): void;
-  broadcast(peripheralUuid: PeripheralUuid, serviceUuid: BluetoothServiceUUID, characteristicUuid: BluetoothCharacteristicUUID, broadcast): void;
-  notify(peripheralUuid: PeripheralUuid, serviceUuid: BluetoothServiceUUID, characteristicUuid: BluetoothCharacteristicUUID, notify): void;
+  broadcast(peripheralUuid: PeripheralUuid, serviceUuid: BluetoothServiceUUID, characteristicUuid: BluetoothCharacteristicUUID, broadcast: boolean): void;
+  notify(peripheralUuid: PeripheralUuid, serviceUuid: BluetoothServiceUUID, characteristicUuid: BluetoothCharacteristicUUID, notify: boolean): void;
   discoverDescriptors(peripheralUuid: PeripheralUuid, serviceUuid: BluetoothServiceUUID, characteristicUuid: BluetoothCharacteristicUUID): void;
-  readValue(peripheralUuid: PeripheralUuid, serviceUuid: BluetoothServiceUUID, characteristicUuid: BluetoothCharacteristicUUID, descriptorUuid): void;
-  writeValue(peripheralUuid: PeripheralUuid,serviceUuid: BluetoothServiceUUID,characteristicUuid: BluetoothCharacteristicUUID,descriptorUuid,data: Buffer): void;
+  readValue(peripheralUuid: PeripheralUuid, serviceUuid: BluetoothServiceUUID, characteristicUuid: BluetoothCharacteristicUUID, descriptorUuid: BluetoothDescriptorUUID): void;
+  writeValue(peripheralUuid: PeripheralUuid,serviceUuid: BluetoothServiceUUID,characteristicUuid: BluetoothCharacteristicUUID,descriptorUuid: BluetoothDescriptorUUID,data: Buffer): void;
   readHandle(peripheralUuid: PeripheralUuid, handle: number): void;
   writeHandle(peripheralUuid: PeripheralUuid, handle: number, data: Buffer, withoutResponse: boolean): void;
 }
-
-
-  // this._peripherals[peripheralUuid] = {
-  //   uuid: peripheralUuid,
-  //   address: address,
-  //   advertisement: advertisement,
-  //   rssi: rssi
-  // };
 
