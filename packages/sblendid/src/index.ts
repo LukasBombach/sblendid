@@ -25,12 +25,12 @@ export default class Sblendid {
   }
 
   public async find(name: string): Promise<Peripheral> {
-    const [noblePeripheral] = await Promise.all([
+    const [peripheral] = await Promise.all([
       Sblendid.adapter.when("discover", (...arg) => this.hasName(arg[4], name)),
       Sblendid.adapter.bindings.startScanning()
     ]);
     Sblendid.adapter.bindings.stopScanning();
-    return new Peripheral(noblePeripheral);
+    return new Peripheral(...peripheral);
   }
 
   public startScanning(listener?: ScanListener): void {

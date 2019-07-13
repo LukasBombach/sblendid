@@ -1,5 +1,5 @@
-import { NoblePeripheral } from "../types/noble";
 import Sblendid from "./index";
+import { AddressType, Advertisement } from "../types/bindings";
 
 export type PeripheralState =
   | "connecting"
@@ -18,15 +18,20 @@ export default class Peripheral {
   public readonly services: Service[];
   public readonly state: PeripheralState;
 
-  constructor(peripheral: NoblePeripheral) {
-    this.uuid = peripheral.uuid;
-    this.address = peripheral.address;
-    this.addressType = peripheral.addressType;
-    this.connectable = peripheral.connectable;
-    this.advertisement = peripheral.advertisement;
-    this.rssi = peripheral.rssi;
-    this.services = peripheral.services;
-    this.state = peripheral.state;
+  constructor(
+    uuid: string,
+    address: string,
+    addressType: AddressType,
+    connectable: boolean,
+    advertisement: Advertisement,
+    rssi: number
+  ) {
+    this.uuid = uuid;
+    this.address = address;
+    this.addressType = addressType;
+    this.connectable = connectable;
+    this.advertisement = advertisement;
+    this.rssi = rssi;
   }
 
   public async connect(): Promise<void> {
