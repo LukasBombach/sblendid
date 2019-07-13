@@ -1,4 +1,4 @@
-import { NoblePeripheral } from "../types/noble";
+import { NoblePeripheral } from "../../sblendid-trashbin/types/noble";
 import Sblendid from "./index";
 
 export type PeripheralState =

@@ -1,7 +1,7 @@
-import Adapter from "./adapter";
+import Adapter from "../../sblendid-trashbin/adapter";
 import Peripheral from "./peripheral";
-import { NoblePeripheral } from "../types/noble";
-import { NobleAdapterEvents } from "../types/nobleAdapter";
+import { NoblePeripheral } from "../../sblendid-trashbin/types/noble";
+import { NobleAdapterEvents } from "../../sblendid-trashbin/types/nobleAdapter";
 
 export type ScanListener = (error: Error, peripheral: Peripheral) => void;
 

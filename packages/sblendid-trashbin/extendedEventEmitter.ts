@@ -1,6 +1,6 @@
 //import { EventEmitter } from "events";
 import { EventEmitter } from "tsee";
-import { NobleAdapterEvents } from "../types/nobleAdapter";
+import { NobleAdapterEvents } from "./types/nobleAdapter";
 
 export default class ExtendedEventEmitter extends EventEmitter<
   NobleAdapterEvents
