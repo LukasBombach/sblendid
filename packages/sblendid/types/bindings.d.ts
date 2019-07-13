@@ -20,8 +20,8 @@ declare class Bindings {
   init(): void;
 
   startScanning(
-    serviceUuids: BluetoothServiceUUID[],
-    allowDuplicates: boolean
+    serviceUuids?: BluetoothServiceUUID[],
+    allowDuplicates?: boolean
   ): void;
 
   stopScanning(): void;

@@ -1,7 +1,7 @@
 import BindingsMacOs from "sblendid-bindings-macos";
 import Peripheral from "./peripheral";
-import { NoblePeripheral } from "../types/noble";
 import Adapter from "./adapter";
+import { Advertisement, EventName, EventListener } from "../types/bindings";
 
 export type ScanListener = (error: Error, peripheral: Peripheral) => void;
 
@@ -20,16 +20,16 @@ export default class Sblendid {
   public async powerOn(): Promise<void> {
     await Promise.all([
       Sblendid.adapter.when("stateChange", "poweredOn"),
-      Sblendid.adapter.init()
+      Sblendid.adapter.bindings.init()
     ]);
   }
 
   public async find(name: string): Promise<Peripheral> {
     const [noblePeripheral] = await Promise.all([
-      Sblendid.adapter.when("discover", p => this.hasName(p, name)),
-      Sblendid.adapter.startScanning()
+      Sblendid.adapter.when("discover", (...arg) => this.hasName(arg[4], name)),
+      Sblendid.adapter.bindings.startScanning()
     ]);
-    Sblendid.adapter.stopScanning();
+    Sblendid.adapter.bindings.stopScanning();
     return new Peripheral(noblePeripheral);
   }
 
@@ -37,24 +37,28 @@ export default class Sblendid {
     if (this.scanListener) Sblendid.adapter.off("discover", this.scanListener);
     if (listener) Sblendid.adapter.on("discover", listener);
     this.scanListener = listener;
-    Sblendid.adapter.startScanning();
+    Sblendid.adapter.bindings.startScanning();
   }
 
   public stopScanning(): void {
     if (this.scanListener) Sblendid.adapter.off("discover", this.scanListener);
     this.scanListener = undefined;
-    Sblendid.adapter.stopScanning();
+    Sblendid.adapter.bindings.stopScanning();
   }
 
-  public on(name: keyof NobleAdapterEvents, listener: ScanListener): void {
-    Sblendid.adapter.on(name, listener);
+  public on<E extends EventName>(event: E, listener: EventListener<E>): void {
+    Sblendid.adapter.on(event, listener);
   }
 
-  public off(name: keyof NobleAdapterEvents, listener: ScanListener): void {
-    Sblendid.adapter.off(name, listener);
+  public off<E extends EventName>(event: E, listener: EventListener<E>): void {
+    Sblendid.adapter.off(event, listener);
   }
 
-  private hasName(noblePeripheral: NoblePeripheral, name: string): boolean {
-    return noblePeripheral.advertisement.localName === name;
+  public once<E extends EventName>(event: E, listener: EventListener<E>): void {
+    Sblendid.adapter.once(event, listener);
+  }
+
+  private hasName(advertisement: Advertisement, name: string): boolean {
+    return advertisement.localName === name;
   }
 }
