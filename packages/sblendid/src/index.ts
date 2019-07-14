@@ -1,11 +1,10 @@
 import BindingsMacOs from "sblendid-bindings-macos";
 import Peripheral from "./peripheral";
-import Adapter, { Condition } from "./adapter";
+import Adapter, { Condition, Action, When, End } from "./adapter";
 import Bindings, {
-  Advertisement,
-  EventName,
-  EventListener,
-  EventParameters
+  EventName as Event,
+  EventListener as Listener,
+  EventParameters as Params
 } from "../types/bindings";
 
 export type ScanListener = (peripheral: Peripheral) => void;
@@ -13,7 +12,7 @@ export type ScanListener = (peripheral: Peripheral) => void;
 export default class Sblendid {
   public static adapter: Adapter = new Adapter(BindingsMacOs);
   public static bindings: Bindings = BindingsMacOs;
-  private scanListener?: EventListener<"discover">;
+  private scanListener?: Listener<"discover">;
 
   static async connect(name: string): Promise<Peripheral> {
     const sblendid = new Sblendid();
@@ -33,7 +32,7 @@ export default class Sblendid {
   public async find(name: string): Promise<Peripheral> {
     const peripheral = await this.run<"discover">(
       () => Sblendid.bindings.startScanning(),
-      () => this.when("discover", (...a) => this.hasName(a[4], name)),
+      () => this.when("discover", (...a) => a[4].localName === name),
       () => Sblendid.bindings.stopScanning()
     );
     return new Peripheral(...peripheral);
@@ -53,45 +52,40 @@ export default class Sblendid {
     Sblendid.bindings.stopScanning();
   }
 
-  public on<E extends EventName>(event: E, listener: EventListener<E>): void {
+  public on<E extends Event>(event: E, listener: Listener<E>): void {
     Sblendid.adapter.on(event, listener);
   }
 
-  public off<E extends EventName>(event: E, listener: EventListener<E>): void {
+  public off<E extends Event>(event: E, listener: Listener<E>): void {
     Sblendid.adapter.off(event, listener);
   }
 
-  public once<E extends EventName>(event: E, listener: EventListener<E>): void {
+  public once<E extends Event>(event: E, listener: Listener<E>): void {
     Sblendid.adapter.once(event, listener);
   }
 
-  public when<E extends EventName>(
+  public when<E extends Event>(
     event: E,
     condition?: Condition<E>,
     timeout?: number
-  ): Promise<EventParameters<E>> {
+  ): Promise<Params<E>> {
     return Sblendid.adapter.when(event, condition, timeout);
   }
 
-  // todo types!!!
-  public async run<E extends EventName>(
-    action: () => void | Promise<void>,
-    when: () => Promise<EventParameters<E>>,
-    end?: () => void | Promise<void>
-  ): Promise<EventParameters<E>> {
+  public async run<E extends Event>(
+    action: Action,
+    when: When<E>,
+    end?: End
+  ): Promise<Params<E>> {
     return await Sblendid.adapter.run<E>(action, when, end);
   }
 
   private getDiscoverListener(
     scanListener?: ScanListener
-  ): EventListener<"discover"> | undefined {
+  ): Listener<"discover"> | undefined {
     if (!scanListener) return undefined;
-    return (...args: EventParameters<"discover">): void => {
+    return (...args: Params<"discover">): void => {
       scanListener(new Peripheral(...args));
     };
-  }
-
-  private hasName(advertisement: Advertisement, name: string): boolean {
-    return advertisement.localName === name;
   }
 }
