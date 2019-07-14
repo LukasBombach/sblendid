@@ -5,8 +5,7 @@ import Bindings, {
   Advertisement,
   EventName,
   EventListener,
-  EventParameters,
-  AddressType
+  EventParameters
 } from "../types/bindings";
 
 export type ScanListener = (peripheral: Peripheral) => void;
