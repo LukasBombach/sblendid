@@ -15,6 +15,17 @@ export default class Adapter {
     this.bindings = bindings;
   }
 
+  // todo types!!!
+  async run<E extends EventName>(
+    action: () => void | Promise<void>,
+    when: () => Promise<EventParameters<E>>,
+    end?: () => void | Promise<void>
+  ): Promise<EventParameters<E>> {
+    const [eventParameters] = await Promise.all([when(), action()]);
+    if (end) await end();
+    return eventParameters;
+  }
+
   on<E extends EventName>(event: E, listener: EventListener<E>): void {
     this.bindings.on(event, listener);
   }
