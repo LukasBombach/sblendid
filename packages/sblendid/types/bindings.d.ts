@@ -1,6 +1,3 @@
-import { EventEmitter } from "events";
-import StrictEventEmitter from "strict-event-emitter-types";
-
 export type EventName = keyof Events;
 export type EventListener<N extends EventName> = Events[N];
 export type EventParameters<N extends EventName> = Parameters<EventListener<N>>;
@@ -208,6 +205,12 @@ export interface Events {
   scanStart: () => void;
 
   scanStop: () => void;
+}
+
+declare module "sblendid-bindings-macos" {
+  // const bindings : Bindings
+  // export default Bindings;
+  export default const bindings: Bindings;
 }
 
 export default Bindings;
