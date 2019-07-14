@@ -208,9 +208,7 @@ export interface Events {
 }
 
 declare module "sblendid-bindings-macos" {
-  // const bindings : Bindings
-  // export default Bindings;
-  export default const bindings: Bindings;
+  export const bindings: Bindings;
 }
 
 export default Bindings;

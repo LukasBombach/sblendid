@@ -1,4 +1,4 @@
-import BindingsMacOs from "sblendid-bindings-macos";
+import { bindings } from "sblendid-bindings-macos";
 import Peripheral from "./peripheral";
 import Adapter, { Condition, Action, When, End } from "./adapter";
 import Bindings, {
@@ -10,8 +10,8 @@ import Bindings, {
 export type ScanListener = (peripheral: Peripheral) => void;
 
 export default class Sblendid {
-  public static adapter: Adapter = new Adapter(BindingsMacOs);
-  public static bindings: Bindings = BindingsMacOs;
+  public static adapter: Adapter = new Adapter(bindings);
+  public static bindings: Bindings = bindings;
   private scanListener?: Listener<"discover">;
 
   static async connect(name: string): Promise<Peripheral> {
