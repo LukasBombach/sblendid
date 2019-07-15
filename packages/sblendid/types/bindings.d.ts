@@ -1,5 +1,3 @@
-import { EventEmitter } from "events";
-
 export type EventName = keyof Events;
 export type EventListener<N extends EventName> = Events[N];
 export type EventParameters<N extends EventName> = Parameters<EventListener<N>>;
