@@ -31,7 +31,7 @@ export default class Adapter extends Bindings {
   }
 
   // todo fucking any
-  public when<E extends Event>(event: E, filter: Condition<E>): Promise<Params<E>> {
+  public when<E extends Event>(event: E, filter?: Condition<E>): Promise<Params<E>> {
     const multiArgs = true;
     return promisedEvent<E, Params<E>>(this as any, event, { filter, multiArgs } as any);
   }

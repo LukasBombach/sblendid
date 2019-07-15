@@ -9,16 +9,16 @@ export default class Sblendid {
   public adapter: Adapter;
   private scanListener?: EventListener<"discover">;
 
-  constructor(bindings?: Bindings) {
-    this.adapter = Adapter.withBindings(bindings || MacOs.bindings);
-  }
-
   static async connect(name: string, bindings?: Bindings): Promise<Peripheral> {
     const sblendid = new Sblendid(bindings);
     await sblendid.powerOn();
     const peripheral = await sblendid.find(name);
     await peripheral.connect();
     return peripheral;
+  }
+
+  constructor(bindings?: Bindings) {
+    this.adapter = Adapter.withBindings(bindings || MacOs.bindings);
   }
 
   public async powerOn(): Promise<void> {
@@ -34,7 +34,7 @@ export default class Sblendid {
       () => this.adapter.when("discover", (...a) => a[4].localName === name),
       () => this.adapter.stopScanning()
     );
-    return new Peripheral(...peripheral);
+    return new Peripheral(this.adapter, ...peripheral);
   }
 
   public startScanning(scanListener?: ScanListener): void {
@@ -54,7 +54,7 @@ export default class Sblendid {
   private getDiscoverListener(scanListener?: ScanListener): EventListener<"discover"> | undefined {
     if (!scanListener) return undefined;
     return (...args: EventParameters<"discover">): void => {
-      scanListener(new Peripheral(...args));
+      scanListener(new Peripheral(this.adapter, ...args));
     };
   }
 }

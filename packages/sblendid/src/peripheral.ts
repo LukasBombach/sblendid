@@ -1,5 +1,6 @@
 import Sblendid from "./index";
 import { AddressType, Advertisement } from "../types/bindings";
+import Adapter from "./adapter";
 
 export type PeripheralState =
   | "connecting"
@@ -9,6 +10,7 @@ export type PeripheralState =
   | "error";
 
 export default class Peripheral {
+  public readonly adapter: Adapter;
   public readonly uuid: string;
   public readonly address: string;
   public readonly addressType: string;
@@ -19,6 +21,7 @@ export default class Peripheral {
   public readonly state: PeripheralState;
 
   constructor(
+    adapter: Adapter,
     uuid: string,
     address: string,
     addressType: AddressType,
@@ -26,6 +29,7 @@ export default class Peripheral {
     advertisement: Advertisement,
     rssi: number
   ) {
+    this.adapter = adapter;
     this.uuid = uuid;
     this.address = address;
     this.addressType = addressType;
@@ -35,34 +39,32 @@ export default class Peripheral {
   }
 
   public async connect(): Promise<void> {
-    await Promise.all([
-      Sblendid.adapter.when("connect"),
-      Sblendid.adapter.connect(this.uuid)
-    ]);
+    await this.adapter.run(
+      () => this.adapter.connect(this.uuid),
+      () => this.adapter.when("connect")
+    );
   }
 
   public async disconnect(): Promise<void> {
-    await Promise.all([
-      Sblendid.adapter.when("disconnect"),
-      Sblendid.adapter.disconnect(this.uuid)
-    ]);
+    await this.adapter.run(
+      () => this.adapter.disconnect(this.uuid),
+      () => this.adapter.when("disconnect")
+    );
   }
 
   public async updateRssi(): Promise<number> {
-    const [rssi] = await Promise.all([
-      Sblendid.adapter.when("rssiUpdate"),
-      Sblendid.adapter.updateRssi(this.uuid)
-    ]);
-    return parseFloat(rssi);
+    const [, rssi] = await this.adapter.run<"rssiUpdate">(
+      () => this.adapter.updateRssi(this.uuid),
+      () => this.adapter.when("rssiUpdate")
+    );
+    return rssi;
   }
 
-  public async discoverServices(
-    filter?: BluetoothServiceUUID[]
-  ): Promise<Service[]> {
-    const [services] = await Promise.all([
-      Sblendid.adapter.when("servicesDiscover"),
-      Sblendid.adapter.discoverServices(this.uuid, filter)
-    ]);
+  public async discoverServices(filter?: BluetoothServiceUUID[]): Promise<Service[]> {
+    const services = await this.adapter.run<"servicesDiscover">(
+      () => this.adapter.discoverServices(this.uuid, filter),
+      () => this.adapter.when("servicesDiscover")
+    );
     return services;
   }
 
