@@ -1,4 +1,4 @@
-import { inherits } from "util";
+/* import { inherits } from "util";
 
 import Bindings, {
   EventName as Event,
@@ -70,3 +70,4 @@ export default class Adapter extends Bindings {
     return args[0] === condition;
   }
 }
+ */
