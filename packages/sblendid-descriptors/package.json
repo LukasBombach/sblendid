@@ -1,0 +1,6 @@
+{
+  "name": "sblendid-descriptors",
+  "version": "1.0.0",
+  "main": "src/descriptors.json",
+  "license": "MIT"
+}

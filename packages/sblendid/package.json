@@ -12,6 +12,7 @@
     "strict-event-emitter-types": "2.0.0"
   },
   "dependencies": {
+    "p-event": "4.1.0",
     "tsee": "1.2.1"
   }
 }
