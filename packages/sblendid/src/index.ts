@@ -3,11 +3,12 @@ import Bindings, { EventListener, EventParameters } from "../types/bindings";
 import Peripheral from "./peripheral";
 import Adapter from "./adapter";
 
-export type ScanListener = (peripheral: Peripheral) => void;
+type DiscoverListener = EventListener<"discover">;
+type DiscoverParams = EventParameters<"discover">;
 
 export default class Sblendid {
   public adapter: Adapter;
-  private scanListener?: EventListener<"discover">;
+  private scanListener?: DiscoverListener;
 
   static async connect(name: string, bindings?: Bindings): Promise<Peripheral> {
     const sblendid = new Sblendid(bindings);
@@ -37,10 +38,10 @@ export default class Sblendid {
     return new Peripheral(this.adapter, ...peripheral);
   }
 
-  public startScanning(scanListener?: ScanListener): void {
-    const listener = this.getDiscoverListener(scanListener);
+  public startScanning(listener?: DiscoverListener): void {
+    const mapEventToPeripheral = (...p: DiscoverParams) => new Peripheral(this.adapter, ...p);
     if (this.scanListener) this.adapter.off("discover", this.scanListener);
-    if (listener) this.adapter.on("discover", listener);
+    if (listener) this.adapter.on("discover", listener, mapEventToPeripheral);
     this.scanListener = listener;
     this.adapter.startScanning();
   }
@@ -49,12 +50,5 @@ export default class Sblendid {
     if (this.scanListener) this.adapter.off("discover", this.scanListener);
     this.scanListener = undefined;
     this.adapter.stopScanning();
-  }
-
-  private getDiscoverListener(scanListener?: ScanListener): EventListener<"discover"> | undefined {
-    if (!scanListener) return undefined;
-    return (...args: EventParameters<"discover">): void => {
-      scanListener(new Peripheral(this.adapter, ...args));
-    };
   }
 }
