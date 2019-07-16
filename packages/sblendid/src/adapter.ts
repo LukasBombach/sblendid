@@ -61,7 +61,7 @@ export default class Adapter extends Bindings {
     return eventParameters;
   }
 
-  // todo fucking any
+  // todo fucking any, same reason as for the typecast above
   public when<E extends Event>(event: E, filter?: Condition<E>): Promise<Params<E>> {
     return promisedEvent<E, Params<E>>(this as any, event, { filter, multiArgs: true } as any);
   }
