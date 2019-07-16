@@ -3,12 +3,9 @@ import Bindings, { EventListener, EventParameters } from "../types/bindings";
 import Peripheral from "./peripheral";
 import Adapter from "./adapter";
 
-type DiscoverListener = EventListener<"discover">;
-type DiscoverParams = EventParameters<"discover">;
-
 export default class Sblendid {
   public adapter: Adapter;
-  private scanListener?: DiscoverListener;
+  private scanListener?: EventListener<"discover">;
 
   static async connect(name: string, bindings?: Bindings): Promise<Peripheral> {
     const sblendid = new Sblendid(bindings);
@@ -32,16 +29,15 @@ export default class Sblendid {
   public async find(name: string): Promise<Peripheral> {
     const peripheral = await this.adapter.run<"discover">(
       () => this.adapter.startScanning(),
-      () => this.adapter.when("discover", (...a) => a[4].localName === name),
+      () => this.adapter.when("discover", (...[, , , , { localName }]) => localName === name),
       () => this.adapter.stopScanning()
     );
     return new Peripheral(this.adapter, ...peripheral);
   }
 
-  public startScanning(listener?: DiscoverListener): void {
-    const mapEventToPeripheral = (...p: DiscoverParams) => new Peripheral(this.adapter, ...p);
+  public startScanning(listener?: EventListener<"discover">): void {
     if (this.scanListener) this.adapter.off("discover", this.scanListener);
-    if (listener) this.adapter.on("discover", listener, mapEventToPeripheral);
+    if (listener) this.adapter.on("discover", listener, { map: true });
     this.scanListener = listener;
     this.adapter.startScanning();
   }

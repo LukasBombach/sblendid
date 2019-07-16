@@ -15,6 +15,14 @@ export type Condition<E extends Event> = Listener<E> | Params<E> | Params<E>[0];
 
 type ListenerMap = Map<Function, Listener<Event>>;
 
+// const mapEventToPeripheral = (...p: DiscoverParams) => new Peripheral(this.adapter, ...p);
+
+type MappedFunction = Function; // Type "Function"
+export type EventOptions = EventOptionsObject | MappedFunction;
+export interface EventOptionsObject {
+  map?: MappedFunction | boolean;
+}
+
 export default class Adapter extends Bindings {
   private listenerMap: ListenerMap = new Map();
 
@@ -30,7 +38,8 @@ export default class Adapter extends Bindings {
   }
 
   // todo bad typecast
-  on<E extends Event>(event: E, listener: Listener<E>, mapFunction?: Function): void {
+  on<E extends Event>(event: E, listener: Listener<E>, options?: EventOptions): void {
+    const mapFunction = this.getMapFunction(event, options);
     if (!mapFunction) return super.on(event, listener);
     if (this.listenerMap.get(mapFunction)) return;
     const lowLevelListener = ((...args: Params<E>) => mapFunction(...args)) as Events[E];
@@ -39,8 +48,9 @@ export default class Adapter extends Bindings {
   }
 
   // todo bad typecast
-  once<E extends Event>(event: E, listener: Listener<E>, mapFunction?: Function): void {
-    if (!mapFunction) return super.once(event, listener);
+  once<E extends Event>(event: E, listener: Listener<E>, options?: EventOptions): void {
+    const mapFunction = this.getMapFunction(event, options);
+    if (!mapFunction) return super.on(event, listener);
     if (this.listenerMap.get(mapFunction)) return;
     const lowLevelListener = ((...args: Params<E>) => mapFunction(...args)) as Events[E];
     this.listenerMap.set(mapFunction, lowLevelListener);
@@ -48,8 +58,9 @@ export default class Adapter extends Bindings {
   }
 
   // todo bad typecast
-  off<E extends Event>(event: E, listener: Listener<E>, mapFunction?: Function): void {
-    if (!mapFunction) return super.off(event, listener);
+  off<E extends Event>(event: E, listener: Listener<E>, options?: EventOptions): void {
+    const mapFunction = this.getMapFunction(event, options);
+    if (!mapFunction) return super.on(event, listener);
     const lowLevelListener = this.listenerMap.get(mapFunction) as Events[E];
     if (lowLevelListener) this.listenerMap.delete(mapFunction);
     super.off<E>(event, lowLevelListener);
@@ -64,5 +75,14 @@ export default class Adapter extends Bindings {
   // todo fucking any, same reason as for the typecast above
   public when<E extends Event>(event: E, filter?: Condition<E>): Promise<Params<E>> {
     return promisedEvent<E, Params<E>>(this as any, event, { filter, multiArgs: true } as any);
+  }
+
+  // todo this should return the low level listener as well
+  private getMapFunction(event: Event, options?: EventOptions): MappedFunction | undefined {
+    if (typeof options === "undefined") return undefined;
+    if (typeof options === "function") return options;
+    if (typeof options.map === "function") return options.map;
+    if (options.map === true) return this.eventMaps[event];
+    return;
   }
 }
