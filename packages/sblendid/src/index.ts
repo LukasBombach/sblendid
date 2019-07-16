@@ -1,11 +1,11 @@
 import MacOs from "sblendid-bindings-macos";
-import Bindings, { EventListener, EventParameters } from "../types/bindings";
+import Adapter, { DiscoverListener } from "./adapter";
 import Peripheral from "./peripheral";
-import Adapter from "./adapter";
+import Bindings from "../types/bindings";
 
 export default class Sblendid {
   public adapter: Adapter;
-  private scanListener?: EventListener<"discover">;
+  private scanListener?: DiscoverListener;
 
   static async connect(name: string, bindings?: Bindings): Promise<Peripheral> {
     const sblendid = new Sblendid(bindings);
@@ -27,15 +27,14 @@ export default class Sblendid {
   }
 
   public async find(name: string): Promise<Peripheral> {
-    const peripheral = await this.adapter.run<"discover">(
+    return await this.adapter.run<"discover">(
       () => this.adapter.startScanning(),
-      () => this.adapter.when("discover", (...[, , , , { localName }]) => localName === name),
+      () => this.adapter.when("discover", peripheral => peripheral.name === name, { map: true }),
       () => this.adapter.stopScanning()
     );
-    return new Peripheral(this.adapter, ...peripheral);
   }
 
-  public startScanning(listener?: EventListener<"discover">): void {
+  public startScanning(listener?: DiscoverListener): void {
     if (this.scanListener) this.adapter.off("discover", this.scanListener);
     if (listener) this.adapter.on("discover", listener, { map: true });
     this.scanListener = listener;

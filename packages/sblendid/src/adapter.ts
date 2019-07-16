@@ -1,17 +1,19 @@
 import { inherits } from "util";
 import promisedEvent from "p-event";
-
 import Bindings, {
   Events,
   EventName as Event,
   EventListener as Listener,
   EventParameters as Params
 } from "../types/bindings";
+import Peripheral from "./peripheral";
 
 export type Action = () => void | Promise<void>;
 export type When<E extends Event> = () => Promise<Params<E>>;
 export type End = () => void | Promise<void>;
 export type Condition<E extends Event> = Listener<E> | Params<E> | Params<E>[0];
+
+export type DiscoverListener = (peripheral: Peripheral) => Promise<void> | void;
 
 type ListenerMap = Map<Function, Listener<Event>>;
 
