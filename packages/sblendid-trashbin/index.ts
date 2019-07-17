@@ -5,7 +5,7 @@ import {
   EventName as Event,
   EventListener as Listener,
   EventParameters as Params
-} from "../types/bindings";
+} from "sblendid-bindings-macos";
 
 export type ScanListener = (peripheral: Peripheral) => void;
 
@@ -22,10 +22,7 @@ export default class Sblendid {
   }
 
   public async powerOn(): Promise<void> {
-    await this.run(
-      () => Sblendid.adapter.init(),
-      () => this.when("stateChange", "poweredOn")
-    );
+    await this.run(() => Sblendid.adapter.init(), () => this.when("stateChange", "poweredOn"));
   }
 
   public async find(name: string): Promise<Peripheral> {
@@ -71,17 +68,11 @@ export default class Sblendid {
     return Sblendid.adapter.when(event, condition, timeout);
   }
 
-  public async run<E extends Event>(
-    action: Action,
-    when: When<E>,
-    end?: End
-  ): Promise<Params<E>> {
+  public async run<E extends Event>(action: Action, when: When<E>, end?: End): Promise<Params<E>> {
     return await Sblendid.adapter.run<E>(action, when, end);
   }
 
-  private getDiscoverListener(
-    scanListener?: ScanListener
-  ): Listener<"discover"> | undefined {
+  private getDiscoverListener(scanListener?: ScanListener): Listener<"discover"> | undefined {
     if (!scanListener) return undefined;
     return (...args: Params<"discover">): void => {
       scanListener(new Peripheral(...args));

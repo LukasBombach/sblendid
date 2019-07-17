@@ -193,8 +193,4 @@ export interface Events {
   scanStop: () => void;
 }
 
-declare module "sblendid-bindings-macos" {
-  export const bindings: Bindings;
-}
-
 export default Bindings;

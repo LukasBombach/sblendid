@@ -4,7 +4,7 @@ import Bindings, {
   EventName as Event,
   EventListener as Listener,
   EventParameters as Params
-} from "../types/bindings";
+} from "sblendid-bindings-macos";
 
 export type Action = () => void | Promise<void>;
 export type When<E extends Event> = () => Promise<Params<E>>;

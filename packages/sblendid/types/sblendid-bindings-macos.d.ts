@@ -1,1 +1,1 @@
-declare module "sblendid-bindings-macos" {}
+// declare module "sblendid-bindings-macos" {}

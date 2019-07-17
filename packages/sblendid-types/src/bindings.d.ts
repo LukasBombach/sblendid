@@ -1,6 +1,3 @@
-import { EventEmitter } from "events";
-import StrictEventEmitter from "strict-event-emitter-types";
-
 export type EventName = keyof Events;
 export type EventListener<N extends EventName> = Events[N];
 export type EventParameters<N extends EventName> = Parameters<EventListener<N>>;
@@ -19,10 +16,7 @@ export interface Advertisement {
 declare class Bindings {
   init(): void;
 
-  startScanning(
-    serviceUuids?: BluetoothServiceUUID[],
-    allowDuplicates?: boolean
-  ): void;
+  startScanning(serviceUuids?: BluetoothServiceUUID[], allowDuplicates?: boolean): void;
 
   stopScanning(): void;
 
@@ -32,10 +26,7 @@ declare class Bindings {
 
   updateRssi(peripheralUuid: string): void;
 
-  discoverServices(
-    peripheralUuid: string,
-    serviceUuids: BluetoothServiceUUID[]
-  ): void;
+  discoverServices(peripheralUuid: string, serviceUuids: BluetoothServiceUUID[]): void;
 
   discoverIncludedServices(
     peripheralUuid: string,
@@ -100,12 +91,7 @@ declare class Bindings {
 
   readHandle(peripheralUuid: string, handle: number): void;
 
-  writeHandle(
-    peripheralUuid: string,
-    handle: number,
-    data: Buffer,
-    withoutResponse: boolean
-  ): void;
+  writeHandle(peripheralUuid: string, handle: number, data: Buffer, withoutResponse: boolean): void;
 
   on<E extends EventName>(event: E, listener: EventListener<E>): void;
 
@@ -132,10 +118,7 @@ export interface Events {
 
   rssiUpdate: (peripheralUuid: string, rssi: number) => void;
 
-  servicesDiscover: (
-    peripheralUuid: string,
-    serviceUuids: BluetoothServiceUUID[]
-  ) => void;
+  servicesDiscover: (peripheralUuid: string, serviceUuids: BluetoothServiceUUID[]) => void;
 
   includedServicesDiscover: (
     peripheralUuid: string,

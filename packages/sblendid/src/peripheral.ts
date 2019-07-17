@@ -1,4 +1,4 @@
-import { AddressType, Advertisement } from "../types/bindings";
+import { AddressType, Advertisement } from "sblendid-bindings-macos";
 import Adapter from "./adapter";
 
 export type PeripheralState =

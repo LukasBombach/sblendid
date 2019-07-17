@@ -1,7 +1,7 @@
-import MacOs from "sblendid-bindings-macos";
-import Bindings, { EventListener, EventParameters } from "../types/bindings";
-import Peripheral from "./peripheral";
+import * as MacOs from "sblendid-bindings-macos";
+import { Bindings, EventListener, EventParameters } from "sblendid-bindings-macos";
 import Adapter from "./adapter";
+import Peripheral from "./peripheral";
 
 export type ScanListener = (peripheral: Peripheral) => void;
 

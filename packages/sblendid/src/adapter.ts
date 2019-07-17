@@ -1,16 +1,15 @@
 import { inherits } from "util";
+import { Bindings, EventName, EventListener, EventParameters } from "sblendid-bindings-macos";
 import promisedEvent from "p-event";
 
-import Bindings, {
-  EventName as Event,
-  EventListener as Listener,
-  EventParameters as Params
-} from "../types/bindings";
+export type Action = () => Promise<void> | void;
+export type When<E extends EventName> = () => Promise<EventParameters<E>>;
+export type End = () => Promise<void> | void;
 
-export type Action = () => void | Promise<void>;
-export type When<E extends Event> = () => Promise<Params<E>>;
-export type End = () => void | Promise<void>;
-export type Condition<E extends Event> = Listener<E> | Params<E> | Params<E>[0];
+export type Condition<E extends EventName> =
+  | EventListener<E>
+  | EventParameters<E>
+  | EventParameters<E>[0];
 
 export default class Adapter extends Bindings {
   private constructor() {
@@ -24,15 +23,19 @@ export default class Adapter extends Bindings {
     return new BoundAdapter() as Bindings & Adapter;
   }
 
-  async run<E extends Event>(action: Action, when: When<E>, end?: End): Promise<Params<E>> {
+  async run<E extends EventName>(
+    action: Action,
+    when: When<E>,
+    end?: End
+  ): Promise<EventParameters<E>> {
     const [eventParameters] = await Promise.all([when(), action()]);
     if (end) await end();
     return eventParameters;
   }
 
   // todo fucking any
-  public when<E extends Event>(event: E, filter?: Condition<E>): Promise<Params<E>> {
+  public when<E extends EventName>(event: E, filter?: Condition<E>): Promise<EventParameters<E>> {
     const multiArgs = true;
-    return promisedEvent<E, Params<E>>(this as any, event, { filter, multiArgs } as any);
+    return promisedEvent<E, EventParameters<E>>(this as any, event, { filter, multiArgs } as any);
   }
 }
