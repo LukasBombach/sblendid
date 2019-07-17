@@ -14,6 +14,22 @@ declare module "sblendid-bindings-macos" {
     serviceData?: Buffer;
   }
 
+  export interface NobleCharacteristic {
+    uuid: string;
+    properties: NobleCharacteristicProperty[];
+  }
+
+  export type NobleCharacteristicProperty =
+    | "broadcast"
+    | "read"
+    | "writeWithoutResponse"
+    | "write"
+    | "notify"
+    | "indicate"
+    | "authenticatedSignedWrites"
+    | "reliableWrite"
+    | "writableAuxiliaries";
+
   export class Bindings {
     init(): void;
 
@@ -135,7 +151,7 @@ declare module "sblendid-bindings-macos" {
     characteristicsDiscover: (
       peripheralUuid: string,
       serviceUuid: BluetoothServiceUUID,
-      characteristics: BluetoothCharacteristicUUID[]
+      characteristics: NobleCharacteristic[]
     ) => void;
 
     read: (

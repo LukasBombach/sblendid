@@ -28,14 +28,12 @@ export default class Service {
     return this.characteristics;
   }
 
-  // todo why is that typecast necessary
   private async fetchCharacteristics(): Promise<Characteristic[]> {
-    const eventData = await this.adapter.run<"characteristicsDiscover">(
+    const [, , characteristics] = await this.adapter.run<"characteristicsDiscover">(
       () => this.adapter.discoverCharacteristics(this.peripheral.uuid, this.uuid, []),
-      () => this.adapter.when("characteristicsDiscover", (p, s) => this.isThisService(p, s))
+      () => this.adapter.when("characteristicsDiscover", ([p, s]) => this.isThisService(p, s))
     );
-    const characteristicUuids = eventData[2] as BluetoothCharacteristicUUID[];
-    return characteristicUuids.map(uuid => new Characteristic(uuid));
+    return characteristics.map(characteristic => new Characteristic(characteristic));
   }
 
   private isThisService(peripheralUuid: string, serviceUuid: BluetoothServiceUUID): boolean {

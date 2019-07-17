@@ -65,7 +65,7 @@ export default class Peripheral {
   private async fetchServices(filter: UUID[] = []): Promise<Service[]> {
     const [, serviceUuids] = await this.adapter.run<"servicesDiscover">(
       () => this.adapter.discoverServices(this.uuid, filter),
-      () => this.adapter.when("servicesDiscover", uuid => uuid === this.uuid)
+      () => this.adapter.when("servicesDiscover", ([uuid]) => uuid === this.uuid)
     );
     return serviceUuids.map(uuid => new Service(this, uuid));
   }
