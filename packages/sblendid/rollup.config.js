@@ -24,7 +24,7 @@ export default {
   plugins: [
     resolve({ preferBuiltins: true }),
     commonjs(),
-    typescriptPlugin({ typescript }),
-    terser()
+    typescriptPlugin({ typescript })
+    // terser()
   ]
 };

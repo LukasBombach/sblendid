@@ -1,4 +1,5 @@
 import { inherits } from "util";
+
 import { Bindings, EventName, EventListener, EventParameters } from "sblendid-bindings-macos";
 import promisedEvent from "p-event";
 
@@ -12,16 +13,12 @@ export type Condition<E extends EventName> =
   | EventParameters<E>[0];
 
 export default class Adapter extends Bindings {
-  private constructor() {
-    super();
-  }
-
-  public static withBindings(bindings: Bindings): Bindings & Adapter {
+  /* public static withBindings(bindings: Bindings): Bindings & Adapter {
     class BoundAdapter {}
     inherits(BoundAdapter, bindings.constructor);
     inherits(BoundAdapter, Adapter);
     return new BoundAdapter() as Bindings & Adapter;
-  }
+  } */
 
   async run<E extends EventName>(
     action: Action,
@@ -36,6 +33,7 @@ export default class Adapter extends Bindings {
   // todo fucking any
   public when<E extends EventName>(event: E, filter?: Condition<E>): Promise<EventParameters<E>> {
     const multiArgs = true;
+    //const filter = condidion
     return promisedEvent<E, EventParameters<E>>(this as any, event, { filter, multiArgs } as any);
   }
 }

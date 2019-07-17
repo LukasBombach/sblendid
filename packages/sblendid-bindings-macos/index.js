@@ -4,4 +4,5 @@ const NobleMac = require("./native/noble_mac").NobleMac;
 
 util.inherits(NobleMac, events.EventEmitter);
 
+module.exports.Bindings = NobleMac;
 module.exports.bindings = new NobleMac();

@@ -1,4 +1,4 @@
-import { AddressType, Advertisement } from "sblendid-bindings-macos";
+import { Bindings, AddressType, Advertisement } from "sblendid-bindings-macos";
 import Adapter from "./adapter";
 
 export type PeripheralState =
@@ -9,7 +9,7 @@ export type PeripheralState =
   | "error";
 
 export default class Peripheral {
-  public readonly adapter: Adapter;
+  public readonly adapter: Adapter & Bindings;
   public readonly uuid: string;
   public readonly address?: string;
   public readonly addressType?: string;
@@ -20,7 +20,7 @@ export default class Peripheral {
   // public readonly state: PeripheralState;
 
   constructor(
-    adapter: Adapter,
+    adapter: Adapter & Bindings,
     uuid: string,
     address?: string,
     addressType?: AddressType,

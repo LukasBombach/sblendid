@@ -9,8 +9,7 @@
   "license": "MIT",
   "scripts": {
     "build": "rollup -c",
-    "dev": "rollup -c -w",
-    "dev-exec": "ts-node -O '{\"module\": \"commonjs\"}' ./development.ts"
+    "dev": "ts-node -O '{\"module\": \"commonjs\"}' --project tsconfig.json ./development.ts"
   },
   "devDependencies": {
     "@types/noble": "0.0.39",

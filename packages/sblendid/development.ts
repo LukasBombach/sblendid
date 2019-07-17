@@ -1,4 +1,15 @@
-import * as MacOs from "sblendid-bindings-macos";
 import Sblendid from "./src";
 
-const sblendid = new Sblendid(MacOs.bindings);
+(async () => {
+  const sblendid = new Sblendid();
+
+  console.log("Powering on...");
+  await sblendid.powerOn();
+  console.log("Powered on!");
+
+  console.log("Startings to scan...");
+  sblendid.startScanning(peripheral => {
+    console.log("Found Peripheral");
+    console.log(peripheral);
+  });
+})();

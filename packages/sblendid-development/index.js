@@ -1,4 +1,7 @@
-const MacOs = require("sblendid-bindings-macos");
 const Sblendid = require("sblendid");
 
-const sblendid = new Sblendid(MacOs.bindings);
+const sblendid = new Sblendid();
+
+sblendid.startScanning(peripheral => {
+  console.log(peripheral);
+});
