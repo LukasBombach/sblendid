@@ -1,4 +1,3 @@
-import Sblendid from "./index";
 import { AddressType, Advertisement } from "../types/bindings";
 import Adapter from "./adapter";
 

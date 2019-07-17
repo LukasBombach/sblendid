@@ -1,33 +1,38 @@
-import Bindings, { Events, EventName, EventListener, EventParameters, State } from "../types/bindings";
-import Peripheral from "./peripheral";
+import { inherits } from "util";
+import promisedEvent from "p-event";
 
-export interface EventOptions {
-  map?: boolean;
-}
+import Bindings, {
+  EventName as Event,
+  EventListener as Listener,
+  EventParameters as Params
+} from "../types/bindings";
 
-export type MappedListener<E extends EventName> = (ReturnType<>);
-
-type ListenerMappers = Record<EventName, Function>
+export type Action = () => void | Promise<void>;
+export type When<E extends Event> = () => Promise<Params<E>>;
+export type End = () => void | Promise<void>;
+export type Condition<E extends Event> = Listener<E> | Params<E> | Params<E>[0];
 
 export default class Adapter extends Bindings {
-  private m: Record<EventName, Function> = {
-    discover: (...p: EventParameters<"discover">) => new Peripheral(this, ...p),
-  };
+  private constructor() {
+    super();
+  }
 
-  on<E extends EventName>(event: E, listener: EventListener<E>): void;
-  on<E extends EventName>(event: E, listener: MappedListener, options: EventOptions): void;
-  on<E extends EventName>(
-    event: E,
-    listener: EventListener<E> | MappedListener,
-    options?: EventOptions
-  ): void {
-    if (options && options.map) {
-      const lowLevelListener = (...args: EventParameters<E>) => {
-        listener as MappedListener(this.m[event](...args));
-      };
-      super.on(event, lowLevelListener);
-    } else {
-      super.on(event, listener as EventListener<E>);
-    }
+  public static withBindings(bindings: Bindings): Bindings & Adapter {
+    class BoundAdapter {}
+    inherits(BoundAdapter, bindings.constructor);
+    inherits(BoundAdapter, Adapter);
+    return new BoundAdapter() as Bindings & Adapter;
+  }
+
+  async run<E extends Event>(action: Action, when: When<E>, end?: End): Promise<Params<E>> {
+    const [eventParameters] = await Promise.all([when(), action()]);
+    if (end) await end();
+    return eventParameters;
+  }
+
+  // todo fucking any
+  public when<E extends Event>(event: E, filter?: Condition<E>): Promise<Params<E>> {
+    const multiArgs = true;
+    return promisedEvent<E, Params<E>>(this as any, event, { filter, multiArgs } as any);
   }
 }

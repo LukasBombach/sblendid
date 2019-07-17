@@ -5,8 +5,8 @@ import Bindings, {
   EventName as Event,
   EventListener as Listener,
   EventParameters as Params
-} from "../types/bindings";
-import Peripheral from "./peripheral";
+} from "../../sblendid/types/bindings";
+import Peripheral from "../../sblendid/src/peripheral";
 
 export type Action = () => void | Promise<void>;
 export type When<E extends Event> = () => Promise<Params<E>>;
