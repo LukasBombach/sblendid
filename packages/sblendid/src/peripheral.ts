@@ -1,23 +1,18 @@
 import { Bindings, AddressType, Advertisement } from "sblendid-bindings-macos";
 import Adapter from "./adapter";
+import Service from "./service";
 
-export type PeripheralState =
-  | "connecting"
-  | "connected"
-  | "disconnecting"
-  | "disconnected"
-  | "error";
+type UUID = BluetoothServiceUUID;
 
 export default class Peripheral {
-  public readonly adapter: Adapter & Bindings;
+  public readonly adapter: Adapter;
   public readonly uuid: string;
   public readonly address?: string;
   public readonly addressType?: string;
   public readonly connectable?: boolean;
   public readonly advertisement?: Advertisement;
-  public readonly rssi?: number;
-  // public readonly services: Service[];
-  // public readonly state: PeripheralState;
+  public rssi?: number;
+  public services?: Service[];
 
   constructor(
     adapter: Adapter & Bindings,
@@ -40,32 +35,46 @@ export default class Peripheral {
   public async connect(): Promise<void> {
     await this.adapter.run(
       () => this.adapter.connect(this.uuid),
-      () => this.adapter.when("connect")
+      () => this.adapter.when("connect", () => true)
     );
   }
 
   public async disconnect(): Promise<void> {
     await this.adapter.run(
       () => this.adapter.disconnect(this.uuid),
-      () => this.adapter.when("disconnect")
+      () => this.adapter.when("disconnect", () => true)
     );
   }
 
-  public async updateRssi(): Promise<number> {
+  public async init(): Promise<this> {
+    this.services = await this.fetchServices();
+    for (const service of this.services) await service.init();
+    return this;
+  }
+
+  public async updateRssi(): Promise<this> {
+    this.rssi = await this.fetchRssi();
+    return this;
+  }
+
+  public async getServices(filter?: UUID[]): Promise<Service[]> {
+    if (!this.services) this.services = await this.fetchServices(filter);
+    return this.services;
+  }
+
+  private async fetchServices(filter: UUID[] = []): Promise<Service[]> {
+    const [, serviceUuids] = await this.adapter.run<"servicesDiscover">(
+      () => this.adapter.discoverServices(this.uuid, filter),
+      () => this.adapter.when("servicesDiscover", uuid => uuid === this.uuid)
+    );
+    return serviceUuids.map(uuid => new Service(uuid));
+  }
+
+  private async fetchRssi(): Promise<number> {
     const [, rssi] = await this.adapter.run<"rssiUpdate">(
       () => this.adapter.updateRssi(this.uuid),
-      () => this.adapter.when("rssiUpdate")
+      () => this.adapter.when("rssiUpdate", uuid => uuid === this.uuid)
     );
     return rssi;
   }
-
-  // public async discoverServices(filter?: BluetoothServiceUUID[]): Promise<Service[]> {
-  //   const services = await this.adapter.run<"servicesDiscover">(
-  //     () => this.adapter.discoverServices(this.uuid, filter),
-  //     () => this.adapter.when("servicesDiscover")
-  //   );
-  //   return services;
-  // }
-
-  // public async discoverAllServicesAndCharacteristics(): Promise<Service[]> {}
 }

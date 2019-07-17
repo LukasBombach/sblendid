@@ -1,5 +1,4 @@
-import * as MacOs from "sblendid-bindings-macos";
-import { Bindings, EventListener, EventParameters } from "sblendid-bindings-macos";
+import { EventListener, EventParameters } from "sblendid-bindings-macos";
 import Adapter from "./adapter";
 import Peripheral from "./peripheral";
 
@@ -9,31 +8,22 @@ export default class Sblendid {
   public adapter: Adapter;
   private scanListener?: EventListener<"discover">;
 
-  static async connect(name: string /* , bindings?: Bindings */): Promise<Peripheral> {
-    const sblendid = new Sblendid(/* bindings */);
+  static async connect(name: string): Promise<Peripheral> {
+    const sblendid = new Sblendid();
     await sblendid.powerOn();
     const peripheral = await sblendid.find(name);
     await peripheral.connect();
     return peripheral;
   }
 
-  constructor(/* bindings?: Bindings */) {
-    //this.adapter = Adapter.withBindings(bindings || MacOs.bindings);
+  constructor() {
     this.adapter = new Adapter();
   }
 
   public async powerOn(): Promise<void> {
     await this.adapter.run(
-      () => {
-        console.log("calling init");
-        this.adapter.init();
-      },
-      () => {
-        return this.adapter.when("stateChange", ([state]) => {
-          console.log(state);
-          return state === "poweredOn";
-        });
-      }
+      () => this.adapter.init(),
+      () => this.adapter.when("stateChange", ([state]) => state === "poweredOn")
     );
   }
 
