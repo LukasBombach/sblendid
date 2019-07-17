@@ -67,7 +67,7 @@ export default class Peripheral {
       () => this.adapter.discoverServices(this.uuid, filter),
       () => this.adapter.when("servicesDiscover", uuid => uuid === this.uuid)
     );
-    return serviceUuids.map(uuid => new Service(uuid));
+    return serviceUuids.map(uuid => new Service(this, uuid));
   }
 
   private async fetchRssi(): Promise<number> {

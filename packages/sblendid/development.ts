@@ -3,6 +3,7 @@ import Sblendid from "./src";
 (async () => {
   const sblendid = new Sblendid();
   let i = 0;
+  const timeout = 5000;
 
   console.log("Powering on...");
   await sblendid.powerOn();
@@ -23,11 +24,18 @@ import Sblendid from "./src";
       console.log(localName, `(${rssi})`, `(${uuid})`);
       console.log(serviceUuids);
       if (++i >= 3) {
-        console.log(`Stopping scanning after ${i} peripherals`);
+        console.log(`Stopping to scan after ${i} peripherals`);
         await sblendid.stopScanning();
         console.log("Stopped");
         process.exit();
       }
     }
   });
+  setTimeout(async () => {
+    console.log("");
+    console.log(`Stopping to scan after ${timeout / 1000}s`);
+    await sblendid.stopScanning();
+    console.log("Stopped");
+    process.exit();
+  }, timeout);
 })();
