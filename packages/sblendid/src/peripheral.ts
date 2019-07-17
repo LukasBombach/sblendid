@@ -12,22 +12,22 @@ export type PeripheralState =
 export default class Peripheral {
   public readonly adapter: Adapter;
   public readonly uuid: string;
-  public readonly address: string;
-  public readonly addressType: string;
-  public readonly connectable: boolean;
-  public readonly advertisement: Advertisement;
-  public readonly rssi: number;
+  public readonly address?: string;
+  public readonly addressType?: string;
+  public readonly connectable?: boolean;
+  public readonly advertisement?: Advertisement;
+  public readonly rssi?: number;
   public readonly services: Service[];
   public readonly state: PeripheralState;
 
   constructor(
     adapter: Adapter,
     uuid: string,
-    address: string,
-    addressType: AddressType,
-    connectable: boolean,
-    advertisement: Advertisement,
-    rssi: number
+    address?: string,
+    addressType?: AddressType,
+    connectable?: boolean,
+    advertisement?: Advertisement,
+    rssi?: number
   ) {
     this.adapter = adapter;
     this.uuid = uuid;
