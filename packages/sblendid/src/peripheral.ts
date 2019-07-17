@@ -16,8 +16,8 @@ export default class Peripheral {
   public readonly connectable?: boolean;
   public readonly advertisement?: Advertisement;
   public readonly rssi?: number;
-  public readonly services: Service[];
-  public readonly state: PeripheralState;
+  // public readonly services: Service[];
+  // public readonly state: PeripheralState;
 
   constructor(
     adapter: Adapter,
@@ -59,13 +59,13 @@ export default class Peripheral {
     return rssi;
   }
 
-  public async discoverServices(filter?: BluetoothServiceUUID[]): Promise<Service[]> {
-    const services = await this.adapter.run<"servicesDiscover">(
-      () => this.adapter.discoverServices(this.uuid, filter),
-      () => this.adapter.when("servicesDiscover")
-    );
-    return services;
-  }
+  // public async discoverServices(filter?: BluetoothServiceUUID[]): Promise<Service[]> {
+  //   const services = await this.adapter.run<"servicesDiscover">(
+  //     () => this.adapter.discoverServices(this.uuid, filter),
+  //     () => this.adapter.when("servicesDiscover")
+  //   );
+  //   return services;
+  // }
 
-  public async discoverAllServicesAndCharacteristics(): Promise<Service[]> {}
+  // public async discoverAllServicesAndCharacteristics(): Promise<Service[]> {}
 }
