@@ -18,27 +18,41 @@ const timeout = 500;
         peripheral.advertisement.serviceUuids.length
       ) {
         await sblendid.stopScanning();
+
         console.log("\nFound Peripheral");
         console.log(peripheral);
+
         console.log("Connecting");
         await peripheral.connect();
         console.log("Connected.");
-        // console.log("Initializing");
-        // await peripheral.init();
+
         console.log("Requesting services");
         const services = await peripheral.getServices();
         console.log(`Fetched ${services.length} services`);
+
         console.log("Requesting characteristics");
         const characteristics = await services[0].getCharacteristics();
-        for (const characteristic of characteristics) {
-          //console.log(require("util").inspect(characteristic, { depth: 10 }));
-          console.log("Reading characteristic", characteristic.uuid);
-          if (characteristic.properties.read) {
-            const buffer = await characteristic.read();
-            console.log("Got", buffer.toString("hex"));
-            process.exit();
-          }
+        console.log(`Fetched ${characteristics.length} characteristics`);
+
+        const readableCharacteristic = characteristics.find(c => c.read);
+        const writableCharacteristic = characteristics.find(c => c.write);
+
+        if (readableCharacteristic) {
+          console.log("Reading characteristic", readableCharacteristic.uuid);
+          const buffer = await readableCharacteristic.read();
+          console.log("Got", buffer.toString("hex"));
+        } else {
+          console.log("Did not find characteristic for reading");
         }
+
+        if (writableCharacteristic) {
+          console.log("Writing characteristic", writableCharacteristic.uuid);
+          await writableCharacteristic.write(Buffer.from(""));
+          console.log("Done");
+        } else {
+          console.log("Did not find characteristic for writing");
+        }
+
         process.exit();
       }
     });

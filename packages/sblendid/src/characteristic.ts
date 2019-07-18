@@ -53,7 +53,15 @@ export default class Characteristic {
     return buffer;
   }
 
-  public async write(value: Buffer): Promise<void> {}
+  public async write(value: Buffer, withoutResponse?: boolean): Promise<void> {
+    if (typeof withoutResponse !== "undefined")
+      throw new Error("withoutResponse is not Implemented yet");
+    const { peripheralUuid, serviceUuid, uuid } = this;
+    await this.adapter.run<"write">(
+      () => this.adapter.write(peripheralUuid, serviceUuid, uuid, value, true),
+      () => this.adapter.when("write", ([p, s, c]) => this.isThisCharacteristic(p, s, c))
+    );
+  }
 
   public async notify(listener: (value: Buffer) => Promise<void> | void): Promise<void> {}
 
