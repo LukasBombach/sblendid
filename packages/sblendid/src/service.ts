@@ -33,7 +33,7 @@ export default class Service {
       () => this.adapter.discoverCharacteristics(this.peripheral.uuid, this.uuid, []),
       () => this.adapter.when("characteristicsDiscover", ([p, s]) => this.isThisService(p, s))
     );
-    return characteristics.map(characteristic => new Characteristic(characteristic));
+    return characteristics.map(characteristic => new Characteristic(this, characteristic));
   }
 
   private isThisService(peripheralUuid: string, serviceUuid: BluetoothServiceUUID): boolean {

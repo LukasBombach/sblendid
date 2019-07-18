@@ -31,7 +31,13 @@ const timeout = 500;
         console.log("Requesting characteristics");
         const characteristics = await services[0].getCharacteristics();
         for (const characteristic of characteristics) {
-          console.log(require("util").inspect(characteristic, { depth: 10 }));
+          //console.log(require("util").inspect(characteristic, { depth: 10 }));
+          console.log("Reading characteristic", characteristic.uuid);
+          if (characteristic.properties.read) {
+            const buffer = await characteristic.read();
+            console.log("Got", buffer.toString("hex"));
+            process.exit();
+          }
         }
         process.exit();
       }
