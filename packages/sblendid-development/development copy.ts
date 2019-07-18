@@ -1,4 +1,4 @@
-import Sblendid from "./src";
+import Sblendid from "../sblendid/src";
 
 (async () => {
   const sblendid = new Sblendid();

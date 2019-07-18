@@ -1,4 +1,9 @@
-# sblendid
+# S*ble*ndid
 
-This is just a placeholder right now, but I promise I will work on this and
-get this tob 1.0.0
+Reimplementation of Noble but
+
+- [x] Completely typed and written in TypeScript
+- [x] Has Promises!
+- [x] Improved high-level API and full access to low-level API
+- [x] Completely configurable Bluetooth adapters to make it work on all devices and OSs
+- [x] Works with the latest macOS

@@ -1,4 +1,4 @@
-import Sblendid from "./src";
+import Sblendid from "../sblendid/src";
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 const timeout = 500;
