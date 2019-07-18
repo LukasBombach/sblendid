@@ -21,13 +21,19 @@ npm i sblendid --save
 ```js
 import Sblendid from "sblendid";
 
+// Find a Peripheral called "Bluetooth Dongle" and
+// get the first characteristic from the first service
 const peripheral = Sblendid.connect("Bluetooth Dongle");
 const services = await peripheral.getServices();
 const characteristics = await services[0].getCharacteristics();
 
+// Read the value from the first characteristic
 const value = await characteristics[0].read();
+
+// Write a value to the first characteristic
 await characteristics[0].write("0000");
 
+// Get notified about changes
 characteristics[0].onChange(value => {
   console.log(value);
 });
@@ -38,13 +44,16 @@ characteristics[0].onChange(value => {
 ```js
 import Sblendid from "sblendid";
 
+// Initialize your bluetooth device
 const sblendid = new Sblendid();
 await sblendid.powerOn();
 
+// Start scanning and log every peripheral that is found
 sblendid.startScanning(peripheral => {
   console.log(peripheral);
 });
 
+// Stop scanning after 5000ms
 setTimeout(() => sblendid.stopScanning(), 5000);
 ```
 
@@ -53,9 +62,11 @@ setTimeout(() => sblendid.stopScanning(), 5000);
 ```js
 import Sblendid from "sblendid";
 
+// Initialize your bluetooth device
 const sblendid = new Sblendid();
 await sblendid.powerOn();
 
+// Listen for the discover event that gets called for each device that you can find
 sblendid.adapter.on(
   "discover",
   (peripheralUuid, address, addressType, connectable, advertisement, rssi) => {
@@ -63,6 +74,7 @@ sblendid.adapter.on(
   }
 );
 
+// Start scanning
 sblendid.adapter.startScanning();
 ```
 
