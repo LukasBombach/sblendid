@@ -2,11 +2,11 @@
 
 Reimplementation of Noble but
 
-- 💪 Completely typed and written in TypeScript
-- 💍 Has Promises!
-- 🎚️ Improved high-level API and full access to low-level API
-- ⚙️ Completely configurable Bluetooth adapters to make it work on all devices and OSs
-- 🆕 Works with the latest macOS (and all other OSes)
+- [x] 💪 Completely typed and written in TypeScript
+- [x] 💍 Has Promises!
+- [x] 🎚️ Improved high-level API and full access to low-level API
+- [x] ⚙️ Completely configurable Bluetooth adapters to make it work on all devices and OSs
+- [x] 🆕 Works with the latest macOS (and all other OSes)
 
 ## Installation
 
