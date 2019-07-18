@@ -38,6 +38,7 @@ characteristics[0].onChange(value => {
 ```js
 import Sblendid from "sblendid";
 
+const sblendid = new Sblendid();
 await sblendid.powerOn();
 
 sblendid.startScanning(peripheral => {
@@ -45,6 +46,24 @@ sblendid.startScanning(peripheral => {
 });
 
 setTimeout(() => sblendid.stopScanning(), 5000);
+```
+
+### Low-Level API access
+
+```js
+import Sblendid from "sblendid";
+
+const sblendid = new Sblendid();
+await sblendid.powerOn();
+
+sblendid.adapter.on(
+  "discover",
+  (peripheralUuid, address, addressType, connectable, advertisement, rssi) => {
+    // ...
+  }
+);
+
+sblendid.adapter.startScanning();
 ```
 
 ## Documentation
