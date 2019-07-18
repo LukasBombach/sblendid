@@ -11,7 +11,7 @@ Complete re-implementation of [Noble](https://github.com/noble/noble) (which is 
 ## Installation
 
 ```shell
-npm i sblendid
+npm i sblendid --save
 ```
 
 ## Usage (examples)
