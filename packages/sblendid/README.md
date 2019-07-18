@@ -98,3 +98,19 @@ Please refer to the full documentation for an complete description of the API an
 - [API Description]()
 - [Examples for common use cases]()
 - [Development]()
+
+## Maintainer
+
+<table>
+  <tbody>
+    <tr>
+      <td align="center">
+        <a href="https://github.com/LukasBombach">
+          <img width="150" height="150" src="https://github.com/LukasBombach.png?v=3&s=150">
+          </br>
+          Lukas Bombach
+        </a>
+      </td>
+    </tr>
+  <tbody>
+</table>
