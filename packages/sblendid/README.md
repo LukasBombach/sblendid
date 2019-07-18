@@ -8,6 +8,10 @@ Complete re-implementation of [Noble](https://github.com/noble/noble) (which is 
 - [x] ⚙️ Completely configurable Bluetooth adapters to make it work on all devices and OSs
 - [x] 🥳 Up to date and works with the latest versions (and the old ones) of macOS, Windows, Linux etc
 
+1. [Installation](#installation)
+1. [Usage (examples)](#usage-examples)
+1. [Documentation](#documentation)
+
 ## Installation
 
 ```shell
@@ -88,3 +92,4 @@ Please refer to the full documentation for an complete description of the API an
 - [Full documentation]()
 - [API Description]()
 - [Examples for common use cases]()
+- [Development]()
