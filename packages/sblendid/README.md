@@ -16,6 +16,7 @@ while still giving you full access to all Bluetooth Low Energy functions.
 1. [Installation](#installation)
 1. [Usage (examples)](#usage-examples)
 1. [Documentation](#documentation)
+1. [License](#license)
 
 ## Installation
 
