@@ -76,6 +76,9 @@ sblendid.adapter.on(
 
 // Start scanning
 sblendid.adapter.startScanning();
+
+// Stop scanning after 5000ms
+setTimeout(() => sblendid.adapter.stopScanning(), 5000);
 ```
 
 ## Documentation
