@@ -46,3 +46,11 @@ sblendid.startScanning(peripheral => {
 
 setTimeout(() => sblendid.stopScanning(), 5000);
 ```
+
+## Documentation
+
+Please refer to the full documentation for an complete description of the API and more examples for common use cases.
+
+- [Full documentation]()
+- [API Description]()
+- [Examples for common use cases]()
