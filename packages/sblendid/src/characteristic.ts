@@ -1,6 +1,9 @@
 import { NobleCharacteristic, NobleCharacteristicProperty } from "sblendid-bindings-macos";
 import Adapter from "./adapter";
 import Service from "./service";
+import { EventEmitter } from "events";
+
+export type Listener = (value: Buffer) => Promise<void> | void;
 
 export interface Properties {
   broadcast: boolean;
@@ -34,6 +37,8 @@ export default class Characteristic {
 
   private peripheralUuid: string;
   private serviceUuid: BluetoothServiceUUID;
+  private eventEmitter: EventEmitter;
+  private isNotifying: boolean;
 
   constructor(service: Service, { uuid, properties }: NobleCharacteristic) {
     this.adapter = service.adapter;
@@ -42,6 +47,8 @@ export default class Characteristic {
     this.peripheralUuid = this.service.peripheral.uuid;
     this.serviceUuid = this.service.uuid;
     this.properties = this.noblePropsToSblendid(properties);
+    this.eventEmitter = new EventEmitter();
+    this.isNotifying = false;
   }
 
   public async read(): Promise<Buffer> {
@@ -63,7 +70,25 @@ export default class Characteristic {
     );
   }
 
-  public async notify(listener: (value: Buffer) => Promise<void> | void): Promise<void> {}
+  public async on(event: "notify", listener: Listener): Promise<void> {
+    this.eventEmitter.on(event, listener);
+    if (!this.isNotifying) await this.notify(true);
+  }
+
+  public async off(event: "notify", listener: Listener): Promise<void> {
+    if (!this.eventEmitter.listenerCount("notify")) await this.notify(false);
+    this.eventEmitter.off(event, listener);
+  }
+
+  private async notify(notify: boolean): Promise<void> {
+    const { peripheralUuid, serviceUuid, uuid } = this;
+    const [, , , state] = await this.adapter.run<"notify">(
+      () => this.adapter.notify(peripheralUuid, serviceUuid, uuid, notify),
+      () => this.adapter.when("notify", ([p, s, c]) => this.isThisCharacteristic(p, s, c))
+    );
+    console.log("got notify state", state);
+    this.isNotifying = state === "true";
+  }
 
   private noblePropsToSblendid(nobleProperties: NobleCharacteristicProperty[]): Properties {
     const properties = Object.assign({}, defaultProperties);

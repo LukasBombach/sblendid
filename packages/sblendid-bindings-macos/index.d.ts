@@ -19,6 +19,8 @@ declare module "sblendid-bindings-macos" {
     properties: NobleCharacteristicProperty[];
   }
 
+  export type NotifyState = "true" | "false";
+
   export type NobleCharacteristicProperty =
     | "broadcast"
     | "read"
@@ -179,7 +181,7 @@ declare module "sblendid-bindings-macos" {
       peripheralUuid: string,
       serviceUuid: BluetoothServiceUUID,
       characteristicUuid: BluetoothCharacteristicUUID,
-      state: string
+      state: NotifyState
     ) => void;
 
     descriptorsDiscover: (

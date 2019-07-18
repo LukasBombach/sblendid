@@ -34,8 +34,11 @@ const timeout = 500;
         const characteristics = await services[0].getCharacteristics();
         console.log(`Fetched ${characteristics.length} characteristics`);
 
-        const readableCharacteristic = characteristics.find(c => c.read);
-        const writableCharacteristic = characteristics.find(c => c.write);
+        const readableCharacteristic = characteristics.find(({ properties }) => properties.read);
+        const writableCharacteristic = characteristics.find(({ properties }) => properties.write);
+        const notifyableCharacteristic = characteristics.find(
+          ({ properties }) => properties.notify
+        );
 
         if (readableCharacteristic) {
           console.log("Reading characteristic", readableCharacteristic.uuid);
@@ -48,6 +51,14 @@ const timeout = 500;
         if (writableCharacteristic) {
           console.log("Writing characteristic", writableCharacteristic.uuid);
           await writableCharacteristic.write(Buffer.from(""));
+          console.log("Done");
+        } else {
+          console.log("Did not find characteristic for writing");
+        }
+
+        if (notifyableCharacteristic) {
+          console.log("Writing characteristic", notifyableCharacteristic.uuid);
+          await notifyableCharacteristic.on("notify", val => console.log(val));
           console.log("Done");
         } else {
           console.log("Did not find characteristic for writing");
