@@ -11,11 +11,6 @@ Complete re-implementation of [Noble](https://github.com/noble/noble) (which is 
 The goal of this library is to make bluetooth easily accessible, with a proper developer experience
 while still giving you full access to all Bluetooth Low Energy functions.
 
-You can read some [examples](#usage-examples) below. Be sure to check out the [full documentation]()
-on how to use Sblendid and see more common use cases.
-
-If you feel you keep using low-level functions that might be abstracted to something high-level, please open an issue.
-
 ## Table of contents
 
 1. [Installation](#installation)
