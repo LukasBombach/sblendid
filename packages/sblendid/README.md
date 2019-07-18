@@ -1,12 +1,12 @@
 # S*ble*ndid
 
-Reimplementation of Noble but
+Complete re-implementation of [Noble](https://github.com/noble/noble) (which is abandoned) and
 
 - [x] 💪 Completely typed and written in TypeScript
 - [x] 💍 Has Promises!
 - [x] 🎚️ Improved high-level API and full access to low-level API
 - [x] ⚙️ Completely configurable Bluetooth adapters to make it work on all devices and OSs
-- [x] 🥳 Works with the latest macOS (and all other OSes)
+- [x] 🥳 Up to date and works with the latest versions (and the old ones) of macOS, Windows, Linux etc
 
 ## Installation
 
