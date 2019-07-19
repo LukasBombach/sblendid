@@ -19,7 +19,7 @@ declare module "sblendid-bindings-macos" {
     properties: NobleCharacteristicProperty[];
   }
 
-  export type NotifyState = "true" | "false";
+  export type NotifyState = boolean; // "true" | "false";
 
   export type NobleCharacteristicProperty =
     | "broadcast"

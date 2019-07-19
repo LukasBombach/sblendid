@@ -26,15 +26,37 @@ import Sblendid from "./src";
           // console.log("\n", chalk.dim("Requesting characteristics"), "\n");
           const characteristics = await service.getCharacteristics();
           for (const characteristic of characteristics) {
+            const descriptors = await characteristic.getDescriptors();
             const { uuid, properties } = characteristic;
             const props = Object.entries(properties)
               .map(([name, val]) => (val ? name : val))
               .filter(Boolean);
-            console.log(chalk.blue("characteristic"), { uuid, props });
+            console.log(chalk.blue("characteristic"), { uuid, props, descriptors });
           }
         }
 
-        process.exit();
+        console.log("\n");
+
+        for (const service of services) {
+          const characteristics = await service.getCharacteristics();
+          for (const characteristic of characteristics) {
+            const suuid = chalk.yellow(service.uuid.toString().substr(0, 4));
+            const cuuid = chalk.blue(characteristic.uuid.toString().substr(0, 4));
+            const read = chalk.grey("read");
+            const notify = chalk.green("notify");
+
+            if (characteristic.properties.read) {
+              const value = await characteristic.read();
+              console.log(read, suuid, cuuid, value.toString("hex"));
+            }
+
+            if (characteristic.properties.notify) {
+              characteristic.on("notify", value => {
+                console.log(notify, suuid, cuuid, value.toString("hex"));
+              });
+            }
+          }
+        }
       }
     });
   } catch (error) {

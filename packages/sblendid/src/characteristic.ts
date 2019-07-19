@@ -39,6 +39,7 @@ export default class Characteristic {
   private serviceUuid: BluetoothServiceUUID;
   private eventEmitter: EventEmitter;
   private isNotifying: boolean;
+  private descriptors?: string[];
 
   constructor(service: Service, { uuid, properties }: NobleCharacteristic) {
     this.adapter = service.adapter;
@@ -70,6 +71,11 @@ export default class Characteristic {
     );
   }
 
+  public async getDescriptors(): Promise<string[]> {
+    if (!this.descriptors) this.descriptors = await this.fetchDescriptors();
+    return this.descriptors;
+  }
+
   public async on(event: "notify", listener: Listener): Promise<void> {
     this.eventEmitter.on(event, listener);
     if (!this.isNotifying) await this.notify(true);
@@ -86,8 +92,17 @@ export default class Characteristic {
       () => this.adapter.notify(peripheralUuid, serviceUuid, uuid, notify),
       () => this.adapter.when("notify", ([p, s, c]) => this.isThisCharacteristic(p, s, c))
     );
-    console.log("got notify state", state);
-    this.isNotifying = state === "true";
+    this.isNotifying = state;
+  }
+
+  private async fetchDescriptors(): Promise<string[]> {
+    const { peripheralUuid, serviceUuid, uuid } = this;
+    const [, , , desciptors] = await this.adapter.run<"descriptorsDiscover">(
+      () => this.adapter.discoverDescriptors(peripheralUuid, serviceUuid, uuid),
+      () =>
+        this.adapter.when("descriptorsDiscover", ([p, s, c]) => this.isThisCharacteristic(p, s, c))
+    );
+    return desciptors;
   }
 
   private noblePropsToSblendid(nobleProperties: NobleCharacteristicProperty[]): Properties {
