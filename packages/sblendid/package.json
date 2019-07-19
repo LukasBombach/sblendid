@@ -9,6 +9,7 @@
   "license": "MIT",
   "scripts": {
     "build": "rollup -c",
+    "ts": "ts-node -O '{\"module\": \"commonjs\"}' --project tsconfig.json",
     "dev": "ts-node -O '{\"module\": \"commonjs\"}' --project tsconfig.json ./development.ts",
     "dev:notify": "ts-node -O '{\"module\": \"commonjs\"}' --project tsconfig.json ./development.notify.ts"
   },
@@ -16,6 +17,7 @@
     "@types/noble": "0.0.39",
     "@types/node": "12.0.12",
     "@types/web-bluetooth": "0.0.4",
+    "chalk": "2.4.2",
     "rollup": "1.17.0",
     "rollup-plugin-commonjs": "10.0.1",
     "rollup-plugin-natives": "0.5.0",

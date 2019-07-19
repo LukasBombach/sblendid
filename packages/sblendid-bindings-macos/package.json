@@ -17,8 +17,7 @@
     "cross-spawn": "^6.0.5",
     "napi-thread-safe-callback": "0.0.6",
     "node-addon-api": "^1.1.0",
-    "node-pre-gyp": "^0.10.0",
-    "sblendid-types": "0.0.1"
+    "node-pre-gyp": "^0.10.0"
   },
   "scripts": {
     "install": "node install.js",
