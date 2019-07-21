@@ -22,9 +22,12 @@ export default class Service {
     this.converters = converters;
   }
 
-  public async init(): Promise<this> {
-    this.characteristics = await this.fetchCharacteristics();
-    return this;
+  // todo types
+  public async read(name: BluetoothCharacteristicUUID | string): Promise<any> {
+    const converter = this.converters.find(c => c.name === name);
+    const uuid = converter ? converter.uuid : name;
+    const buffer = await Characteristic.read(this.adapter, this.peripheral.uuid, this.uuid, uuid);
+    return converter && converter.decode ? await converter.decode(buffer) : buffer;
   }
 
   public async getCharacteristics(): Promise<Characteristic[]> {

@@ -8,8 +8,8 @@ export type Listener = (value: Buffer) => Promise<void> | void;
 export interface CharacteristicConverter {
   uuid: string;
   name: string;
-  encode?: (...args: any[]) => Buffer;
-  decode?: (buffer: Buffer) => any;
+  encode?: (...args: any[]) => Promise<Buffer> | Buffer;
+  decode?: (buffer: Buffer) => Promise<any> | any;
 }
 
 export interface Properties {
@@ -24,7 +24,7 @@ export interface Properties {
   writableAuxiliaries: boolean;
 }
 
-const defaultProperties: Properties = {
+/* const defaultProperties: Properties = {
   broadcast: false,
   read: false,
   writeWithoutResponse: false,
@@ -36,9 +36,15 @@ const defaultProperties: Properties = {
   writableAuxiliaries: false
 };
 
+private noblePropsToSblendid(nobleProperties: NobleCharacteristicProperty[]): Properties {
+  const properties = Object.assign({}, defaultProperties);
+  for (const property of nobleProperties) properties[property] = true;
+  return properties;
+} */
+
 export default class Characteristic {
   public readonly uuid: BluetoothCharacteristicUUID;
-  public readonly properties: Properties;
+  public readonly properties?: Properties;
   public adapter: Adapter;
   public service: Service;
 
@@ -48,18 +54,32 @@ export default class Characteristic {
   private isNotifying: boolean;
   private descriptors?: string[];
 
-  constructor(service: Service, { uuid, properties }: NobleCharacteristic) {
+  public static async read(
+    adapter: Adapter,
+    peripheralUuid: string,
+    serviceUuid: BluetoothServiceUUID,
+    uuid: BluetoothCharacteristicUUID
+  ): Promise<Buffer> {
+    const uuids = [peripheralUuid, serviceUuid, uuid];
+    const [, , , buffer] = await adapter.run<"read">(
+      () => adapter.read(peripheralUuid, serviceUuid, uuid),
+      () => adapter.when("read", ([p, s, c]) => [p, s, c].every((v, i) => v === uuids[i]))
+    );
+    return buffer;
+  }
+
+  constructor(service: Service, uuid: BluetoothCharacteristicUUID, properties?: Properties) {
     this.adapter = service.adapter;
     this.service = service;
     this.uuid = uuid;
     this.peripheralUuid = this.service.peripheral.uuid;
     this.serviceUuid = this.service.uuid;
-    this.properties = this.noblePropsToSblendid(properties);
+    this.properties = properties;
     this.eventEmitter = new EventEmitter();
     this.isNotifying = false;
   }
 
-  public async read(): Promise<Buffer> {
+  /* public async read(): Promise<Buffer> {
     const { peripheralUuid, serviceUuid, uuid } = this;
     const [, , , buffer] = await this.adapter.run<"read">(
       () => this.adapter.read(peripheralUuid, serviceUuid, uuid),
@@ -76,7 +96,7 @@ export default class Characteristic {
       () => this.adapter.write(peripheralUuid, serviceUuid, uuid, value, true),
       () => this.adapter.when("write", ([p, s, c]) => this.isThisCharacteristic(p, s, c))
     );
-  }
+  } */
 
   public async getDescriptors(): Promise<string[]> {
     if (!this.descriptors) this.descriptors = await this.fetchDescriptors();
@@ -112,13 +132,7 @@ export default class Characteristic {
     return desciptors;
   }
 
-  private noblePropsToSblendid(nobleProperties: NobleCharacteristicProperty[]): Properties {
-    const properties = Object.assign({}, defaultProperties);
-    for (const property of nobleProperties) properties[property] = true;
-    return properties;
-  }
-
-  private isThisCharacteristic(
+  private static isThisCharacteristic(
     pUuid: string,
     sUuid: BluetoothServiceUUID,
     cUuid: BluetoothCharacteristicUUID
