@@ -1,6 +1,6 @@
 import Adapter from "./adapter";
 import Peripheral from "./peripheral";
-import Characteristic from "./characteristic";
+import Characteristic, { CharacteristicConverter } from "./characteristic";
 
 export default class Service {
   public readonly adapter: Adapter;
@@ -8,14 +8,18 @@ export default class Service {
   public readonly uuid: BluetoothServiceUUID;
   public readonly name?: string;
   public readonly type?: string;
+  private converters: CharacteristicConverter[];
   private characteristics?: Characteristic[];
 
-  constructor(peripheral: Peripheral, uuid: BluetoothServiceUUID, name?: string, type?: string) {
+  constructor(
+    peripheral: Peripheral,
+    uuid: BluetoothServiceUUID,
+    converters: CharacteristicConverter[] = []
+  ) {
     this.peripheral = peripheral;
     this.adapter = peripheral.adapter;
     this.uuid = uuid;
-    this.name = name;
-    this.type = type;
+    this.converters = converters;
   }
 
   public async init(): Promise<this> {

@@ -5,6 +5,13 @@ import { EventEmitter } from "events";
 
 export type Listener = (value: Buffer) => Promise<void> | void;
 
+export interface CharacteristicConverter {
+  uuid: string;
+  name: string;
+  encode?: (...args: any[]) => Buffer;
+  decode?: (buffer: Buffer) => any;
+}
+
 export interface Properties {
   broadcast: boolean;
   read: boolean;

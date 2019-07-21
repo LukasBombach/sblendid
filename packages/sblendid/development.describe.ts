@@ -12,18 +12,14 @@ import Sblendid from "./src";
       if (peripheral.connectable) {
         await sblendid.stopScanning();
 
-        // console.log("\n", chalk.dim("Found Peripheral, Connecting"), "\n");
         await peripheral.connect();
         console.log("\n", chalk.red("Peripheral"), peripheral, "\n");
 
-        // console.log("\n", chalk.dim("Requesting services"), "\n");
         const services = await peripheral.getServices();
 
         for (const service of services) {
-          const { uuid, name, type } = service;
-          console.log("\n" + chalk.yellow("service"), chalk.cyan(uuid.toString()));
+          console.log("\n" + chalk.yellow("service"), chalk.cyan(service.uuid.toString()));
 
-          // console.log("\n", chalk.dim("Requesting characteristics"), "\n");
           const characteristics = await service.getCharacteristics();
           for (const characteristic of characteristics) {
             const descriptors = await characteristic.getDescriptors();

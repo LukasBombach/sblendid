@@ -3,6 +3,7 @@ import Adapter from "./adapter";
 import Peripheral from "./peripheral";
 
 export type ScanListener = (peripheral: Peripheral) => void;
+export { CharacteristicConverter } from "./characteristic";
 
 export default class Sblendid {
   public adapter: Adapter;
@@ -30,7 +31,7 @@ export default class Sblendid {
   public async find(name: string): Promise<Peripheral> {
     const peripheral = await this.adapter.run<"discover">(
       () => this.adapter.startScanning(),
-      () => this.adapter.when("discover", (...a) => a[4].localName === name),
+      () => this.adapter.when("discover", (...args) => this.isPeripheral(args, name)),
       () => this.adapter.stopScanning()
     );
     return new Peripheral(this.adapter, ...peripheral);
@@ -55,5 +56,9 @@ export default class Sblendid {
     return (...args: EventParameters<"discover">): void => {
       scanListener(new Peripheral(this.adapter, ...args));
     };
+  }
+
+  private isPeripheral([uuid, , , , advert]: EventParameters<"discover">, name: string) {
+    return name === uuid || (advert && advert.localName === name);
   }
 }

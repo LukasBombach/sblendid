@@ -1,8 +1,11 @@
 import { Bindings, AddressType, Advertisement } from "sblendid-bindings-macos";
+import { CharacteristicConverter } from "./characteristic";
 import Adapter from "./adapter";
 import Service from "./service";
 
-type UUID = BluetoothServiceUUID;
+export interface ServiceConverters {
+  [uuid: string]: CharacteristicConverter[];
+}
 
 export default class Peripheral {
   public readonly adapter: Adapter;
@@ -12,7 +15,7 @@ export default class Peripheral {
   public readonly connectable?: boolean;
   public readonly advertisement?: Advertisement;
   public rssi?: number;
-  public services?: Service[];
+  public serviceUuids?: BluetoothServiceUUID[];
 
   constructor(
     adapter: Adapter & Bindings,
@@ -46,28 +49,29 @@ export default class Peripheral {
     );
   }
 
-  public async init(): Promise<this> {
-    this.services = await this.fetchServices();
-    for (const service of this.services) await service.init();
-    return this;
-  }
-
   public async updateRssi(): Promise<this> {
     this.rssi = await this.fetchRssi();
     return this;
   }
 
-  public async getServices(filter?: UUID[]): Promise<Service[]> {
-    if (!this.services) this.services = await this.fetchServices(filter);
-    return this.services;
+  public async getService(
+    uuid: BluetoothServiceUUID,
+    converters: CharacteristicConverter[]
+  ): Promise<Service> {
+    return new Service(this, uuid, converters);
   }
 
-  private async fetchServices(filter: UUID[] = []): Promise<Service[]> {
+  public async getServices(converters: ServiceConverters = {}): Promise<Service[]> {
+    if (!this.serviceUuids) this.serviceUuids = await this.fetchServices();
+    return this.serviceUuids.map(uuid => new Service(this, uuid, converters[uuid]));
+  }
+
+  private async fetchServices(): Promise<BluetoothServiceUUID[]> {
     const [, serviceUuids] = await this.adapter.run<"servicesDiscover">(
-      () => this.adapter.discoverServices(this.uuid, filter),
+      () => this.adapter.discoverServices(this.uuid, []),
       () => this.adapter.when("servicesDiscover", ([uuid]) => uuid === this.uuid)
     );
-    return serviceUuids.map(uuid => new Service(this, uuid));
+    return serviceUuids;
   }
 
   private async fetchRssi(): Promise<number> {
