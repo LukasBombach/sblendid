@@ -1,7 +1,7 @@
-import Adapter from "./adapter";
-import Peripheral from "./peripheral";
+import Adapter from "./adapter.new";
+import Peripheral from "../src/peripheral";
 
-export { CharacteristicConverter } from "./characteristic";
+export { CharacteristicConverter } from "../src/characteristic";
 
 export type DiscoverListener = (peripheral: Peripheral) => void;
 export type FindCondition = (peripheral: Peripheral) => boolean;
