@@ -1,27 +1,29 @@
 import { EventListener, EventParameters } from "sblendid-bindings-macos";
-import Adapter from "./adapter";
+import Adapter, { Filter } from "./adapter";
 import Peripheral from "./peripheral";
 
 export { CharacteristicConverter } from "./characteristic";
 
-// todo return value
-export type ScanListener = (peripheral: Peripheral) => void | boolean;
-export type FindCondition = string | ((peripheral: Peripheral) => boolean);
+export type ScanListener = (peripheral: Peripheral) => void;
+export type FindCondition = (peripheral: Peripheral) => boolean;
+
+type DiscoverParams = EventParameters<"discover">;
 
 export default class Sblendid {
-  public adapter: Adapter;
+  public adapter: Adapter = new Adapter();
   private scanListener?: EventListener<"discover">;
 
-  static async connect(find: FindCondition): Promise<Peripheral> {
-    const sblendid = new Sblendid();
-    await sblendid.powerOn();
+  public static async connect(find: string | FindCondition): Promise<Peripheral> {
+    const sblendid = await Sblendid.powerOn();
     const peripheral = await sblendid.find(find);
     await peripheral.connect();
     return peripheral;
   }
 
-  constructor() {
-    this.adapter = new Adapter();
+  public static async powerOn(): Promise<Sblendid> {
+    const sblendid = new Sblendid();
+    await sblendid.powerOn();
+    return sblendid;
   }
 
   public async powerOn(): Promise<void> {
@@ -31,14 +33,10 @@ export default class Sblendid {
     );
   }
 
-  public async find(find: FindCondition): Promise<Peripheral> {
-    const condition = (args: EventParameters<"discover">) =>
-      typeof find === "string"
-        ? this.isPeripheral(args, find)
-        : find(new Peripheral(this.adapter, ...args));
+  public async find(find: string | FindCondition): Promise<Peripheral> {
     const peripheral = await this.adapter.run<"discover">(
       () => this.adapter.startScanning(),
-      () => this.adapter.when("discover", condition),
+      () => this.adapter.when("discover", this.getFindCondition(find)),
       () => this.adapter.stopScanning()
     );
     return new Peripheral(this.adapter, ...peripheral);
@@ -60,12 +58,15 @@ export default class Sblendid {
 
   private getDiscoverListener(scanListener?: ScanListener): EventListener<"discover"> | undefined {
     if (!scanListener) return undefined;
-    return (...args: EventParameters<"discover">): void => {
-      scanListener(new Peripheral(this.adapter, ...args));
-    };
+    return (...args: DiscoverParams) => scanListener(new Peripheral(this.adapter, ...args));
   }
 
-  private isPeripheral([uuid, , , , advert]: EventParameters<"discover">, name: string) {
-    return name === uuid || (advert && advert.localName === name);
+  private getFindCondition(find: string | FindCondition): Filter<"discover"> {
+    if (typeof find === "string") return (args: DiscoverParams) => this.isPeripheral(args, find);
+    return (args: DiscoverParams) => find(new Peripheral(this.adapter, ...args));
+  }
+
+  private isPeripheral([uuid, , , , { localName }]: DiscoverParams, name: string) {
+    return name === uuid || localName === name;
   }
 }
