@@ -16,21 +16,26 @@ import Sblendid, { CharacteristicConverter } from "./src";
     ];
 
     const iPhone = await Sblendid.connect(peripheral => {
-      console.log(peripheral.uuid);
-      if (!peripheral.advertisement) return false;
-      if (!peripheral.advertisement.manufacturerData) return false;
-      const mfstr = peripheral.advertisement.manufacturerData.toString("hex");
-      console.log(mfstr, mfstr.startsWith("4c00"));
-      if (mfstr.startsWith("4c00") && peripheral.connectable) return true;
-      return false;
+      const { uuid, address, connectable, manufacturerData } = peripheral;
+      console.log({ uuid, address, connectable, data: manufacturerData.toString("hex") });
+      return Boolean(connectable) && manufacturerData.toString("hex").startsWith("4c00");
     });
+
+    /* const iPhone = await Sblendid.connect(({ manufacturerData }) => {
+      const str = manufacturerData.toString("hex");
+      if (str) console.log(str);
+      return false;
+    }); */
 
     console.log("Connected to", iPhone);
 
     const services = await iPhone.getServices();
-    console.log(services);
+
+    console.log(services.map(({ uuid }) => uuid));
 
     const deviceInfo = await iPhone.getService("180a", converters);
+
+    console.log(deviceInfo);
 
     const manufacturer = await deviceInfo.read("manufacturer");
     const model = await deviceInfo.read("model");

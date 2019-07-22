@@ -14,8 +14,9 @@ export default class Peripheral {
   public readonly addressType?: string;
   public readonly connectable?: boolean;
   public readonly advertisement?: Advertisement;
+  public readonly manufacturerData: Buffer;
   public rssi?: number;
-  public serviceUuids?: BluetoothServiceUUID[];
+  private serviceUuids?: BluetoothServiceUUID[];
 
   constructor(
     adapter: Adapter & Bindings,
@@ -33,6 +34,7 @@ export default class Peripheral {
     this.connectable = connectable;
     this.advertisement = advertisement;
     this.rssi = rssi;
+    this.manufacturerData = this.getManufacturerData(advertisement);
   }
 
   public async connect(): Promise<void> {
@@ -80,5 +82,10 @@ export default class Peripheral {
       () => this.adapter.when("rssiUpdate", ([uuid]) => uuid === this.uuid)
     );
     return rssi;
+  }
+
+  private getManufacturerData(advertisement?: Advertisement): Buffer {
+    if (advertisement && advertisement.manufacturerData) return advertisement.manufacturerData;
+    return Buffer.from("");
   }
 }
