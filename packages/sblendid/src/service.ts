@@ -26,7 +26,7 @@ export default class Service {
   public async read(name: BluetoothCharacteristicUUID | string): Promise<any> {
     const converter = this.converters.find(c => c.name === name);
     const uuid = converter ? converter.uuid : name;
-    const buffer = await Characteristic.read(this.adapter, this.peripheral.uuid, this.uuid, uuid);
+    const buffer = await new Characteristic(this, uuid).read();
     return converter && converter.decode ? await converter.decode(buffer) : buffer;
   }
 
@@ -40,7 +40,7 @@ export default class Service {
       () => this.adapter.discoverCharacteristics(this.peripheral.uuid, this.uuid, []),
       () => this.adapter.when("characteristicsDiscover", ([p, s]) => this.isThisService(p, s))
     );
-    return characteristics.map(characteristic => new Characteristic(this, characteristic));
+    return characteristics.map(({ uuid }) => new Characteristic(this, uuid));
   }
 
   private isThisService(peripheralUuid: string, serviceUuid: BluetoothServiceUUID): boolean {

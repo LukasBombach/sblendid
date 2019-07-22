@@ -77,7 +77,7 @@ export default class Peripheral {
   private async fetchRssi(): Promise<number> {
     const [, rssi] = await this.adapter.run<"rssiUpdate">(
       () => this.adapter.updateRssi(this.uuid),
-      () => this.adapter.when("rssiUpdate", uuid => uuid === this.uuid)
+      () => this.adapter.when("rssiUpdate", ([uuid]) => uuid === this.uuid)
     );
     return rssi;
   }

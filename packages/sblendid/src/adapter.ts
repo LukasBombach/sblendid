@@ -12,7 +12,7 @@ export type End = () => Promise<void> | void;
 
 // export type Condition<E extends Event> = Listener<E> | Params<E> | Params<E>[0];
 
-export type Filter<E extends Event> = (...args: Params<E>) => boolean;
+export type Filter<E extends Event> = (...args: [Params<E>]) => boolean;
 
 export default class Adapter extends Bindings {
   async run<E extends Event>(action: Action, when: When<E>, end?: End): Promise<Params<E>> {

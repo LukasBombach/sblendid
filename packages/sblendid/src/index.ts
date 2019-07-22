@@ -2,17 +2,20 @@ import { EventListener, EventParameters } from "sblendid-bindings-macos";
 import Adapter from "./adapter";
 import Peripheral from "./peripheral";
 
-export type ScanListener = (peripheral: Peripheral) => void;
 export { CharacteristicConverter } from "./characteristic";
+
+// todo return value
+export type ScanListener = (peripheral: Peripheral) => void | boolean;
+export type FindCondition = string | ((peripheral: Peripheral) => boolean);
 
 export default class Sblendid {
   public adapter: Adapter;
   private scanListener?: EventListener<"discover">;
 
-  static async connect(name: string): Promise<Peripheral> {
+  static async connect(find: FindCondition): Promise<Peripheral> {
     const sblendid = new Sblendid();
     await sblendid.powerOn();
-    const peripheral = await sblendid.find(name);
+    const peripheral = await sblendid.find(find);
     await peripheral.connect();
     return peripheral;
   }
@@ -28,10 +31,14 @@ export default class Sblendid {
     );
   }
 
-  public async find(name: string): Promise<Peripheral> {
+  public async find(find: FindCondition): Promise<Peripheral> {
+    const condition = (args: EventParameters<"discover">) =>
+      typeof find === "string"
+        ? this.isPeripheral(args, find)
+        : find(new Peripheral(this.adapter, ...args));
     const peripheral = await this.adapter.run<"discover">(
       () => this.adapter.startScanning(),
-      () => this.adapter.when("discover", (...args) => this.isPeripheral(args, name)),
+      () => this.adapter.when("discover", condition),
       () => this.adapter.stopScanning()
     );
     return new Peripheral(this.adapter, ...peripheral);

@@ -54,20 +54,6 @@ export default class Characteristic {
   private isNotifying: boolean;
   private descriptors?: string[];
 
-  public static async read(
-    adapter: Adapter,
-    peripheralUuid: string,
-    serviceUuid: BluetoothServiceUUID,
-    uuid: BluetoothCharacteristicUUID
-  ): Promise<Buffer> {
-    const uuids = [peripheralUuid, serviceUuid, uuid];
-    const [, , , buffer] = await adapter.run<"read">(
-      () => adapter.read(peripheralUuid, serviceUuid, uuid),
-      () => adapter.when("read", ([p, s, c]) => [p, s, c].every((v, i) => v === uuids[i]))
-    );
-    return buffer;
-  }
-
   constructor(service: Service, uuid: BluetoothCharacteristicUUID, properties?: Properties) {
     this.adapter = service.adapter;
     this.service = service;
@@ -79,7 +65,7 @@ export default class Characteristic {
     this.isNotifying = false;
   }
 
-  /* public async read(): Promise<Buffer> {
+  public async read(): Promise<Buffer> {
     const { peripheralUuid, serviceUuid, uuid } = this;
     const [, , , buffer] = await this.adapter.run<"read">(
       () => this.adapter.read(peripheralUuid, serviceUuid, uuid),
@@ -96,7 +82,7 @@ export default class Characteristic {
       () => this.adapter.write(peripheralUuid, serviceUuid, uuid, value, true),
       () => this.adapter.when("write", ([p, s, c]) => this.isThisCharacteristic(p, s, c))
     );
-  } */
+  }
 
   public async getDescriptors(): Promise<string[]> {
     if (!this.descriptors) this.descriptors = await this.fetchDescriptors();
@@ -132,7 +118,7 @@ export default class Characteristic {
     return desciptors;
   }
 
-  private static isThisCharacteristic(
+  private isThisCharacteristic(
     pUuid: string,
     sUuid: BluetoothServiceUUID,
     cUuid: BluetoothCharacteristicUUID

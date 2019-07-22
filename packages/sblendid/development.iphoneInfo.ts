@@ -15,7 +15,20 @@ import Sblendid, { CharacteristicConverter } from "./src";
       }
     ];
 
-    const iPhone = await Sblendid.connect("33a5fe32e48c416285f50f4092cb562e");
+    const iPhone = await Sblendid.connect(peripheral => {
+      console.log(peripheral.uuid);
+      if (!peripheral.advertisement) return false;
+      if (!peripheral.advertisement.manufacturerData) return false;
+      const mfstr = peripheral.advertisement.manufacturerData.toString("hex");
+      console.log(mfstr, mfstr.startsWith("4c00"));
+      if (mfstr.startsWith("4c00") && peripheral.connectable) return true;
+      return false;
+    });
+
+    console.log("Connected to", iPhone);
+
+    const services = await iPhone.getServices();
+    console.log(services);
 
     const deviceInfo = await iPhone.getService("180a", converters);
 
