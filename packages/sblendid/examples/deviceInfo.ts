@@ -1,5 +1,5 @@
-import Sblendid, { CharacteristicConverter } from "./src";
-import Peripheral from "./src/peripheral";
+import Sblendid, { CharacteristicConverter } from "../src";
+import Peripheral from "../src/peripheral";
 
 const converters: CharacteristicConverter[] = [
   {

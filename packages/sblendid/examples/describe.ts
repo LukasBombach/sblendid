@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import Sblendid from "./src";
+import Sblendid from "../src";
 
 (async () => {
   try {
