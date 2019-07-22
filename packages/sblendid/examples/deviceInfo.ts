@@ -36,11 +36,10 @@ async function findPeripheralWithInfo(): Promise<Peripheral> {
 
 (async () => {
   try {
+    // const iPhone = await Sblendid.connect(async peripheral => await peripheral.hasService("180a"));
+
     const peripheral = await findPeripheralWithInfo();
     const deviceInfo = await peripheral.getService("180a", converters);
-
-    // reminder: this needs to be called to make chcrs readable
-    await deviceInfo.getCharacteristics();
 
     const manufacturer = await deviceInfo.read("manufacturer");
     const model = await deviceInfo.read("model");

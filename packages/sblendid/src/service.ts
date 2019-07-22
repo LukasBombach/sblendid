@@ -26,8 +26,16 @@ export default class Service {
   public async read(name: BluetoothCharacteristicUUID | string): Promise<any> {
     const converter = this.converters.find(c => c.name === name);
     const uuid = converter ? converter.uuid : name;
-    const buffer = await new Characteristic(this, uuid).read();
+    const characteristic = await this.getCharacteristic(uuid);
+    const buffer = await characteristic.read();
     return converter && converter.decode ? await converter.decode(buffer) : buffer;
+  }
+
+  public async getCharacteristic(uuid: BluetoothCharacteristicUUID): Promise<Characteristic> {
+    const characteristics = await this.getCharacteristics();
+    const characteristic = characteristics.find(c => c.uuid === uuid);
+    if (!characteristic) throw new Error(`Cannot find characteristic with the uuid "${uuid}"`);
+    return characteristic;
   }
 
   public async getCharacteristics(): Promise<Characteristic[]> {

@@ -40,14 +40,14 @@ export default class Peripheral {
   public async connect(): Promise<void> {
     await this.adapter.run(
       () => this.adapter.connect(this.uuid),
-      () => this.adapter.when("connect", () => true)
+      () => this.adapter.when("connect", ([uuid]) => uuid === this.uuid)
     );
   }
 
   public async disconnect(): Promise<void> {
     await this.adapter.run(
       () => this.adapter.disconnect(this.uuid),
-      () => this.adapter.when("disconnect", () => true)
+      () => this.adapter.when("disconnect", ([uuid]) => uuid === this.uuid)
     );
   }
 
@@ -60,7 +60,9 @@ export default class Peripheral {
     uuid: BluetoothServiceUUID,
     converters: CharacteristicConverter[]
   ): Promise<Service> {
-    return new Service(this, uuid, converters);
+    const service = new Service(this, uuid, converters);
+    await service.getCharacteristics();
+    return service;
   }
 
   public async getServices(converters: ServiceConverters = {}): Promise<Service[]> {
