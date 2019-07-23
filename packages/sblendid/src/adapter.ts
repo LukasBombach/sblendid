@@ -1,5 +1,11 @@
-import { Bindings, EventName as Event, EventParameters as Params } from "sblendid-bindings-macos";
+import {
+  Bindings,
+  EventName as Event,
+  EventParameters as Params,
+  EventListener as Listener
+} from "sblendid-bindings-macos";
 import Queue from "../src/queue";
+import Peripheral from "./peripheral";
 
 export type Action = () => Promise<void> | void;
 export type When<E extends Event> = () => Promise<Params<E>>;
@@ -7,6 +13,9 @@ export type End = () => Promise<void> | void;
 
 export type Condition<E extends Event> = ConditionFn<E> | Params<E>[0];
 export type ConditionFn<E extends Event> = (params: Params<E>) => Promise<boolean> | boolean;
+export type AsPeripheralListener = (
+  peripheral: Peripheral
+) => Promise<void | boolean> | void | boolean;
 
 export default class Adapter extends Bindings {
   async run<E extends Event>(action: Action, when: When<E>, end?: End): Promise<Params<E>> {
@@ -27,4 +36,8 @@ export default class Adapter extends Bindings {
       }) as any);
     });
   }
+}
+
+export function asPeripheral(listener: AsPeripheralListener): Listener<"discover"> {
+  return (...args: Params<"discover">) => listener(new Peripheral(this.adapter, ...args));
 }
