@@ -7,6 +7,8 @@ export interface ServiceConverters {
   [uuid: string]: CharacteristicConverter[];
 }
 
+export type PeripheralState = "connecting" | "connected" | "disconnecting" | "disconnected";
+
 export default class Peripheral {
   public readonly adapter: Adapter;
   public readonly uuid: string;
@@ -16,6 +18,7 @@ export default class Peripheral {
   public readonly advertisement?: Advertisement;
   public readonly manufacturerData: Buffer;
   public rssi?: number;
+  public state: PeripheralState;
   private serviceUuids?: BluetoothServiceUUID[];
 
   constructor(
@@ -35,20 +38,25 @@ export default class Peripheral {
     this.advertisement = advertisement;
     this.rssi = rssi;
     this.manufacturerData = this.getManufacturerData(advertisement);
+    this.state = "disconnected";
   }
 
   public async connect(): Promise<void> {
+    this.state = "connecting";
     await this.adapter.run(
       () => this.adapter.connect(this.uuid),
       () => this.adapter.when("connect", this.uuid)
     );
+    this.state = "connected";
   }
 
   public async disconnect(): Promise<void> {
+    this.state = "disconnecting";
     await this.adapter.run(
       () => this.adapter.disconnect(this.uuid),
       () => this.adapter.when("disconnect", this.uuid)
     );
+    this.state = "disconnected";
   }
 
   public async updateRssi(): Promise<this> {
@@ -76,6 +84,7 @@ export default class Peripheral {
   }
 
   private async fetchServices(): Promise<BluetoothServiceUUID[]> {
+    if (this.state === "disconnected") await this.connect();
     const [, serviceUuids] = await this.adapter.run<"servicesDiscover">(
       () => this.adapter.discoverServices(this.uuid, []),
       () => this.adapter.when("servicesDiscover", this.uuid)
@@ -84,6 +93,7 @@ export default class Peripheral {
   }
 
   private async fetchRssi(): Promise<number> {
+    if (this.state === "disconnected") await this.connect();
     const [, rssi] = await this.adapter.run<"rssiUpdate">(
       () => this.adapter.updateRssi(this.uuid),
       () => this.adapter.when("rssiUpdate", this.uuid)

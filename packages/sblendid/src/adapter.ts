@@ -1,9 +1,4 @@
-import {
-  Bindings,
-  EventName as Event,
-  EventListener as Listener,
-  EventParameters as Params
-} from "sblendid-bindings-macos";
+import { Bindings, EventName as Event, EventParameters as Params } from "sblendid-bindings-macos";
 import Queue from "../src/queue";
 
 export type Action = () => Promise<void> | void;
