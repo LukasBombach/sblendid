@@ -4,11 +4,9 @@ type Rejector = (reason?: any) => void;
 
 export default class Queue {
   private items: PromiseFn[];
-  private finalFn: PromiseFn;
   private working: boolean;
 
-  constructor(finalFn: PromiseFn = () => {}) {
-    this.finalFn = finalFn;
+  constructor() {
     this.items = [];
     this.working = false;
   }
@@ -21,17 +19,15 @@ export default class Queue {
     });
   }
 
-  public async end(): Promise<any> {
+  public async end(finalFn: PromiseFn = () => {}): Promise<any> {
     this.items = [];
-    return await this.finalFn();
+    return await finalFn();
   }
 
   private async work(): Promise<void> {
     if (this.working) return;
     this.working = true;
-    while (this.items.length) {
-      await this.items.shift()!();
-    }
+    while (this.items.length) await this.items.shift()!();
     this.working = false;
   }
 

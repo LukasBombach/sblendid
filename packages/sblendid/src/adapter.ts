@@ -4,7 +4,7 @@ import {
   EventListener as Listener,
   EventParameters as Params
 } from "sblendid-bindings-macos";
-import promisedEvent from "p-event";
+import Queue from "../src/queue";
 
 export type Action = () => Promise<void> | void;
 export type When<E extends Event> = () => Promise<Params<E>>;
@@ -25,10 +25,15 @@ export default class Adapter extends Bindings {
   // todo any wtf why
   public when<E extends Event>(event: E, condition: Condition<E>): Promise<Params<E>> {
     return new Promise(resolve => {
-      this.on(event, ((...params: Params<E>) => {
-        if (typeof condition === "function" && condition(params)) return resolve(params);
-        if (condition === params[0]) resolve(params);
+      const queue = new Queue();
+      this.on(event, (async (...params: Params<E>) => {
+        const item = typeof condition === "function" ? condition : condition === params[0];
+        const conditionIsMet = await queue.add(item);
+        if (conditionIsMet) await queue.end(resolve);
       }) as any);
     });
   }
 }
+
+// if (typeof condition === "function" && condition(params)) return resolve(params);
+// if (condition === params[0]) resolve(params);

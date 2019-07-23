@@ -1,9 +1,6 @@
 import MyQueue from "../src/queue";
 
-const myQueue = new MyQueue(() => {
-  console.log("finally");
-  return "return finally";
-});
+const myQueue = new MyQueue();
 
 (async () => {
   const valDelayed = myQueue.add(() => new Promise(res => setTimeout(() => res("deleayed"), 0)));
@@ -16,5 +13,5 @@ const myQueue = new MyQueue(() => {
   console.log("val", val);
   console.log("val2", val2);
 
-  console.log(await myQueue.end());
+  console.log(myQueue.end());
 })();
