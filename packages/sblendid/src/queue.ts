@@ -12,7 +12,7 @@ export default class Queue {
   }
 
   // todo is the return value properly typed?
-  public async add(item: PromiseFn): Promise<ReturnType<PromiseFn>> {
+  public async add(item: any): Promise<ReturnType<PromiseFn>> {
     return new Promise((resolve, reject) => {
       this.items.push(this.getItem(item, resolve, reject));
       this.work();
@@ -31,9 +31,10 @@ export default class Queue {
     this.working = false;
   }
 
-  private getItem(item: PromiseFn, resolve: Resolver, reject: Rejector) {
+  private getItem(item: any, resolve: Resolver, reject: Rejector) {
+    const itemFn = typeof item === "function" ? async () => await item() : async () => item;
     return () =>
-      item()
+      itemFn()
         .then(resolve)
         .catch(reject);
   }

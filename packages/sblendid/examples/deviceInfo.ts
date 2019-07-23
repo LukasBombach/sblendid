@@ -1,5 +1,4 @@
 import Sblendid, { CharacteristicConverter } from "../src";
-import Peripheral from "../src/peripheral";
 
 const converters: CharacteristicConverter[] = [
   {
@@ -13,6 +12,27 @@ const converters: CharacteristicConverter[] = [
     decode: (buffer: Buffer) => buffer.toString()
   }
 ];
+
+(async () => {
+  try {
+    const peripheral = await Sblendid.connect(async p => await p.hasService("180a"));
+    const deviceInfo = await peripheral.getService("180a", converters);
+
+    const manufacturer = await deviceInfo.read("manufacturer");
+    const model = await deviceInfo.read("model");
+
+    console.log("Manufacturer:", manufacturer);
+    console.log("Model:", model);
+
+    process.exit();
+  } catch (error) {
+    console.error(error);
+  }
+})();
+
+/* 
+import Peripheral from "../src/peripheral";
+    // const peripheral = await findPeripheralWithInfo();
 
 async function findPeripheralWithInfo(): Promise<Peripheral> {
   const uuids: string[] = [];
@@ -32,23 +52,4 @@ async function findPeripheralWithInfo(): Promise<Peripheral> {
   }
 
   return iPhone;
-}
-
-(async () => {
-  try {
-    // const iPhone = await Sblendid.connect(async peripheral => await peripheral.hasService("180a"));
-
-    const peripheral = await findPeripheralWithInfo();
-    const deviceInfo = await peripheral.getService("180a", converters);
-
-    const manufacturer = await deviceInfo.read("manufacturer");
-    const model = await deviceInfo.read("model");
-
-    console.log("Manufacturer:", manufacturer);
-    console.log("Model:", model);
-
-    process.exit();
-  } catch (error) {
-    console.error(error);
-  }
-})();
+} */

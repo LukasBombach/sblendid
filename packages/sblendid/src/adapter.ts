@@ -11,9 +11,7 @@ export type When<E extends Event> = () => Promise<Params<E>>;
 export type End = () => Promise<void> | void;
 
 export type Condition<E extends Event> = ConditionFn<E> | Params<E>[0];
-export type ConditionFn<E extends Event> = (params: Params<E>) => boolean;
-
-export type Filter<E extends Event> = (...args: [Params<E>]) => boolean;
+export type ConditionFn<E extends Event> = (params: Params<E>) => Promise<boolean> | boolean;
 
 export default class Adapter extends Bindings {
   async run<E extends Event>(action: Action, when: When<E>, end?: End): Promise<Params<E>> {

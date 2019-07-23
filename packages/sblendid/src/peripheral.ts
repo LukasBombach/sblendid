@@ -70,6 +70,11 @@ export default class Peripheral {
     return this.serviceUuids.map(uuid => new Service(this, uuid, converters[uuid]));
   }
 
+  public async hasService(uuid: BluetoothServiceUUID): Promise<boolean> {
+    const services = await this.getServices();
+    return services.some(s => s.uuid === uuid);
+  }
+
   private async fetchServices(): Promise<BluetoothServiceUUID[]> {
     const [, serviceUuids] = await this.adapter.run<"servicesDiscover">(
       () => this.adapter.discoverServices(this.uuid, []),

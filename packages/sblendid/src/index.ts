@@ -1,11 +1,11 @@
 import { EventListener, EventParameters } from "sblendid-bindings-macos";
-import Adapter, { Filter } from "./adapter";
+import Adapter, { Condition } from "./adapter";
 import Peripheral from "./peripheral";
 
 export { CharacteristicConverter } from "./characteristic";
 
 export type ScanListener = (peripheral: Peripheral) => void;
-export type FindCondition = (peripheral: Peripheral) => boolean;
+export type FindCondition = (peripheral: Peripheral) => Promise<boolean> | boolean;
 
 type DiscoverParams = EventParameters<"discover">;
 
@@ -61,7 +61,7 @@ export default class Sblendid {
     return (...args: DiscoverParams) => scanListener(new Peripheral(this.adapter, ...args));
   }
 
-  private getFindCondition(find: string | FindCondition): Filter<"discover"> {
+  private getFindCondition(find: string | FindCondition): Condition<"discover"> {
     if (typeof find === "string") return (args: DiscoverParams) => this.isPeripheral(args, find);
     return (args: DiscoverParams) => find(new Peripheral(this.adapter, ...args));
   }
