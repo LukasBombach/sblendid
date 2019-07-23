@@ -5,17 +5,13 @@ import Characteristic, { CharacteristicConverter } from "./characteristic";
 export default class Service {
   public readonly adapter: Adapter;
   public readonly peripheral: Peripheral;
-  public readonly uuid: BluetoothServiceUUID;
+  public readonly uuid: SUUID;
   public readonly name?: string;
   public readonly type?: string;
   private converters: CharacteristicConverter[];
   private characteristics?: Characteristic[];
 
-  constructor(
-    peripheral: Peripheral,
-    uuid: BluetoothServiceUUID,
-    converters: CharacteristicConverter[] = []
-  ) {
+  constructor(peripheral: Peripheral, uuid: SUUID, converters: CharacteristicConverter[] = []) {
     this.peripheral = peripheral;
     this.adapter = peripheral.adapter;
     this.uuid = uuid;
@@ -23,7 +19,7 @@ export default class Service {
   }
 
   // todo types
-  public async read(name: BluetoothCharacteristicUUID | string): Promise<any> {
+  public async read(name: CUUID | string): Promise<any> {
     const converter = this.converters.find(c => c.name === name);
     const uuid = converter ? converter.uuid : name;
     const characteristic = await this.getCharacteristic(uuid);
@@ -31,7 +27,7 @@ export default class Service {
     return converter && converter.decode ? await converter.decode(buffer) : buffer;
   }
 
-  public async getCharacteristic(uuid: BluetoothCharacteristicUUID): Promise<Characteristic> {
+  public async getCharacteristic(uuid: CUUID): Promise<Characteristic> {
     const characteristics = await this.getCharacteristics();
     const characteristic = characteristics.find(c => c.uuid === uuid);
     if (!characteristic) throw new Error(`Cannot find characteristic with the uuid "${uuid}"`);
@@ -51,7 +47,7 @@ export default class Service {
     return characteristics.map(({ uuid }) => new Characteristic(this, uuid));
   }
 
-  private isThisService(peripheralUuid: string, serviceUuid: BluetoothServiceUUID): boolean {
+  private isThisService(peripheralUuid: string, serviceUuid: SUUID): boolean {
     return peripheralUuid === this.peripheral.uuid && serviceUuid === this.uuid;
   }
 }

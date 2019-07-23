@@ -43,18 +43,18 @@ private noblePropsToSblendid(nobleProperties: NobleCharacteristicProperty[]): Pr
 } */
 
 export default class Characteristic {
-  public readonly uuid: BluetoothCharacteristicUUID;
+  public readonly uuid: CUUID;
   public readonly properties?: Properties;
   public adapter: Adapter;
   public service: Service;
 
   private peripheralUuid: string;
-  private serviceUuid: BluetoothServiceUUID;
+  private serviceUuid: SUUID;
   private eventEmitter: EventEmitter;
   private isNotifying: boolean;
   private descriptors?: string[];
 
-  constructor(service: Service, uuid: BluetoothCharacteristicUUID, properties?: Properties) {
+  constructor(service: Service, uuid: CUUID, properties?: Properties) {
     this.adapter = service.adapter;
     this.service = service;
     this.uuid = uuid;
@@ -118,11 +118,7 @@ export default class Characteristic {
     return desciptors;
   }
 
-  private isThisCharacteristic(
-    pUuid: string,
-    sUuid: BluetoothServiceUUID,
-    cUuid: BluetoothCharacteristicUUID
-  ): boolean {
+  private isThisCharacteristic(pUuid: string, sUuid: SUUID, cUuid: CUUID): boolean {
     return pUuid === this.peripheralUuid && sUuid === this.serviceUuid && cUuid === this.uuid;
   }
 }

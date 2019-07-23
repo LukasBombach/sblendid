@@ -1,3 +1,5 @@
+/// <reference path="./index.d.ts" />
+
 import { EventListener, EventParameters } from "sblendid-bindings-macos";
 import Adapter, { Condition } from "./adapter";
 import Peripheral from "./peripheral";
