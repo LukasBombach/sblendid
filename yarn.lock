@@ -229,11 +229,6 @@ esutils@^2.0.2:
   resolved "https://registry.yarnpkg.com/esutils/-/esutils-2.0.2.tgz#0abf4f1caa5bcb1f7a9d8acc6dea4faaa04bac9b"
   integrity sha1-Cr9PHKpbyx96nYrMbepPqqBLrJs=
 
-eventemitter3@^4.0.0:
-  version "4.0.0"
-  resolved "https://spring.jfrog.io/spring/api/npm/npm-red/eventemitter3/-/eventemitter3-4.0.0.tgz#d65176163887ee59f386d64c82610b696a4a74eb"
-  integrity sha1-1lF2FjiH7lnzhtZMgmELaWpKdOs=
-
 fs-extra@8.1.0:
   version "8.1.0"
   resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-8.1.0.tgz#49d43c45a88cd9677668cb7be1b46efdb8d2e1c0"
@@ -550,26 +545,6 @@ osenv@^0.1.4:
   dependencies:
     os-homedir "^1.0.0"
     os-tmpdir "^1.0.0"
-
-p-finally@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/p-finally/-/p-finally-1.0.0.tgz#3fbcfb15b899a44123b34b6dcc18b724336a2cae"
-  integrity sha1-P7z7FbiZpEEjs0ttzBi3JDNqLK4=
-
-p-queue@6.1.0:
-  version "6.1.0"
-  resolved "https://spring.jfrog.io/spring/api/npm/npm-red/p-queue/-/p-queue-6.1.0.tgz#3f546275073b41e4af460e41459524b15c2753f3"
-  integrity sha1-P1RidQc7QeSvRg5BRZUksVwnU/M=
-  dependencies:
-    eventemitter3 "^4.0.0"
-    p-timeout "^3.1.0"
-
-p-timeout@^3.1.0:
-  version "3.1.0"
-  resolved "https://spring.jfrog.io/spring/api/npm/npm-red/p-timeout/-/p-timeout-3.1.0.tgz#198c1f503bb973e9b9727177a276c80afd6851f3"
-  integrity sha1-GYwfUDu5c+m5cnF3onbICv1oUfM=
-  dependencies:
-    p-finally "^1.0.0"
 
 path-is-absolute@^1.0.0:
   version "1.0.1"

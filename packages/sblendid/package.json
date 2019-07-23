@@ -25,7 +25,5 @@
     "ts-node": "8.3.0",
     "typescript": "3.5.3"
   },
-  "dependencies": {
-    "p-queue": "6.1.0"
-  }
+  "dependencies": {}
 }
