@@ -10,7 +10,8 @@ export type Action = () => Promise<void> | void;
 export type When<E extends Event> = () => Promise<Params<E>>;
 export type End = () => Promise<void> | void;
 
-// export type Condition<E extends Event> = Listener<E> | Params<E> | Params<E>[0];
+export type Condition<E extends Event> = ConditionFn<E> | Params<E>[0];
+export type ConditionFn<E extends Event> = (params: Params<E>) => boolean;
 
 export type Filter<E extends Event> = (...args: [Params<E>]) => boolean;
 
@@ -21,8 +22,13 @@ export default class Adapter extends Bindings {
     return eventParameters;
   }
 
-  // todo fucking any
-  public when<E extends Event>(event: E, filter: Filter<E>): Promise<Params<E>> {
-    return promisedEvent<E, Params<E>>(this as any, event, { filter, multiArgs: true } as any);
+  // todo any wtf why
+  public when<E extends Event>(event: E, condition: Condition<E>): Promise<Params<E>> {
+    return new Promise(resolve => {
+      this.on(event, ((...params: Params<E>) => {
+        if (typeof condition === "function" && condition(params)) return resolve(params);
+        if (condition === params[0]) resolve(params);
+      }) as any);
+    });
   }
 }

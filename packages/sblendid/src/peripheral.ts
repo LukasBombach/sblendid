@@ -40,14 +40,14 @@ export default class Peripheral {
   public async connect(): Promise<void> {
     await this.adapter.run(
       () => this.adapter.connect(this.uuid),
-      () => this.adapter.when("connect", ([uuid]) => uuid === this.uuid)
+      () => this.adapter.when("connect", this.uuid)
     );
   }
 
   public async disconnect(): Promise<void> {
     await this.adapter.run(
       () => this.adapter.disconnect(this.uuid),
-      () => this.adapter.when("disconnect", ([uuid]) => uuid === this.uuid)
+      () => this.adapter.when("disconnect", this.uuid)
     );
   }
 
@@ -73,7 +73,7 @@ export default class Peripheral {
   private async fetchServices(): Promise<BluetoothServiceUUID[]> {
     const [, serviceUuids] = await this.adapter.run<"servicesDiscover">(
       () => this.adapter.discoverServices(this.uuid, []),
-      () => this.adapter.when("servicesDiscover", ([uuid]) => uuid === this.uuid)
+      () => this.adapter.when("servicesDiscover", this.uuid)
     );
     return serviceUuids;
   }
@@ -81,7 +81,7 @@ export default class Peripheral {
   private async fetchRssi(): Promise<number> {
     const [, rssi] = await this.adapter.run<"rssiUpdate">(
       () => this.adapter.updateRssi(this.uuid),
-      () => this.adapter.when("rssiUpdate", ([uuid]) => uuid === this.uuid)
+      () => this.adapter.when("rssiUpdate", this.uuid)
     );
     return rssi;
   }

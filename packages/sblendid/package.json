@@ -26,6 +26,6 @@
     "typescript": "3.5.3"
   },
   "dependencies": {
-    "p-event": "4.1.0"
+    "p-queue": "6.1.0"
   }
 }

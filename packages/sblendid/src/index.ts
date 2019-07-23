@@ -29,7 +29,7 @@ export default class Sblendid {
   public async powerOn(): Promise<void> {
     await this.adapter.run(
       () => this.adapter.init(),
-      () => this.adapter.when("stateChange", ([state]) => state === "poweredOn")
+      () => this.adapter.when("stateChange", "poweredOn")
     );
   }
 
