@@ -25,13 +25,11 @@ export default class Adapter extends Bindings {
     return new Promise(resolve => {
       const queue = new Queue();
       this.on(event, (async (...params: Params<E>) => {
-        const item = typeof condition === "function" ? condition : condition === params[0];
+        const item =
+          typeof condition === "function" ? () => condition(params) : condition === params[0];
         const conditionIsMet = await queue.add(item);
-        if (conditionIsMet) await queue.end(resolve);
+        if (conditionIsMet) await queue.end(() => resolve(params));
       }) as any);
     });
   }
 }
-
-// if (typeof condition === "function" && condition(params)) return resolve(params);
-// if (condition === params[0]) resolve(params);
