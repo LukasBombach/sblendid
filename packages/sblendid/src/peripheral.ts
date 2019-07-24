@@ -17,6 +17,7 @@ export default class Peripheral {
   public readonly connectable?: boolean;
   public readonly advertisement?: Advertisement;
   public readonly manufacturerData: Buffer;
+  public readonly name?: string;
   public rssi?: number;
   public state: PeripheralState;
   private serviceUuids?: SUUID[];
@@ -39,6 +40,7 @@ export default class Peripheral {
     this.rssi = rssi;
     this.manufacturerData = this.getManufacturerData(advertisement);
     this.state = "disconnected";
+    this.name = this.advertisement ? this.advertisement.localName : undefined;
   }
 
   public async connect(): Promise<void> {
