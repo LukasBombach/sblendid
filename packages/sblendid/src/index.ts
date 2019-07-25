@@ -1,4 +1,4 @@
-/// <reference path="./globals.d.ts" />
+/// <reference path="./types.d.ts" />
 
 export { default } from "./sblendid";
 export { CharacteristicConverter } from "./characteristic";

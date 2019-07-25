@@ -27,12 +27,12 @@ export default class Sblendid {
   }
 
   public async find(condition: string | AsPeripheralListener): Promise<Peripheral> {
-    const peripheral = await this.adapter.run<"discover">(
+    return await this.adapter.run<"discover">(
       () => this.adapter.startScanning(),
       () => this.adapter.when("discover", asPeripheral(this.getFindCondition(condition)) as any),
-      () => this.adapter.stopScanning()
+      () => this.adapter.stopScanning(),
+      peripheral => Peripheral.fromDiscover(this.adapter, peripheral)
     );
-    return new Peripheral(this.adapter, ...peripheral);
   }
 
   public startScanning(listener: (peripheral: Peripheral) => void = () => {}): void {
@@ -48,8 +48,8 @@ export default class Sblendid {
     this.adapter.stopScanning();
   }
 
-  private getFindCondition(find: string | AsPeripheralListener): AsPeripheralListener {
-    if (typeof find === "function") return find;
-    return ({ uuid, name }: Peripheral) => [uuid, name].includes(find);
+  private getFindCondition(condition: string | AsPeripheralListener): AsPeripheralListener {
+    if (typeof condition === "function") return condition;
+    return ({ uuid, name }: Peripheral) => [uuid, name].includes(condition);
   }
 }

@@ -2,14 +2,15 @@ import {
   Bindings,
   EventName as Event,
   EventParameters as Params,
-  EventListener as Listener
+  EventListener as Listener,
+  EventReturnType as Return
 } from "sblendid-bindings-macos";
 import Queue from "../src/queue";
 import Peripheral from "./peripheral";
 
 export type Action = () => Promise<void> | void;
 export type When<E extends Event> = () => Promise<Params<E>>;
-export type End = () => Promise<void> | void;
+export type End<E extends Event> = (params: Params<E>) => Promise<any> | any;
 
 export type Condition<E extends Event> = ConditionFn<E> | Params<E>[0];
 export type ConditionFn<E extends Event> = (params: Params<E>) => Promise<boolean> | boolean;
@@ -18,10 +19,15 @@ export type AsPeripheralListener = (
 ) => Promise<void | boolean> | void | boolean;
 
 export default class Adapter extends Bindings {
-  async run<E extends Event>(action: Action, when: When<E>, end?: End): Promise<Params<E>> {
+  async run<E extends Event>(
+    action: Action,
+    when: When<E>,
+    end?: End<E>,
+    transform?: End<E>
+  ): Promise<any> {
     const [eventParameters] = await Promise.all([when(), action()]);
-    if (end) await end();
-    return eventParameters;
+    const endReturn = end ? await end(eventParameters) : eventParameters;
+    return transform ? await transform(endReturn) : endReturn;
   }
 
   // todo any wtf why

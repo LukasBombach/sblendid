@@ -7,9 +7,9 @@ declare module "sblendid-bindings-macos" {
   export type AddressType = "public" | "random" | "unknown";
 
   export interface Advertisement {
-    localName: string;
-    txPowerLevel: number;
-    serviceUuids: BluetoothServiceUUID[];
+    localName?: string;
+    txPowerLevel?: number;
+    serviceUuids?: BluetoothServiceUUID[];
     manufacturerData?: Buffer;
     serviceData?: Buffer;
   }
