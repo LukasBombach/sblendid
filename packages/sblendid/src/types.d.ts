@@ -3,6 +3,8 @@ type SUUID = BluetoothServiceUUID;
 type CUUID = BluetoothCharacteristicUUID;
 type DUUID = BluetoothDescriptorUUID;
 
+type NamedCUUID = CUUID | string;
+
 interface CharacteristicConverter {
   uuid: BluetoothCharacteristicUUID;
   name?: string;

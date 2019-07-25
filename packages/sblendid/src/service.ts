@@ -1,6 +1,8 @@
+import { EventEmitter } from "events";
 import Adapter from "./adapter";
 import Peripheral from "./peripheral";
 import Characteristic from "./characteristic";
+import { NobleCharacteristic } from "sblendid-bindings-macos";
 
 export default class Service {
   public readonly adapter: Adapter;
@@ -9,47 +11,80 @@ export default class Service {
   public readonly name?: string;
   public readonly type?: string;
   private converters: CharacteristicConverter[];
-  private characteristicsUuids?: CUUID[];
+  private eventEmitter: EventEmitter;
+  private characteristics?: NobleCharacteristic[];
 
   constructor(peripheral: Peripheral, uuid: SUUID, converters: CharacteristicConverter[] = []) {
     this.peripheral = peripheral;
     this.adapter = peripheral.adapter;
     this.uuid = uuid;
     this.converters = converters;
+    this.eventEmitter = new EventEmitter();
   }
 
-  public async read(nameOrUuid: CUUID | string): Promise<any> {
-    const { uuid, decode } = this.getConverter(nameOrUuid);
+  public async read(name: NamedCUUID): Promise<any> {
+    const characteristic = await this.getCharacteristic(name);
+    return await characteristic.read();
+  }
+
+  public async write(name: NamedCUUID, value: any): Promise<any> {
+    const characteristic = await this.getCharacteristic(name);
+    await characteristic.write(value);
+  }
+
+  public async on(name: NamedCUUID, listener: (value: any) => void) {
+    const { uuid, decode } = this.getConverter(name);
     const characteristic = await this.getCharacteristic(uuid);
-    const buffer = await characteristic.read();
-    return decode ? await decode(buffer) : buffer;
+    characteristic.on("notify");
   }
 
-  public async getCharacteristic(uuid: CUUID): Promise<Characteristic> {
-    const characteristics = await this.getCharacteristics();
-    const characteristic = characteristics.find(c => c.uuid === uuid);
+  public off(name: NamedCUUID, listener: (value: any) => void) {
+    this.eventEmitter.off(name.toString(), listener);
+    if (this.eventEmitter.listenerCount(name.toString()) === 0) this.notify(name, false);
+  }
+
+  /* public on(name: NamedCUUID, listener: (value: any) => void) {
+    if (this.eventEmitter.listenerCount(name.toString()) === 0) this.notify(name, true);
+    this.eventEmitter.on(name.toString(), listener);
+  }
+
+  public off(name: NamedCUUID, listener: (value: any) => void) {
+    this.eventEmitter.off(name.toString(), listener);
+    if (this.eventEmitter.listenerCount(name.toString()) === 0) this.notify(name, false);
+  } */
+
+  public async getCharacteristics(
+    converters: CharacteristicConverter[]
+  ): Promise<Characteristic[]> {
+    if (!this.characteristics) this.characteristics = await this.fetchCharacteristics();
+    return this.characteristics.map(c => Characteristic.fromNoble(this, c));
+  }
+
+  private async notify(name: NamedCUUID, notify: boolean): Promise<void> {
+    const { uuid, decode } = this.getConverter(name);
+    const characteristic = await this.getCharacteristic(uuid);
+  }
+
+  private async getCharacteristic(name: NamedCUUID): Promise<Characteristic> {
+    const characteristics = await this.getCharacteristics([converter]);
+    const characteristic = characteristics.find(c => c.uuid === converter.uuid);
     if (!characteristic) throw new Error(`Cannot find characteristic with the uuid "${uuid}"`);
     return characteristic;
-  }
-
-  public async getCharacteristics(): Promise<Characteristic[]> {
-    if (!this.characteristicsUuids) this.characteristicsUuids = await this.fetchCharacteristics();
-    return this.characteristicsUuids.map(uuid => new Characteristic(this, uuid));
-  }
-
-  private async fetchCharacteristics(): Promise<CUUID[]> {
-    return await this.adapter.run<"characteristicsDiscover">(
-      () => this.adapter.discoverCharacteristics(this.peripheral.uuid, this.uuid, []),
-      () => this.adapter.when("characteristicsDiscover", ([p, s]) => this.isThisService(p, s)),
-      ([, , characteristics]) => characteristics.map(({ uuid }) => uuid)
-    );
   }
 
   private isThisService(peripheralUuid: string, serviceUuid: SUUID): boolean {
     return peripheralUuid === this.peripheral.uuid && serviceUuid === this.uuid;
   }
 
-  private getConverter(nameOrUuid: CUUID | string): CharacteristicConverter {
+  private getConverter(nameOrUuid: NamedCUUID): CharacteristicConverter {
     return this.converters.find(c => c.name === nameOrUuid) || { uuid: nameOrUuid };
+  }
+
+  private async fetchCharacteristics(): Promise<NobleCharacteristic[]> {
+    return await this.adapter.run<"characteristicsDiscover">(
+      () => this.adapter.discoverCharacteristics(this.peripheral.uuid, this.uuid, []),
+      () => this.adapter.when("characteristicsDiscover", ([p, s]) => this.isThisService(p, s)),
+      ([, , characteristics]) => characteristics
+    );
   }
 }
