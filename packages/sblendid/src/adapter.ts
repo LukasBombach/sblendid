@@ -2,8 +2,7 @@ import {
   Bindings,
   EventName as Event,
   EventParameters as Params,
-  EventListener as Listener,
-  EventReturnType as Return
+  EventListener as Listener
 } from "sblendid-bindings-macos";
 import Queue from "../src/queue";
 import Peripheral from "./peripheral";

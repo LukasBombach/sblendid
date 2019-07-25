@@ -4,8 +4,8 @@ type CUUID = BluetoothCharacteristicUUID;
 type DUUID = BluetoothDescriptorUUID;
 
 interface CharacteristicConverter {
-  uuid: string;
-  name: string;
+  uuid: BluetoothCharacteristicUUID;
+  name?: string;
   encode?: (...args: any[]) => Promise<Buffer> | Buffer;
   decode?: (buffer: Buffer) => Promise<any> | any;
 }
