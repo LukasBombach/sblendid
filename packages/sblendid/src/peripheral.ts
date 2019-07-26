@@ -44,11 +44,11 @@ export default class Peripheral {
     this.state = "disconnected";
   }
 
-  public async getService(uuid: SUUID, converters: CharacteristicConverter[]): Promise<Service> {
+  public async getService(uuid: SUUID, converters: CConverter[]): Promise<Service> {
     return new Service(this, uuid, converters);
   }
 
-  public async getServices(converters: ServiceConverters = {}): Promise<Service[]> {
+  public async getServices(converters: SConverters = {}): Promise<Service[]> {
     if (this.state === "disconnected") await this.connect();
     if (!this.serviceUuids) this.serviceUuids = await this.fetchServices();
     return this.serviceUuids.map(uuid => new Service(this, uuid, converters[uuid]));

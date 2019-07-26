@@ -5,15 +5,16 @@ type DUUID = BluetoothDescriptorUUID;
 
 type NamedCUUID = CUUID | string;
 
-interface CharacteristicConverter {
-  uuid: BluetoothCharacteristicUUID;
+interface CConverter {
+  uuid: CUUID;
   name?: string;
   encode?: (...args: any[]) => Promise<Buffer> | Buffer;
   decode?: (buffer: Buffer) => Promise<any> | any;
 }
 
-interface ServiceConverters {
-  [uuid: string]: CharacteristicConverter[];
+interface SConverters {
+  [uuid: string]: CConverter[];
 }
 
 type PeripheralState = "connecting" | "connected" | "disconnecting" | "disconnected";
+type ConverterMap = Record<string, CConverter>;

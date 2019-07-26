@@ -48,7 +48,7 @@ export default class Characteristic {
   public static fromNoble(
     service: Service,
     noble: NobleCharacteristic,
-    converter?: CharacteristicConverter
+    converter?: CConverter
   ): Characteristic {
     const { uuid, properties } = noble;
     return new Characteristic(
@@ -65,12 +65,7 @@ export default class Characteristic {
     return properties;
   }
 
-  constructor(
-    service: Service,
-    uuid: CUUID,
-    converter?: CharacteristicConverter,
-    properties?: Properties
-  ) {
+  constructor(service: Service, uuid: CUUID, converter?: CConverter, properties?: Properties) {
     this.adapter = service.adapter;
     this.service = service;
     this.uuid = uuid;
