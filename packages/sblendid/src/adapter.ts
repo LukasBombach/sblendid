@@ -16,6 +16,22 @@ export type Condition<E extends Event> = ConditionFn<E> | Params<E>[0];
 export type ConditionFn<E extends Event> = (params: Params<E>) => Promise<boolean> | boolean;
 export type AsPeripheralListener = (peripheral: Peripheral) => Promise<void | boolean> | void | boolean;
 
+type Resolve = (value?: unknown) => void;
+type Reject = (reason?: any) => void;
+
+interface CallbacksObject {
+  resolve: Resolve;
+  reject: Reject;
+}
+
+interface PromiseObject<T> {
+  promise: Promise<T>;
+}
+
+interface PromiseAnQueue<T> extends PromiseObject<T> {
+  queue: Queue;
+}
+
 export default class Adapter extends Bindings {
   async run<E extends Event, R = P<E>>(action: Action, when: When<E>, ...posts: Post<E, R>[]): Promise<R> {
     const [eventParameters] = await Promise.all([when(), action()]);
@@ -25,17 +41,27 @@ export default class Adapter extends Bindings {
   }
 
   public when<E extends Event>(event: E, condition: Condition<E>): Promise<Params<E>> {
-    return new Promise(resolve => {
-      const queue = new Queue();
-      this.on(event, (async (...params: Params<E>) => {
-        const item = typeof condition === "function" ? () => condition(params) : condition === params[0];
-        const conditionIsMet = await queue.add(item);
-        if (conditionIsMet) await queue.end(() => resolve(params));
-      }) as any);
-    });
+    const { promise, resolve, queue } = this.setUpWhen<Params<E>>();
+    this.on(event, ((...params: Params<E>) => this.onWhenEvent(condition, params, queue, resolve)) as any);
+    return promise;
   }
-}
 
-export function asPeripheral(listener: AsPeripheralListener): Listener<"discover"> {
-  return (...args: Params<"discover">) => listener(new Peripheral(this.adapter, ...args));
+  public asPeripheral(listener: AsPeripheralListener): Listener<"discover"> {
+    return (...args: Params<"discover">) => listener(Peripheral.fromDiscover(this, args));
+  }
+
+  private async onWhenEvent<E extends Event>(cond: Condition<E>, params: Params<E>, q: Queue, res: Resolve) {
+    const conditionIsMet = await q.add(this.getQueueItem(cond, params));
+    if (conditionIsMet) await q.end(() => res(params));
+  }
+
+  private setUpWhen<T>(): CallbacksObject & PromiseAnQueue<T> {
+    const callbacks: CallbacksObject = { resolve: () => {}, reject: () => {} };
+    const promise = new Promise<T>((resolve, reject) => Object.assign(callbacks, { resolve, reject }));
+    return Object.assign<CallbacksObject, PromiseAnQueue<T>>(callbacks, { promise, queue: new Queue() });
+  }
+
+  private async getQueueItem<E extends Event>(cond: Condition<E>, params: Params<E>): Promise<any> {
+    return typeof cond === "function" ? () => cond(params) : cond === params[0];
+  }
 }

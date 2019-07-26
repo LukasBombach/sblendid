@@ -1,5 +1,5 @@
 import { EventListener } from "sblendid-bindings-macos";
-import Adapter, { asPeripheral, AsPeripheralListener } from "./adapter";
+import Adapter, { AsPeripheralListener } from "./adapter";
 import Peripheral from "./peripheral";
 
 export default class Sblendid {
@@ -20,16 +20,13 @@ export default class Sblendid {
   }
 
   public async powerOn(): Promise<void> {
-    await this.adapter.run(
-      () => this.adapter.init(),
-      () => this.adapter.when("stateChange", "poweredOn")
-    );
+    await this.adapter.run(() => this.adapter.init(), () => this.adapter.when("stateChange", "poweredOn"));
   }
 
   public async find(condition: string | AsPeripheralListener): Promise<Peripheral> {
-    return await this.adapter.run<"discover">(
+    return await this.adapter.run<"discover", Peripheral>(
       () => this.adapter.startScanning(),
-      () => this.adapter.when("discover", asPeripheral(this.getFindCondition(condition)) as any),
+      () => this.adapter.when("discover", this.adapter.asPeripheral(this.getFindCondition(condition)) as any),
       () => this.adapter.stopScanning(),
       peripheral => Peripheral.fromDiscover(this.adapter, peripheral)
     );
@@ -37,7 +34,7 @@ export default class Sblendid {
 
   public startScanning(listener: (peripheral: Peripheral) => void = () => {}): void {
     this.adapter.off("discover", this.scanListener);
-    this.scanListener = asPeripheral(listener);
+    this.scanListener = this.adapter.asPeripheral(listener);
     this.adapter.on("discover", this.scanListener);
     this.adapter.startScanning();
   }
