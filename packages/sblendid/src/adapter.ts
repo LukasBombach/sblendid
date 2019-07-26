@@ -1,11 +1,11 @@
-import { Bindings, EventName, EventParameters } from "sblendid-bindings-macos";
+import { Bindings, Event, Listener, Params } from "sblendid-bindings-macos";
 import Queue from "../src/queue";
 import Peripheral from "./peripheral";
 
 export type Action = () => Promish<void>;
-export type When<E extends EventName> = () => Promise<EventParameters<E>>;
-export type Post<E extends EventName, ReturnValue> = (
-  params: EventParameters<E>
+export type When<E extends Event> = () => Promise<Params<E>>;
+export type Post<E extends Event, ReturnValue = Params<E>> = (
+  params: Params<E>
 ) => Promish<ReturnValue | void>;
 
 export type PeripheralListener = (
@@ -13,48 +13,41 @@ export type PeripheralListener = (
 ) => Promish<void | boolean>;
 
 export default class Adapter extends Bindings {
-  async run<E extends EventName, ReturnValue = EventParameters<E>>(
+  async run<E extends Event, ReturnValue>(
     action: Action,
     when: When<E>,
     ...posts: Post<E, ReturnValue>[]
   ): Promise<ReturnValue> {
-    const [eventParameters] = await Promise.all([when(), action()]);
-
-    for (const post of posts.slice(0, posts.length - 1)) {
-      await post(eventParameters);
-    }
-
-    const lastPostReturn = posts.length
-      ? await posts.pop()!(eventParameters)
-      : undefined;
-
-    return typeof lastPostReturn !== "undefined"
-      ? lastPostReturn
-      : ((eventParameters as any) as ReturnValue);
+    const [params] = await Promise.all([when(), action()]);
+    const cleanupMethods = posts.slice(0, -1);
+    const returnMethod = posts.slice(-1).pop();
+    for (const post of cleanupMethods) await post(params);
+    return (returnMethod ? await returnMethod(params) : params) as ReturnValue;
   }
 
-  public whens<E extends EventName>(
+  public when<E extends Event>(
     event: E,
-    condition: Condition<E>
-  ): Promise<EventParameters<E>> {
+    cond: Listener<E>
+  ): Promise<Params<E>> {
+    const queue = new Queue();
     return new Promise(resolve => {
-      const queue = new Queue();
-      this.on(event, async (...params: EventParameters<E>) => {
+      this.on(event, async (...params: Params<E>) => {
         const conditionIsMet = await queue.add(this.getQueueItem(cond, params));
         if (conditionIsMet) await queue.end(() => resolve(params));
       });
     });
   }
 
-  public asPeripheral(listener: PeripheralListener): ConditionFn<"discover"> {
-    return (...args: EventParameters<"discover">) =>
+  public asPeripheral(listener: PeripheralListener): Listener<"discover"> {
+    return (...args: Params<"discover">) =>
       listener(Peripheral.fromDiscover(this, args));
   }
 
-  private async getQueueItem<E extends EventName>(
-    cond: Condition<E>,
-    params: EventParameters<E>
+  private async getQueueItem<E extends Event>(
+    condition: Listener<E>,
+    params: Params<E>
   ): Promise<any> {
-    return typeof cond === "function" ? () => cond(params) : cond === params[0];
+    if (typeof condition === "function") return () => condition(...params);
+    return condition === params[0];
   }
 }

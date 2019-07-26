@@ -1,12 +1,16 @@
 declare module "sblendid-bindings-macos" {
   export type EventName = keyof Events;
-  export type EventListener<E extends EventName> = Events[E];
-  export type EventParameters<E extends EventName> = Parameters<
-    EventListener<E>
-  >;
-  export type EventReturnType<E extends EventName> = ReturnType<
-    EventListener<E>
-  >;
+  export type EventListener<E extends EventName> = (
+    ...params: Parameters<Events[E]>
+  ) => Promise<void | boolean> | void | boolean;
+  export type EventParameters<E extends EventName> = Parameters<Events[E]>;
+  export type EventReturnType<E extends EventName> = ReturnType<Events[E]>;
+
+  export type Event = EventName;
+  export type Listener<E extends EventName> = EventListener<E>;
+  export type Params<E extends EventName> = EventParameters<E>;
+  export type Return<E extends EventName> = EventReturnType<E>;
+
   export type State = "poweredOn";
   export type AddressType = "public" | "random" | "unknown";
 
