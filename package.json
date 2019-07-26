@@ -10,7 +10,7 @@
   "license": "MIT",
   "husky": {
     "hooks": {
-      "pre-commit": "cp packages/sblendid/README.md ./README.md"
+      "pre-commit": "cp packages/sblendid/README.md ./README.md && git add ./README.md"
     }
   },
   "devDependencies": {
