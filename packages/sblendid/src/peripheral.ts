@@ -65,7 +65,7 @@ export default class Peripheral {
   }
 
   private async fetchServices(): Promise<SUUID[]> {
-    return await this.adapter.run<"servicesDiscover">(
+    return await this.adapter.run<"servicesDiscover", SUUID[]>(
       () => this.adapter.discoverServices(this.uuid, []),
       () => this.adapter.when("servicesDiscover", this.uuid),
       ([, serviceUuids]) => serviceUuids
@@ -73,7 +73,7 @@ export default class Peripheral {
   }
 
   private async fetchRssi(): Promise<number> {
-    return await this.adapter.run<"rssiUpdate">(
+    return await this.adapter.run<"rssiUpdate", number>(
       () => this.adapter.updateRssi(this.uuid),
       () => this.adapter.when("rssiUpdate", this.uuid),
       ([, rssi]) => rssi

@@ -51,12 +51,7 @@ export default class Characteristic {
     converter?: CConverter
   ): Characteristic {
     const { uuid, properties } = noble;
-    return new Characteristic(
-      service,
-      uuid,
-      converter,
-      Characteristic.noblePropsToSblendid(properties)
-    );
+    return new Characteristic(service, uuid, converter, Characteristic.noblePropsToSblendid(properties));
   }
 
   private static noblePropsToSblendid(nobleProperties: NobleCharacteristicProperty[]): Properties {
@@ -116,8 +111,7 @@ export default class Characteristic {
   }
 
   private onNotify(pUuid: string, sUuid: SUUID, cUuid: CUUID, data: Buffer, isNfy: boolean): void {
-    if (this.isThis(pUuid, sUuid, cUuid) && isNfy)
-      this.eventEmitter.emit("notify", this.encode(data));
+    if (this.isThis(pUuid, sUuid, cUuid) && isNfy) this.eventEmitter.emit("notify", this.encode(data));
   }
 
   private isThis(pUuid: string, sUuid: SUUID, cUuid: CUUID): boolean {
@@ -125,7 +119,7 @@ export default class Characteristic {
   }
 
   private async dispatchRead(): Promise<Buffer> {
-    return await this.adapter.run<"read">(
+    return await this.adapter.run<"read", Buffer>(
       () => this.adapter.read(this.pUuid, this.sUuid, this.uuid),
       () => this.adapter.when("read", ([p, s, c]) => this.isThis(p, s, c)),
       ([, , , buffer]) => buffer
@@ -140,7 +134,7 @@ export default class Characteristic {
   }
 
   private async notify(notify: boolean): Promise<boolean> {
-    return await this.adapter.run<"notify">(
+    return await this.adapter.run<"notify", boolean>(
       () => this.adapter.notify(this.pUuid, this.sUuid, this.uuid, notify),
       () => this.adapter.when("notify", ([p, s, c]) => this.isThis(p, s, c)),
       ([, , , state]) => state
@@ -148,7 +142,7 @@ export default class Characteristic {
   }
 
   private async fetchDescriptors(): Promise<string[]> {
-    return await this.adapter.run<"descriptorsDiscover">(
+    return await this.adapter.run<"descriptorsDiscover", string[]>(
       () => this.adapter.discoverDescriptors(this.pUuid, this.sUuid, this.uuid),
       () => this.adapter.when("descriptorsDiscover", ([p, s, c]) => this.isThis(p, s, c)),
       ([, , , desciptors]) => desciptors

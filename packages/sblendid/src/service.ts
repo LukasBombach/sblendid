@@ -11,13 +11,13 @@ export default class Service {
   public uuid: SUUID;
   public name?: string;
   public type?: string;
-  private converters: CConverter[];
+  private converters: Record<string, CConverter>;
   private characteristics?: CharacteristicMap;
 
   constructor(peripheral: Peripheral, uuid: SUUID, converters: CConverter[] = []) {
     this.peripheral = peripheral;
     this.adapter = peripheral.adapter;
-    this.converters = converters;
+    this.converters = this.uuidMap<CConverter>(converters);
     this.uuid = uuid;
   }
 
@@ -50,11 +50,18 @@ export default class Service {
 
   public async getCharacteristics(): Promise<CharacteristicMap> {
     if (this.characteristics) return this.characteristics;
-    const cMap = this.uuidMap<CConverter>(this.converters);
     const nobles = await this.fetchCharacteristics();
-    const characteristics = nobles.map(c => Characteristic.fromNoble(this, c, cMap[c.uuid]));
+    const characteristics = nobles.map(c => Characteristic.fromNoble(this, c, this.converters[c.uuid]));
     this.characteristics = this.uuidMap<Characteristic>(characteristics);
     return this.characteristics;
+  }
+
+  private async fetchCharacteristics(): Promise<NobleCharacteristic[]> {
+    return await this.adapter.run<"characteristicsDiscover", NobleCharacteristic[]>(
+      () => this.adapter.discoverCharacteristics(this.peripheral.uuid, this.uuid, []),
+      () => this.adapter.when("characteristicsDiscover", ([p, s]) => this.isThisService(p, s)),
+      ([, , characteristics]) => characteristics
+    );
   }
 
   private isThisService(peripheralUuid: string, serviceUuid: SUUID): boolean {
@@ -65,15 +72,7 @@ export default class Service {
     return this.converters.find(c => c.name === nameOrUuid) || { uuid: nameOrUuid };
   }
 
-  private uuidMap<ElementTypes>(arr: any[]): Record<string, ElementTypes> {
+  private uuidMap<ElementTypes extends { uuid: CUUID }>(arr: ElementTypes[]): Record<string, ElementTypes> {
     return arr.reduce((o, c) => ({ ...o, [c.uuid]: c }), {});
-  }
-
-  private async fetchCharacteristics(): Promise<NobleCharacteristic[]> {
-    return await this.adapter.run<"characteristicsDiscover">(
-      () => this.adapter.discoverCharacteristics(this.peripheral.uuid, this.uuid, []),
-      () => this.adapter.when("characteristicsDiscover", ([p, s]) => this.isThisService(p, s)),
-      ([, , characteristics]) => characteristics
-    );
   }
 }

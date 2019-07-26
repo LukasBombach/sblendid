@@ -1,5 +1,5 @@
-import { EventListener } from "sblendid-bindings-macos";
-import Adapter, { AsPeripheralListener } from "./adapter";
+import { Events, EventListener } from "sblendid-bindings-macos";
+import Adapter, { AsPeripheralListener, ConditionFn } from "./adapter";
 import Peripheral from "./peripheral";
 
 export default class Sblendid {
@@ -26,7 +26,7 @@ export default class Sblendid {
   public async find(condition: string | AsPeripheralListener): Promise<Peripheral> {
     return await this.adapter.run<"discover", Peripheral>(
       () => this.adapter.startScanning(),
-      () => this.adapter.when("discover", this.adapter.asPeripheral(this.getFindCondition(condition)) as any),
+      () => this.adapter.when("discover", this.getFindCondition(condition)),
       () => this.adapter.stopScanning(),
       peripheral => Peripheral.fromDiscover(this.adapter, peripheral)
     );
@@ -45,8 +45,8 @@ export default class Sblendid {
     this.adapter.stopScanning();
   }
 
-  private getFindCondition(condition: string | AsPeripheralListener): AsPeripheralListener {
-    if (typeof condition === "function") return condition;
-    return ({ uuid, name }: Peripheral) => [uuid, name].includes(condition);
+  private getFindCondition(condition: string | AsPeripheralListener): ConditionFn<"discover"> {
+    if (typeof condition === "function") return this.adapter.asPeripheral(condition);
+    return this.adapter.asPeripheral(({ uuid, name }: Peripheral) => [uuid, name].includes(condition));
   }
 }

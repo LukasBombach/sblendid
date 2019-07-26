@@ -13,7 +13,7 @@ export type Post<E extends Event, R> = (params: Params<E>) => Promise<R | void> 
 type P<E extends Event> = Params<E>;
 
 export type Condition<E extends Event> = ConditionFn<E> | Params<E>[0];
-export type ConditionFn<E extends Event> = (params: Params<E>) => Promise<boolean> | boolean;
+export type ConditionFn<E extends Event> = (params: Params<E>) => Promise<void | boolean> | void | boolean;
 export type AsPeripheralListener = (peripheral: Peripheral) => Promise<void | boolean> | void | boolean;
 
 type Resolve = (value?: unknown) => void;
@@ -46,7 +46,7 @@ export default class Adapter extends Bindings {
     return promise;
   }
 
-  public asPeripheral(listener: AsPeripheralListener): Listener<"discover"> {
+  public asPeripheral(listener: AsPeripheralListener): ConditionFn<"discover"> {
     return (...args: Params<"discover">) => listener(Peripheral.fromDiscover(this, args));
   }
 
