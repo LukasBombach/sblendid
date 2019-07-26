@@ -16,5 +16,13 @@ interface SConverters {
   [uuid: string]: CConverter[];
 }
 
-type PeripheralState = "connecting" | "connected" | "disconnecting" | "disconnected";
+type PeripheralState =
+  | "connecting"
+  | "connected"
+  | "disconnecting"
+  | "disconnected";
 type ConverterMap = Record<string, CConverter>;
+
+type Promish<T> = Promise<T> | T;
+type Resolve = (value?: unknown) => void;
+type Reject = (reason?: any) => void;

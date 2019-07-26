@@ -1,8 +1,12 @@
 declare module "sblendid-bindings-macos" {
   export type EventName = keyof Events;
   export type EventListener<E extends EventName> = Events[E];
-  export type EventParameters<E extends EventName> = Parameters<EventListener<E>>;
-  export type EventReturnType<E extends EventName> = ReturnType<EventListener<E>>;
+  export type EventParameters<E extends EventName> = Parameters<
+    EventListener<E>
+  >;
+  export type EventReturnType<E extends EventName> = ReturnType<
+    EventListener<E>
+  >;
   export type State = "poweredOn";
   export type AddressType = "public" | "random" | "unknown";
 
@@ -35,7 +39,10 @@ declare module "sblendid-bindings-macos" {
   export class Bindings {
     init(): void;
 
-    startScanning(serviceUuids?: BluetoothServiceUUID[], allowDuplicates?: boolean): void;
+    startScanning(
+      serviceUuids?: BluetoothServiceUUID[],
+      allowDuplicates?: boolean
+    ): void;
 
     stopScanning(): void;
 
@@ -45,7 +52,10 @@ declare module "sblendid-bindings-macos" {
 
     updateRssi(peripheralUuid: string): void;
 
-    discoverServices(peripheralUuid: string, serviceUuids: BluetoothServiceUUID[]): void;
+    discoverServices(
+      peripheralUuid: string,
+      serviceUuids: BluetoothServiceUUID[]
+    ): void;
 
     discoverIncludedServices(
       peripheralUuid: string,
@@ -117,11 +127,20 @@ declare module "sblendid-bindings-macos" {
       withoutResponse: boolean
     ): void;
 
-    on<E extends EventName>(event: E, listener: EventListener<E>): void;
+    on<E extends EventName>(
+      event: E,
+      listener: EventListener<E>
+    ): Promise<void | boolean> | void | boolean;
 
-    off<E extends EventName>(event: E, listener: EventListener<E>): void;
+    off<E extends EventName>(
+      event: E,
+      listener: EventListener<E>
+    ): Promise<void | boolean> | void | boolean;
 
-    once<E extends EventName>(event: E, listener: EventListener<E>): void;
+    once<E extends EventName>(
+      event: E,
+      listener: EventListener<E>
+    ): Promise<void | boolean> | void | boolean;
   }
 
   export interface Events {
@@ -142,7 +161,10 @@ declare module "sblendid-bindings-macos" {
 
     rssiUpdate: (peripheralUuid: string, rssi: number) => void;
 
-    servicesDiscover: (peripheralUuid: string, serviceUuids: BluetoothServiceUUID[]) => void;
+    servicesDiscover: (
+      peripheralUuid: string,
+      serviceUuids: BluetoothServiceUUID[]
+    ) => void;
 
     includedServicesDiscover: (
       peripheralUuid: string,
@@ -210,7 +232,11 @@ declare module "sblendid-bindings-macos" {
 
     handleWrite: (peripheralUuid: string, handle: number) => void;
 
-    handleNotify: (peripheralUuid: string, handle: number, data: Buffer) => void;
+    handleNotify: (
+      peripheralUuid: string,
+      handle: number,
+      data: Buffer
+    ) => void;
 
     scanStart: () => void;
 
