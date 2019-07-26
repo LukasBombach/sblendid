@@ -5,11 +5,11 @@ type DUUID = BluetoothDescriptorUUID;
 
 type NamedCUUID = CUUID | string;
 
-interface CConverter {
+interface CConverter<T> {
   uuid: CUUID;
   name?: string;
-  encode?: (...args: any[]) => Promise<Buffer> | Buffer;
-  decode?: (buffer: Buffer) => Promise<any> | any;
+  encode?: Encoder<T>;
+  decode?: Decoder<T>;
 }
 
 interface SConverters {
@@ -21,8 +21,25 @@ type PeripheralState =
   | "connected"
   | "disconnecting"
   | "disconnected";
-type ConverterMap = Record<string, CConverter>;
+
+type ConverterMap<T> = Record<string, CConverter<T>>;
 
 type Promish<T> = Promise<T> | T;
 type Resolve = (value?: unknown) => void;
 type Reject = (reason?: any) => void;
+
+type Listener<T> = (value: T) => Promish<void>;
+type Encoder<T> = (value: T) => Promish<Buffer>;
+type Decoder<T> = (value: Buffer) => Promish<T>;
+
+interface Properties {
+  broadcast: boolean;
+  read: boolean;
+  writeWithoutResponse: boolean;
+  write: boolean;
+  notify: boolean;
+  indicate: boolean;
+  authenticatedSignedWrites: boolean;
+  reliableWrite: boolean;
+  writableAuxiliaries: boolean;
+}

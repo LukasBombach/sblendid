@@ -1,23 +1,10 @@
-import { NobleCharacteristic, NobleCharacteristicProperty } from "sblendid-bindings-macos";
+import {
+  NobleCharacteristic,
+  NobleCharacteristicProperty as NobleProp
+} from "sblendid-bindings-macos";
 import Adapter from "./adapter";
 import Service from "./service";
 import { EventEmitter } from "events";
-
-export type Listener = (value: Buffer) => Promise<void> | void;
-export type Encoder = (value: any) => Promise<Buffer> | Buffer;
-export type Decoder = (value: Buffer) => Promise<any> | any;
-
-export interface Properties {
-  broadcast: boolean;
-  read: boolean;
-  writeWithoutResponse: boolean;
-  write: boolean;
-  notify: boolean;
-  indicate: boolean;
-  authenticatedSignedWrites: boolean;
-  reliableWrite: boolean;
-  writableAuxiliaries: boolean;
-}
 
 const defaultProperties: Properties = {
   broadcast: false,
@@ -31,46 +18,45 @@ const defaultProperties: Properties = {
   writableAuxiliaries: false
 };
 
-export default class Characteristic {
-  public readonly uuid: CUUID;
-  public readonly properties?: Properties;
-  public adapter: Adapter;
+export default class Characteristic<T> {
+  public uuid: CUUID;
+  public properties?: Properties;
   public service: Service;
-
-  private pUuid: string;
-  private sUuid: SUUID;
+  private adapter: Adapter;
   private eventEmitter: EventEmitter;
   private isNotifying: boolean;
-  private descriptors?: string[];
-  private encode: Encoder;
-  private decode: Decoder;
+  private encode: Encoder<T>;
+  private decode: Decoder<T>;
 
-  public static fromNoble(
+  public static fromNoble<T>(
     service: Service,
     noble: NobleCharacteristic,
     converter?: CConverter
-  ): Characteristic {
-    const { uuid, properties } = noble;
-    return new Characteristic(service, uuid, converter, Characteristic.noblePropsToSblendid(properties));
+  ): Characteristic<T> {
+    const properties = Characteristic.noblePropsToSblendid(noble.properties);
+    return new Characteristic(service, noble.uuid, converter, properties);
   }
 
-  private static noblePropsToSblendid(nobleProperties: NobleCharacteristicProperty[]): Properties {
+  private static noblePropsToSblendid(nobleProps: NobleProp[]): Properties {
     const properties = Object.assign({}, defaultProperties);
-    for (const property of nobleProperties) properties[property] = true;
+    for (const name of nobleProps) properties[name] = true;
     return properties;
   }
 
-  constructor(service: Service, uuid: CUUID, converter?: CConverter, properties?: Properties) {
-    this.adapter = service.adapter;
+  constructor(
+    service: Service,
+    uuid: CUUID,
+    converter?: CConverter<T>,
+    properties?: Properties
+  ) {
     this.service = service;
     this.uuid = uuid;
-    this.pUuid = this.service.peripheral.uuid;
-    this.sUuid = this.service.uuid;
     this.properties = properties;
+    this.adapter = service.adapter;
     this.eventEmitter = new EventEmitter();
     this.isNotifying = false;
-    this.decode = converter && converter.decode ? converter.decode : v => v;
     this.encode = converter && converter.encode ? converter.encode : v => v;
+    this.decode = converter && converter.decode ? converter.decode : v => v;
   }
 
   public async read(): Promise<any> {
@@ -83,19 +69,14 @@ export default class Characteristic {
     await this.dispatchWrite(buffer);
   }
 
-  public async on(event: "notify", listener: Listener): Promise<void> {
+  public async on(event: "notify", listener: Listener<T>): Promise<void> {
     this.eventEmitter.on(event, listener);
     if (!this.isNotifying) await this.startNotifing();
   }
 
-  public async off(event: "notify", listener: Listener): Promise<void> {
+  public async off(event: "notify", listener: Listener<T>): Promise<void> {
     if (!this.eventEmitter.listenerCount("notify")) await this.stopNotifing();
     this.eventEmitter.off(event, listener);
-  }
-
-  public async getDescriptors(): Promise<string[]> {
-    if (!this.descriptors) this.descriptors = await this.fetchDescriptors();
-    return this.descriptors;
   }
 
   private async startNotifing(): Promise<void> {
@@ -110,42 +91,48 @@ export default class Characteristic {
     this.isNotifying = await this.notify(false);
   }
 
-  private onNotify(pUuid: string, sUuid: SUUID, cUuid: CUUID, data: Buffer, isNfy: boolean): void {
-    if (this.isThis(pUuid, sUuid, cUuid) && isNfy) this.eventEmitter.emit("notify", this.encode(data));
+  private onNotify(
+    pUuid: string,
+    sUuid: SUUID,
+    cUuid: CUUID,
+    data: Buffer,
+    isNfy: boolean
+  ): void {
+    if (!this.isThis(pUuid, sUuid, cUuid) || !isNfy) return;
+    this.eventEmitter.emit("notify", this.decode(data));
   }
 
   private isThis(pUuid: string, sUuid: SUUID, cUuid: CUUID): boolean {
     return pUuid === this.pUuid && sUuid === this.sUuid && cUuid === this.uuid;
   }
 
+  private getUuids(): [string, SUUID, CUUID] {
+    return [this.service.peripheral.uuid, this.service.uuid, this.uuid];
+  }
+
   private async dispatchRead(): Promise<Buffer> {
+    const [pUuid, sUuid, uuid] = this.getUuids();
     return await this.adapter.run<"read", Buffer>(
-      () => this.adapter.read(this.pUuid, this.sUuid, this.uuid),
+      () => this.adapter.read(pUuid, sUuid, uuid),
       () => this.adapter.when("read", ([p, s, c]) => this.isThis(p, s, c)),
       ([, , , buffer]) => buffer
     );
   }
 
   private async dispatchWrite(value: Buffer): Promise<void> {
+    const [pUuid, sUuid, uuid] = this.getUuids();
     await this.adapter.run<"write">(
-      () => this.adapter.write(this.pUuid, this.sUuid, this.uuid, value, true),
-      () => this.adapter.when("write", ([p, s, c]) => this.isThis(p, s, c))
+      () => this.adapter.write(pUuid, sUuid, uuid, value, true),
+      () => this.adapter.when("write", (p, s, c) => this.isThis(p, s, c))
     );
   }
 
   private async notify(notify: boolean): Promise<boolean> {
+    const [pUuid, sUuid, uuid] = this.getUuids();
     return await this.adapter.run<"notify", boolean>(
-      () => this.adapter.notify(this.pUuid, this.sUuid, this.uuid, notify),
-      () => this.adapter.when("notify", ([p, s, c]) => this.isThis(p, s, c)),
+      () => this.adapter.notify(pUuid, sUuid, uuid, notify),
+      () => this.adapter.when("notify", (p, s, c) => this.isThis(p, s, c)),
       ([, , , state]) => state
-    );
-  }
-
-  private async fetchDescriptors(): Promise<string[]> {
-    return await this.adapter.run<"descriptorsDiscover", string[]>(
-      () => this.adapter.discoverDescriptors(this.pUuid, this.sUuid, this.uuid),
-      () => this.adapter.when("descriptorsDiscover", ([p, s, c]) => this.isThis(p, s, c)),
-      ([, , , desciptors]) => desciptors
     );
   }
 }
