@@ -39,16 +39,3 @@ export default class Adapter extends Bindings {
 export function asPeripheral(listener: AsPeripheralListener): Listener<"discover"> {
   return (...args: Params<"discover">) => listener(new Peripheral(this.adapter, ...args));
 }
-
-/*
-async run<E extends Event>(
-    action: Action,
-    when: When<E>,
-    end?: End<E>,
-    transform?: End<E>
-  ): Promise<any> {
-    const [eventParameters] = await Promise.all([when(), action()]);
-    const endReturn = end ? await end(eventParameters) : eventParameters;
-    return transform ? await transform(endReturn) : endReturn;
-  }
-*/
