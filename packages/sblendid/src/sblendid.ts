@@ -57,8 +57,10 @@ export default class Sblendid {
   private getFindCondition(
     condition: string | PeripheralListener
   ): EventListener<"discover"> {
-    const { asPeripheral } = this.adapter;
-    if (typeof condition === "function") return asPeripheral(condition);
-    return asPeripheral(p => [p.uuid, p.address, p.name].includes(condition));
+    if (typeof condition === "function")
+      return this.adapter.asPeripheral(condition);
+    return this.adapter.asPeripheral(p =>
+      [p.uuid, p.address, p.name].includes(condition)
+    );
   }
 }

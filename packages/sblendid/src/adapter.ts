@@ -30,8 +30,8 @@ export default class Adapter extends Bindings {
     event: E,
     condition: Listener<E>
   ): Promise<Params<E>> {
-    const queue = new Queue();
-    return new Promise(resolve => {
+    return new Promise<Params<E>>(resolve => {
+      const queue = new Queue();
       const listener = async (...params: Params<E>) => {
         const conditionIsMet = await queue.add(() => condition(...params));
         if (conditionIsMet) await queue.end(() => resolve(params));

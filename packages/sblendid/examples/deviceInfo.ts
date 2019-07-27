@@ -1,6 +1,7 @@
-import Sblendid, { CharacteristicConverter } from "../src";
+import Sblendid from "../src";
+import logAll from "./logAll";
 
-const converters: CharacteristicConverter[] = [
+const converters = [
   {
     uuid: "2a29",
     name: "manufacturer",
@@ -15,14 +16,28 @@ const converters: CharacteristicConverter[] = [
 
 (async () => {
   try {
-    const peripheral = await Sblendid.connect(async p => await p.hasService("180a"));
+    const peripheral = await Sblendid.connect(async p => {
+      console.log(".");
+      if (
+        !p.advertisement.manufacturerData ||
+        !p.advertisement.manufacturerData.toString("hex").startsWith("4c00")
+      )
+        return false;
+      return await Promise.race<boolean>([
+        p.hasService("180a"),
+        new Promise<boolean>(res => setTimeout(() => res(false), 2000))
+      ]);
+    });
+
+    const label =
+      peripheral.advertisement.manufacturerData &&
+      peripheral.advertisement.manufacturerData.toString("hex");
+    console.log("Found", label);
+
     const deviceInfo = await peripheral.getService("180a", converters);
 
-    const manufacturer = await deviceInfo.read("manufacturer");
-    const model = await deviceInfo.read("model");
-
-    console.log("Manufacturer:", manufacturer);
-    console.log("Model:", model);
+    console.log("Manufacturer:", await deviceInfo.read("manufacturer"));
+    console.log("Model:", await deviceInfo.read("model"));
 
     process.exit();
   } catch (error) {

@@ -7,7 +7,7 @@ export default class Service {
   public adapter: Adapter;
   public peripheral: Peripheral;
   public uuid: SUUID;
-  private converters: Record<string, Converter<any>>;
+  private converters: Converter<any>[];
   private characteristics?: Record<string, Characteristic>;
 
   constructor(
@@ -17,7 +17,7 @@ export default class Service {
   ) {
     this.peripheral = peripheral;
     this.adapter = peripheral.adapter;
-    this.converters = this.uuidMap<Converter<any>>(converters);
+    this.converters = converters;
     this.uuid = uuid;
   }
 
@@ -43,7 +43,8 @@ export default class Service {
 
   private async getCharacteristic(name: NamedCUUID): Promise<Characteristic> {
     const characteristics = await this.getCharacteristics();
-    const characteristic = characteristics[this.getConverter(name).uuid];
+    const converter = this.getConverter(name);
+    const characteristic = characteristics[converter ? converter.uuid : name];
     if (!characteristic) throw new Error(`Cannot find characteristic`);
     return characteristic;
   }
@@ -60,12 +61,12 @@ export default class Service {
     return [this.peripheral.uuid, this.uuid];
   }
 
-  private isThis(peripheralUuid: string, serviceUuid: SUUID): boolean {
-    return peripheralUuid === this.peripheral.uuid && serviceUuid === this.uuid;
+  private isThis(puuid: string, suuid: SUUID): boolean {
+    return puuid === this.peripheral.uuid && suuid === this.uuid;
   }
 
-  private getConverter(nameOrUuid: NamedCUUID): Converter<any> {
-    return this.converters[name] || { uuid: nameOrUuid };
+  private getConverter(name: NamedCUUID): Converter<any> | undefined {
+    return this.converters.find(c => [c.name, c.uuid].includes(name));
   }
 
   private uuidMap<T extends { uuid: CUUID }>(arr: T[]): Record<string, T> {
@@ -73,7 +74,7 @@ export default class Service {
   }
 
   private getCFromN(nbc: NBC): Characteristic {
-    return Characteristic.fromNoble(this, nbc, this.converters[nbc.uuid]);
+    return Characteristic.fromNoble(this, nbc, this.getConverter(nbc.uuid));
   }
 
   private async fetchCharacteristics(): Promise<NBC[]> {
