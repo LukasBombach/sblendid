@@ -2,28 +2,18 @@ import chalk from "chalk";
 import Sblendid from "../src";
 
 (async () => {
-  try {
-    const sblendid = new Sblendid();
-    await sblendid.powerOn();
+  const sblendid = await Sblendid.powerOn();
 
-    sblendid.startScanning(async peripheral => {
-      const { uuid, address, addressType, connectable, advertisement, rssi } = peripheral;
+  sblendid.startScanning(async p => {
+    const uuid = chalk.blue(p.uuid);
 
-      if (!advertisement) {
-        return console.log(chalk.dim(uuid), connectable, connectable);
-      }
-      if (!advertisement.manufacturerData) {
-        return console.log(chalk.dim(uuid), connectable, advertisement);
-      }
-      if (advertisement.manufacturerData) {
-        return console.log(
-          chalk.dim(uuid),
-          connectable,
-          chalk.blue(advertisement.manufacturerData.toString("hex"))
-        );
-      }
-    });
-  } catch (error) {
-    console.error(error);
-  }
+    const connectable = p.connectable
+      ? chalk.green("connectable    ")
+      : chalk.red("not connectable");
+
+    const servicesLabel = "Advertised services";
+    const serviceUuids = p.advertisement.serviceUuids || chalk.dim("none");
+
+    console.log(uuid, connectable, servicesLabel, serviceUuids);
+  });
 })();
