@@ -13,6 +13,8 @@ export type PeripheralListener = (
 ) => Promish<void | boolean>;
 
 export default class Adapter extends Bindings {
+  static timeout: number = 5000;
+
   async run<E extends Event, ReturnValue = Params<E>>(
     action: Action,
     when: When<E>,
@@ -28,16 +30,21 @@ export default class Adapter extends Bindings {
 
   public when<E extends Event>(
     event: E,
-    condition: Listener<E>
+    condition: Listener<E>,
+    timeout: number = Adapter.timeout
   ): Promise<Params<E>> {
-    return new Promise<Params<E>>(resolve => {
-      const queue = new Queue();
-      const listener = async (...params: Params<E>) => {
+    let listener: Listener<E>;
+    const queue = new Queue();
+    const timeoutError = new Error(`Timeout waiting for ${event}`);
+    return new Promise<Params<E>>((resolve, reject) => {
+      listener = async (...params: Params<E>) => {
         const conditionIsMet = await queue.add(() => condition(...params));
         if (conditionIsMet) await queue.end(() => resolve(params));
-        if (conditionIsMet) this.off(event, listener);
       };
+      setTimeout(() => reject(timeoutError), timeout);
       this.on(event, listener);
+    }).finally(() => {
+      this.off(event, listener);
     });
   }
 

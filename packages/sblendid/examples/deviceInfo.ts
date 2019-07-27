@@ -16,23 +16,10 @@ const converters = [
 
 (async () => {
   try {
-    const peripheral = await Sblendid.connect(async p => {
+    const peripheral = await Sblendid.connect(p => {
       console.log(".");
-      if (
-        !p.advertisement.manufacturerData ||
-        !p.advertisement.manufacturerData.toString("hex").startsWith("4c00")
-      )
-        return false;
-      return await Promise.race<boolean>([
-        p.hasService("180a"),
-        new Promise<boolean>(res => setTimeout(() => res(false), 2000))
-      ]);
+      return p.hasService("180a").catch(() => false);
     });
-
-    const label =
-      peripheral.advertisement.manufacturerData &&
-      peripheral.advertisement.manufacturerData.toString("hex");
-    console.log("Found", label);
 
     const deviceInfo = await peripheral.getService("180a", converters);
 

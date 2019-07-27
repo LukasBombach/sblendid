@@ -5,11 +5,12 @@ import Service from "./service";
 export default class Peripheral {
   public adapter: Adapter;
   public uuid: string;
-  public name?: string;
+  public name: string = "";
   public address?: string;
   public addressType?: string;
   public connectable?: boolean;
   public advertisement: Advertisement = {};
+  public manufacturerData: Buffer = Buffer.from("");
   public state: PeripheralState = "disconnected";
   private serviceUuids?: SUUID[];
 
@@ -17,13 +18,14 @@ export default class Peripheral {
     adapter: Adapter,
     params: EventParameters<"discover">
   ): Peripheral {
-    const peripheral = new Peripheral(adapter, params[0]);
-    peripheral.address = params[1];
-    peripheral.addressType = params[2];
-    peripheral.connectable = params[3];
-    peripheral.advertisement = params[4] || {};
-    peripheral.name = peripheral.advertisement.localName;
-    return peripheral;
+    const p = new Peripheral(adapter, params[0]);
+    p.address = params[1];
+    p.addressType = params[2];
+    p.connectable = params[3];
+    p.advertisement = params[4] || {};
+    p.manufacturerData = p.advertisement.manufacturerData || Buffer.from("");
+    p.name = p.advertisement.localName || p.manufacturerData.toString("hex");
+    return p;
   }
 
   constructor(adapter: Adapter, uuid: string) {
