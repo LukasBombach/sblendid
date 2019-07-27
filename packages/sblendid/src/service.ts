@@ -11,13 +11,17 @@ export default class Service {
   public uuid: SUUID;
   public name?: string;
   public type?: string;
-  private converters: Record<string, CConverter>;
+  private converters: Record<string, Converter>;
   private characteristics?: CharacteristicMap;
 
-  constructor(peripheral: Peripheral, uuid: SUUID, converters: CConverter[] = []) {
+  constructor(
+    peripheral: Peripheral,
+    uuid: SUUID,
+    converters: Converter<any>[] = []
+  ) {
     this.peripheral = peripheral;
     this.adapter = peripheral.adapter;
-    this.converters = this.uuidMap<CConverter>(converters);
+    this.converters = this.uuidMap<Converter>(converters);
     this.uuid = uuid;
   }
 
@@ -51,15 +55,28 @@ export default class Service {
   public async getCharacteristics(): Promise<CharacteristicMap> {
     if (this.characteristics) return this.characteristics;
     const nobles = await this.fetchCharacteristics();
-    const characteristics = nobles.map(c => Characteristic.fromNoble(this, c, this.converters[c.uuid]));
+    const characteristics = nobles.map(c =>
+      Characteristic.fromNoble(this, c, this.converters[c.uuid])
+    );
     this.characteristics = this.uuidMap<Characteristic>(characteristics);
     return this.characteristics;
   }
 
   private async fetchCharacteristics(): Promise<NobleCharacteristic[]> {
-    return await this.adapter.run<"characteristicsDiscover", NobleCharacteristic[]>(
-      () => this.adapter.discoverCharacteristics(this.peripheral.uuid, this.uuid, []),
-      () => this.adapter.when("characteristicsDiscover", ([p, s]) => this.isThisService(p, s)),
+    return await this.adapter.run<
+      "characteristicsDiscover",
+      NobleCharacteristic[]
+    >(
+      () =>
+        this.adapter.discoverCharacteristics(
+          this.peripheral.uuid,
+          this.uuid,
+          []
+        ),
+      () =>
+        this.adapter.when("characteristicsDiscover", ([p, s]) =>
+          this.isThisService(p, s)
+        ),
       ([, , characteristics]) => characteristics
     );
   }
@@ -68,11 +85,15 @@ export default class Service {
     return peripheralUuid === this.peripheral.uuid && serviceUuid === this.uuid;
   }
 
-  private getConverter(nameOrUuid: NamedCUUID): CConverter {
-    return this.converters.find(c => c.name === nameOrUuid) || { uuid: nameOrUuid };
+  private getConverter(nameOrUuid: NamedCUUID): Converter {
+    return (
+      this.converters.find(c => c.name === nameOrUuid) || { uuid: nameOrUuid }
+    );
   }
 
-  private uuidMap<ElementTypes extends { uuid: CUUID }>(arr: ElementTypes[]): Record<string, ElementTypes> {
+  private uuidMap<ElementTypes extends { uuid: CUUID }>(
+    arr: ElementTypes[]
+  ): Record<string, ElementTypes> {
     return arr.reduce((o, c) => ({ ...o, [c.uuid]: c }), {});
   }
 }

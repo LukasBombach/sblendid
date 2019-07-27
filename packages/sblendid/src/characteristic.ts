@@ -14,14 +14,14 @@ export default class Characteristic<T = Buffer> {
   public properties?: Properties;
   public service: Service;
   private adapter: Adapter;
-  private converter?: CConverter<T>;
+  private converter?: Converter<T>;
   private eventEmitter = new EventEmitter();
   private isNotifying = false;
 
   public static fromNoble<T>(
     service: Service,
     noble: NobleCharacteristic,
-    converter?: CConverter<T>
+    converter?: Converter<T>
   ): Characteristic<T> {
     const properties = Object.assign({}, defaultProperties);
     for (const name of noble.properties) properties[name] = true;
@@ -31,7 +31,7 @@ export default class Characteristic<T = Buffer> {
   constructor(
     service: Service,
     uuid: CUUID,
-    converter?: CConverter<T>,
+    converter?: Converter<T>,
     properties?: Properties
   ) {
     this.service = service;
@@ -61,6 +61,16 @@ export default class Characteristic<T = Buffer> {
     this.eventEmitter.off(event, listener);
   }
 
+  private async decode(buffer: Buffer): Promise<T> {
+    if (!this.converter || !this.converter.decode) return buffer as any;
+    return await this.converter.decode(buffer);
+  }
+
+  private async encode(value: T): Promise<Buffer> {
+    if (!this.converter || !this.converter.encode) return value as any;
+    return await this.converter.encode(value);
+  }
+
   private async startNotifing(): Promise<void> {
     if (this.isNotifying) return;
     this.adapter.on("read", this.onNotify.bind(this));
@@ -85,16 +95,6 @@ export default class Characteristic<T = Buffer> {
 
   private getUuids(): [string, SUUID, CUUID] {
     return [this.service.peripheral.uuid, this.service.uuid, this.uuid];
-  }
-
-  private async decode(buffer: Buffer): Promise<T> {
-    if (!this.converter || !this.converter.decode) return buffer as any;
-    return await this.converter.decode(buffer);
-  }
-
-  private async encode(value: T): Promise<Buffer> {
-    if (!this.converter || !this.converter.encode) return value as any;
-    return await this.converter.encode(value);
   }
 
   private async dispatchRead(): Promise<Buffer> {

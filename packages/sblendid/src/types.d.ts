@@ -5,7 +5,7 @@ type DUUID = BluetoothDescriptorUUID;
 
 type NamedCUUID = CUUID | string;
 
-interface CConverter<T> {
+interface Converter<T> {
   uuid: CUUID;
   name?: string;
   encode?: Encoder<T>;
@@ -17,17 +17,13 @@ interface CConvertish<T> {
   decode?: Decoder<T>;
 }
 
-interface SConverters {
-  [uuid: string]: CConverter[];
-}
+type ConverterMap<T> = Record<string, Converter<T>[]>;
 
 type PeripheralState =
   | "connecting"
   | "connected"
   | "disconnecting"
   | "disconnected";
-
-type ConverterMap<T> = Record<string, CConverter<T>>;
 
 type Promish<T> = Promise<T> | T;
 type Resolve = (value?: unknown) => void;

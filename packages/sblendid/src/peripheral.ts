@@ -9,27 +9,26 @@ export default class Peripheral {
   public address?: string;
   public addressType?: string;
   public connectable?: boolean;
-  public advertisement: Advertisement;
-  public state: PeripheralState;
+  public advertisement: Advertisement = {};
+  public state: PeripheralState = "disconnected";
   private serviceUuids?: SUUID[];
 
-  public static fromDiscover(adapter: Adapter, params: EventParameters<"discover">): Peripheral {
-    const [uuid, address, addressType, connectable, advertisement = {}] = params;
-    const peripheral = new Peripheral(adapter, uuid);
-    peripheral.name = advertisement.localName;
-    peripheral.address = address;
-    peripheral.addressType = addressType;
-    peripheral.connectable = connectable;
-    peripheral.advertisement = advertisement;
-    peripheral.state = "disconnected";
+  public static fromDiscover(
+    adapter: Adapter,
+    params: EventParameters<"discover">
+  ): Peripheral {
+    const peripheral = new Peripheral(adapter, params[0]);
+    peripheral.address = params[1];
+    peripheral.addressType = params[2];
+    peripheral.connectable = params[3];
+    peripheral.advertisement = params[4] || {};
+    peripheral.name = peripheral.advertisement.localName;
     return peripheral;
   }
 
   constructor(adapter: Adapter, uuid: string) {
     this.adapter = adapter;
     this.uuid = uuid;
-    this.advertisement = {};
-    this.state = "disconnected";
   }
 
   public async connect(): Promise<void> {
@@ -44,14 +43,21 @@ export default class Peripheral {
     this.state = "disconnected";
   }
 
-  public async getService(uuid: SUUID, converters: CConverter[]): Promise<Service> {
+  public async getService(
+    uuid: SUUID,
+    converters: Converter<any>[]
+  ): Promise<Service> {
     return new Service(this, uuid, converters);
   }
 
-  public async getServices(converters: SConverters = {}): Promise<Service[]> {
+  public async getServices(
+    converters: ConverterMap<any> = {}
+  ): Promise<Service[]> {
     if (this.state === "disconnected") await this.connect();
     if (!this.serviceUuids) this.serviceUuids = await this.fetchServices();
-    return this.serviceUuids.map(uuid => new Service(this, uuid, converters[uuid]));
+    return this.serviceUuids.map(
+      uuid => new Service(this, uuid, converters[uuid])
+    );
   }
 
   public async hasService(uuid: SUUID): Promise<boolean> {
@@ -67,7 +73,7 @@ export default class Peripheral {
   private async fetchServices(): Promise<SUUID[]> {
     return await this.adapter.run<"servicesDiscover", SUUID[]>(
       () => this.adapter.discoverServices(this.uuid, []),
-      () => this.adapter.when("servicesDiscover", this.uuid),
+      () => this.adapter.when("servicesDiscover", uuid => uuid === this.uuid),
       ([, serviceUuids]) => serviceUuids
     );
   }
@@ -75,7 +81,7 @@ export default class Peripheral {
   private async fetchRssi(): Promise<number> {
     return await this.adapter.run<"rssiUpdate", number>(
       () => this.adapter.updateRssi(this.uuid),
-      () => this.adapter.when("rssiUpdate", this.uuid),
+      () => this.adapter.when("rssiUpdate", uuid => uuid === this.uuid),
       ([, rssi]) => rssi
     );
   }
@@ -83,14 +89,14 @@ export default class Peripheral {
   private async dispatchConnect(): Promise<void> {
     await this.adapter.run(
       () => this.adapter.connect(this.uuid),
-      () => this.adapter.when("connect", this.uuid)
+      () => this.adapter.when("connect", uuid => uuid === this.uuid)
     );
   }
 
   private async dispatchDisconnect(): Promise<void> {
     await this.adapter.run(
       () => this.adapter.disconnect(this.uuid),
-      () => this.adapter.when("disconnect", this.uuid)
+      () => this.adapter.when("disconnect", uuid => uuid === this.uuid)
     );
   }
 }

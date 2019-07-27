@@ -27,27 +27,21 @@ export default class Adapter extends Bindings {
 
   public when<E extends Event>(
     event: E,
-    cond: Listener<E>
+    condition: Listener<E>
   ): Promise<Params<E>> {
     const queue = new Queue();
     return new Promise(resolve => {
-      this.on(event, async (...params: Params<E>) => {
-        const conditionIsMet = await queue.add(this.getQueueItem(cond, params));
+      const listener = async (...params: Params<E>) => {
+        const conditionIsMet = await queue.add(() => condition(...params));
         if (conditionIsMet) await queue.end(() => resolve(params));
-      });
+        if (conditionIsMet) this.off(event, listener);
+      };
+      this.on(event, listener);
     });
   }
 
   public asPeripheral(listener: PeripheralListener): Listener<"discover"> {
     return (...args: Params<"discover">) =>
       listener(Peripheral.fromDiscover(this, args));
-  }
-
-  private async getQueueItem<E extends Event>(
-    condition: Listener<E>,
-    params: Params<E>
-  ): Promise<any> {
-    if (typeof condition === "function") return () => condition(...params);
-    return condition === params[0];
   }
 }
