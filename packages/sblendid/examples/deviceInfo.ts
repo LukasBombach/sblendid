@@ -1,5 +1,5 @@
 import Sblendid from "../src";
-import logAll from "./logAll";
+import timeout from "p-timeout";
 
 const converters = [
   {
@@ -15,19 +15,15 @@ const converters = [
 ];
 
 (async () => {
-  try {
-    const peripheral = await Sblendid.connect(p => {
-      console.log(".");
-      return p.hasService("180a").catch(() => false);
-    });
+  const peripheral = await Sblendid.connect(p =>
+    timeout(p.hasService("180a"), 2000, () => false)
+  );
 
-    const deviceInfo = await peripheral.getService("180a", converters);
+  const deviceInfo = await peripheral.getService("180a", converters);
 
-    console.log("Manufacturer:", await deviceInfo.read("manufacturer"));
-    console.log("Model:", await deviceInfo.read("model"));
+  console.log("Manufacturer:", await deviceInfo.read("manufacturer"));
+  console.log("Model:", await deviceInfo.read("model"));
 
-    process.exit();
-  } catch (error) {
-    console.error(error);
-  }
+  peripheral.disconnect();
+  process.exit();
 })();
