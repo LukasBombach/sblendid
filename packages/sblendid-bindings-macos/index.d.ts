@@ -29,16 +29,7 @@ declare module "sblendid-bindings-macos" {
 
   export type NotifyState = boolean; // "true" | "false";
 
-  export type NobleCharacteristicProperty =
-    | "broadcast"
-    | "read"
-    | "writeWithoutResponse"
-    | "write"
-    | "notify"
-    | "indicate"
-    | "authenticatedSignedWrites"
-    | "reliableWrite"
-    | "writableAuxiliaries";
+  export type NobleCharacteristicProperty = "read" | "write" | "notify";
 
   export class Bindings {
     init(): void;

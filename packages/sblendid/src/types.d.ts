@@ -12,6 +12,11 @@ interface CConverter<T> {
   decode?: Decoder<T>;
 }
 
+interface CConvertish<T> {
+  encode?: Encoder<T>;
+  decode?: Decoder<T>;
+}
+
 interface SConverters {
   [uuid: string]: CConverter[];
 }
@@ -33,13 +38,7 @@ type Encoder<T> = (value: T) => Promish<Buffer>;
 type Decoder<T> = (value: Buffer) => Promish<T>;
 
 interface Properties {
-  broadcast: boolean;
   read: boolean;
-  writeWithoutResponse: boolean;
   write: boolean;
   notify: boolean;
-  indicate: boolean;
-  authenticatedSignedWrites: boolean;
-  reliableWrite: boolean;
-  writableAuxiliaries: boolean;
 }

@@ -13,7 +13,7 @@ export type PeripheralListener = (
 ) => Promish<void | boolean>;
 
 export default class Adapter extends Bindings {
-  async run<E extends Event, ReturnValue>(
+  async run<E extends Event, ReturnValue = Params<E>>(
     action: Action,
     when: When<E>,
     ...posts: Post<E, ReturnValue>[]

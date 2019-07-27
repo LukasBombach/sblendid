@@ -1,46 +1,31 @@
-import {
-  NobleCharacteristic,
-  NobleCharacteristicProperty as NobleProp
-} from "sblendid-bindings-macos";
+import { NobleCharacteristic, Params } from "sblendid-bindings-macos";
 import Adapter from "./adapter";
 import Service from "./service";
 import { EventEmitter } from "events";
 
 const defaultProperties: Properties = {
-  broadcast: false,
   read: false,
-  writeWithoutResponse: false,
   write: false,
-  notify: false,
-  indicate: false,
-  authenticatedSignedWrites: false,
-  reliableWrite: false,
-  writableAuxiliaries: false
+  notify: false
 };
 
-export default class Characteristic<T> {
+export default class Characteristic<T = Buffer> {
   public uuid: CUUID;
   public properties?: Properties;
   public service: Service;
   private adapter: Adapter;
-  private eventEmitter: EventEmitter;
-  private isNotifying: boolean;
-  private encode: Encoder<T>;
-  private decode: Decoder<T>;
+  private converter?: CConverter<T>;
+  private eventEmitter = new EventEmitter();
+  private isNotifying = false;
 
   public static fromNoble<T>(
     service: Service,
     noble: NobleCharacteristic,
-    converter?: CConverter
+    converter?: CConverter<T>
   ): Characteristic<T> {
-    const properties = Characteristic.noblePropsToSblendid(noble.properties);
-    return new Characteristic(service, noble.uuid, converter, properties);
-  }
-
-  private static noblePropsToSblendid(nobleProps: NobleProp[]): Properties {
     const properties = Object.assign({}, defaultProperties);
-    for (const name of nobleProps) properties[name] = true;
-    return properties;
+    for (const name of noble.properties) properties[name] = true;
+    return new Characteristic(service, noble.uuid, converter, properties);
   }
 
   constructor(
@@ -51,20 +36,17 @@ export default class Characteristic<T> {
   ) {
     this.service = service;
     this.uuid = uuid;
+    this.converter = converter;
     this.properties = properties;
     this.adapter = service.adapter;
-    this.eventEmitter = new EventEmitter();
-    this.isNotifying = false;
-    this.encode = converter && converter.encode ? converter.encode : v => v;
-    this.decode = converter && converter.decode ? converter.decode : v => v;
   }
 
-  public async read(): Promise<any> {
+  public async read(): Promise<T> {
     const buffer = await this.dispatchRead();
     return await this.decode(buffer);
   }
 
-  public async write(value: any): Promise<void> {
+  public async write(value: T): Promise<void> {
     const buffer = await this.encode(value);
     await this.dispatchWrite(buffer);
   }
@@ -91,30 +73,35 @@ export default class Characteristic<T> {
     this.isNotifying = await this.notify(false);
   }
 
-  private onNotify(
-    pUuid: string,
-    sUuid: SUUID,
-    cUuid: CUUID,
-    data: Buffer,
-    isNfy: boolean
-  ): void {
+  private onNotify(...params: Params<"read">): void {
+    const [pUuid, sUuid, cUuid, data, isNfy] = params;
     if (!this.isThis(pUuid, sUuid, cUuid) || !isNfy) return;
     this.eventEmitter.emit("notify", this.decode(data));
   }
 
   private isThis(pUuid: string, sUuid: SUUID, cUuid: CUUID): boolean {
-    return pUuid === this.pUuid && sUuid === this.sUuid && cUuid === this.uuid;
+    return this.getUuids().every((v, i) => v === [pUuid, sUuid, cUuid][i]);
   }
 
   private getUuids(): [string, SUUID, CUUID] {
     return [this.service.peripheral.uuid, this.service.uuid, this.uuid];
   }
 
+  private async decode(buffer: Buffer): Promise<T> {
+    if (!this.converter || !this.converter.decode) return buffer as any;
+    return await this.converter.decode(buffer);
+  }
+
+  private async encode(value: T): Promise<Buffer> {
+    if (!this.converter || !this.converter.encode) return value as any;
+    return await this.converter.encode(value);
+  }
+
   private async dispatchRead(): Promise<Buffer> {
     const [pUuid, sUuid, uuid] = this.getUuids();
     return await this.adapter.run<"read", Buffer>(
       () => this.adapter.read(pUuid, sUuid, uuid),
-      () => this.adapter.when("read", ([p, s, c]) => this.isThis(p, s, c)),
+      () => this.adapter.when("read", (p, s, c) => this.isThis(p, s, c)),
       ([, , , buffer]) => buffer
     );
   }
