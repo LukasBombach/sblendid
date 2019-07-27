@@ -22,7 +22,8 @@ export default class Adapter extends Bindings {
     const cleanupMethods = posts.slice(0, -1);
     const returnMethod = posts.slice(-1).pop();
     for (const post of cleanupMethods) await post(params);
-    return (returnMethod ? await returnMethod(params) : params) as ReturnValue;
+    const returnMethodValue = returnMethod && (await returnMethod(params));
+    return (returnMethodValue ? returnMethodValue : params) as ReturnValue;
   }
 
   public when<E extends Event>(
