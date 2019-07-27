@@ -1,18 +1,14 @@
 import Adapter from "./adapter";
 import Peripheral from "./peripheral";
 import Characteristic from "./characteristic";
-import { NobleCharacteristic } from "sblendid-bindings-macos";
-
-type CharacteristicMap = Record<string, Characteristic>;
+import { NobleCharacteristic as NBC } from "sblendid-bindings-macos";
 
 export default class Service {
   public adapter: Adapter;
   public peripheral: Peripheral;
   public uuid: SUUID;
-  public name?: string;
-  public type?: string;
-  private converters: Record<string, Converter>;
-  private characteristics?: CharacteristicMap;
+  private converters: Record<string, Converter<any>>;
+  private characteristics?: Record<string, Characteristic>;
 
   constructor(
     peripheral: Peripheral,
@@ -21,7 +17,7 @@ export default class Service {
   ) {
     this.peripheral = peripheral;
     this.adapter = peripheral.adapter;
-    this.converters = this.uuidMap<Converter>(converters);
+    this.converters = this.uuidMap<Converter<any>>(converters);
     this.uuid = uuid;
   }
 
@@ -52,48 +48,41 @@ export default class Service {
     return characteristic;
   }
 
-  public async getCharacteristics(): Promise<CharacteristicMap> {
+  public async getCharacteristics(): Promise<Record<string, Characteristic>> {
     if (this.characteristics) return this.characteristics;
     const nobles = await this.fetchCharacteristics();
-    const characteristics = nobles.map(c =>
-      Characteristic.fromNoble(this, c, this.converters[c.uuid])
-    );
+    const characteristics = nobles.map(nbc => this.getCFromN(nbc));
     this.characteristics = this.uuidMap<Characteristic>(characteristics);
     return this.characteristics;
   }
 
-  private async fetchCharacteristics(): Promise<NobleCharacteristic[]> {
-    return await this.adapter.run<
-      "characteristicsDiscover",
-      NobleCharacteristic[]
-    >(
-      () =>
-        this.adapter.discoverCharacteristics(
-          this.peripheral.uuid,
-          this.uuid,
-          []
-        ),
-      () =>
-        this.adapter.when("characteristicsDiscover", ([p, s]) =>
-          this.isThisService(p, s)
-        ),
-      ([, , characteristics]) => characteristics
-    );
+  private getIds(): [string, SUUID] {
+    return [this.peripheral.uuid, this.uuid];
   }
 
-  private isThisService(peripheralUuid: string, serviceUuid: SUUID): boolean {
+  private isThis(peripheralUuid: string, serviceUuid: SUUID): boolean {
     return peripheralUuid === this.peripheral.uuid && serviceUuid === this.uuid;
   }
 
-  private getConverter(nameOrUuid: NamedCUUID): Converter {
-    return (
-      this.converters.find(c => c.name === nameOrUuid) || { uuid: nameOrUuid }
-    );
+  private getConverter(nameOrUuid: NamedCUUID): Converter<any> {
+    return this.converters[name] || { uuid: nameOrUuid };
   }
 
-  private uuidMap<ElementTypes extends { uuid: CUUID }>(
-    arr: ElementTypes[]
-  ): Record<string, ElementTypes> {
+  private uuidMap<T extends { uuid: CUUID }>(arr: T[]): Record<string, T> {
     return arr.reduce((o, c) => ({ ...o, [c.uuid]: c }), {});
+  }
+
+  private getCFromN(nbc: NBC): Characteristic {
+    return Characteristic.fromNoble(this, nbc, this.converters[nbc.uuid]);
+  }
+
+  private async fetchCharacteristics(): Promise<NBC[]> {
+    const [puuid, uuid] = this.getIds();
+    const isThis = (p: string, s: SUUID) => this.isThis(p, s);
+    return await this.adapter.run<"characteristicsDiscover", NBC[]>(
+      () => this.adapter.discoverCharacteristics(puuid, uuid, []),
+      () => this.adapter.when("characteristicsDiscover", isThis),
+      ([, , characteristics]) => characteristics
+    );
   }
 }
