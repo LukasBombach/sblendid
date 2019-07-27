@@ -51,12 +51,12 @@ export default class Peripheral {
   }
 
   public async getServices(
-    converters: ConverterMap<any> = {}
+    converterMap: ConverterMap<any> = {}
   ): Promise<Service[]> {
     if (this.state === "disconnected") await this.connect();
     if (!this.serviceUuids) this.serviceUuids = await this.fetchServices();
     return this.serviceUuids.map(
-      uuid => new Service(this, uuid, converters[uuid])
+      uuid => new Service(this, uuid, converterMap[uuid])
     );
   }
 

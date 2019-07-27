@@ -1,5 +1,5 @@
 import { EventListener } from "sblendid-bindings-macos";
-import Adapter, { PeripheralListener, ConditionFn } from "./adapter";
+import Adapter, { PeripheralListener } from "./adapter";
 import Peripheral from "./peripheral";
 
 export default class Sblendid {
@@ -12,7 +12,9 @@ export default class Sblendid {
     return sblendid;
   }
 
-  public static async connect(condition: string | PeripheralListener): Promise<Peripheral> {
+  public static async connect(
+    condition: string | PeripheralListener
+  ): Promise<Peripheral> {
     const sblendid = await Sblendid.powerOn();
     const peripheral = await sblendid.find(condition);
     await peripheral.connect();
@@ -20,10 +22,15 @@ export default class Sblendid {
   }
 
   public async powerOn(): Promise<void> {
-    await this.adapter.run(() => this.adapter.init(), () => this.adapter.when("stateChange", "poweredOn"));
+    await this.adapter.run(
+      () => this.adapter.init(),
+      () => this.adapter.when("stateChange", state => state === "poweredOn")
+    );
   }
 
-  public async find(condition: string | PeripheralListener): Promise<Peripheral> {
+  public async find(
+    condition: string | PeripheralListener
+  ): Promise<Peripheral> {
     return await this.adapter.run<"discover", Peripheral>(
       () => this.adapter.startScanning(),
       () => this.adapter.when("discover", this.getFindCondition(condition)),
@@ -32,7 +39,9 @@ export default class Sblendid {
     );
   }
 
-  public startScanning(listener: (peripheral: Peripheral) => void = () => {}): void {
+  public startScanning(
+    listener: (peripheral: Peripheral) => void = () => {}
+  ): void {
     this.adapter.off("discover", this.scanListener);
     this.scanListener = this.adapter.asPeripheral(listener);
     this.adapter.on("discover", this.scanListener);
@@ -45,8 +54,11 @@ export default class Sblendid {
     this.adapter.stopScanning();
   }
 
-  private getFindCondition(condition: string | PeripheralListener): ConditionFn<"discover"> {
-    if (typeof condition === "function") return this.adapter.asPeripheral(condition);
-    return this.adapter.asPeripheral(({ uuid, name }: Peripheral) => [uuid, name].includes(condition));
+  private getFindCondition(
+    condition: string | PeripheralListener
+  ): EventListener<"discover"> {
+    const { asPeripheral } = this.adapter;
+    if (typeof condition === "function") return asPeripheral(condition);
+    return asPeripheral(p => [p.uuid, p.address, p.name].includes(condition));
   }
 }

@@ -38,3 +38,7 @@ interface Properties {
   write: boolean;
   notify: boolean;
 }
+
+type Item = () => Promish<any>;
+type ItemReturn<T> = T extends "function" ? ReturnType<Item> : Promise<T>;
+type ItemFunction<T> = (...args: any[]) => Promise<ItemReturn<T>>;

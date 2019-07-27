@@ -1,26 +1,15 @@
-export type PromiseFn = () => Promise<any> | any;
-type Resolver = (value?: unknown) => void;
-type Rejector = (reason?: any) => void;
-
 export default class Queue {
-  private items: PromiseFn[];
-  private working: boolean;
+  private items: Item[] = [];
+  private working: boolean = false;
 
-  constructor() {
-    this.items = [];
-    this.working = false;
-  }
-
-  // todo is the return value properly typed?
-  public async add(item: any): Promise<ReturnType<PromiseFn>> {
+  public async add<T>(item: T): Promise<ItemReturn<T>> {
     return new Promise((resolve, reject) => {
-      const itemFn = this.getItem(item, resolve, reject);
-      this.items.push(itemFn);
+      this.items.push(this.getItem<T>(item, resolve, reject));
       this.work();
-    });
+    }) as any;
   }
 
-  public async end(finalFn: PromiseFn = () => {}): Promise<any> {
+  public async end(finalFn: Item = () => {}): Promise<ReturnType<Item>> {
     this.items = [];
     return await finalFn();
   }
@@ -32,12 +21,16 @@ export default class Queue {
     this.working = false;
   }
 
-  private getItem(item: any, resolve: Resolver, reject: Rejector) {
-    const itemFn =
-      typeof item === "function" ? async (...args: any[]) => await item(...args) : async () => item;
+  private getItem<T>(item: T, resolve: Resolve, reject: Reject) {
+    const itemFn = this.getItemAsFn(item);
     return () =>
       itemFn()
         .then(resolve)
         .catch(reject);
+  }
+
+  private getItemAsFn<T>(item: T): ItemFunction<T> {
+    if (typeof item !== "function") return async () => item as any;
+    return async (...args: any[]) => await item(...args);
   }
 }
