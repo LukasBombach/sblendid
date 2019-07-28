@@ -11,6 +11,7 @@
     "sblendid": "1.0.0"
   },
   "devDependencies": {
+    "@types/web-bluetooth": "0.0.4",
     "chalk": "2.4.2",
     "ts-node": "8.3.0",
     "typescript": "3.5.3"

@@ -72,6 +72,10 @@ export default class Peripheral {
     return await this.fetchRssi();
   }
 
+  public isConnected(): boolean {
+    return this.state === "connected";
+  }
+
   private async fetchServices(): Promise<SUUID[]> {
     return await this.adapter.run<"servicesDiscover", SUUID[]>(
       () => this.adapter.discoverServices(this.uuid, []),
