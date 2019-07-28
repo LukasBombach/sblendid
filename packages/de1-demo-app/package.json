@@ -1,0 +1,51 @@
+{
+  "name": "de1-demo-app",
+  "version": "0.1.0",
+  "private": true,
+  "main": "public/electron.js",
+  "scripts": {
+    "start": "concurrently \"BROWSER=none yarn start:cra\" \"wait-on http://localhost:3000 && yarn start:electron\"",
+    "start:electron": "electron .",
+    "start:cra": "rescripts start",
+    "build": "rescripts build",
+    "test": "rescripts test"
+  },
+  "rescripts": [
+    "env"
+  ],
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "dependencies": {
+    "@types/jest": "24.0.15",
+    "@types/node": "12.0.10",
+    "@types/react": "16.8.22",
+    "@types/react-dom": "16.8.4",
+    "electron-is-dev": "1.1.0",
+    "react": "16.8.6",
+    "react-dom": "16.8.6",
+    "react-scripts": "3.0.1",
+    "typescript": "3.5.2"
+  },
+  "devDependencies": {
+    "@rescripts/cli": "0.0.11",
+    "@rescripts/rescript-env": "0.0.10",
+    "concurrently": "4.1.1",
+    "electron": "5.0.6",
+    "electron-builder": "20.44.4",
+    "electron-devtools-installer": "2.2.4",
+    "wait-on": "3.2.0"
+  }
+}
