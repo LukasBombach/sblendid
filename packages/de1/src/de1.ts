@@ -1,9 +1,14 @@
-import Sblendid, { Peripheral, Service } from "sblendid/src";
+import Sblendid, { Peripheral, Service, Adapter } from "sblendid/src";
 import converters from "./converters";
 
 export default class DE1 {
   private machine?: Peripheral;
   private service?: Service;
+
+  public getAdapter(): Adapter {
+    if (!this.machine) throw new Error("No Machine, not connected?");
+    return this.machine.adapter;
+  }
 
   public static async connect(): Promise<DE1> {
     const de1 = new DE1();

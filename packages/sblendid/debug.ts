@@ -1,6 +1,7 @@
-import Peripheral from "../src/peripheral";
+import chalk from "chalk";
+import Adapter from "./src/adapter";
 
-export default function logAll(peripheral: Peripheral): void {
+export function logAll(adapter: Adapter): void {
   const events: any[] = [
     "stateChange",
     "discover",
@@ -25,8 +26,8 @@ export default function logAll(peripheral: Peripheral): void {
   ];
 
   for (const event of events) {
-    peripheral.adapter.on(event, (...args) => {
-      console.log(event, args);
+    adapter.on(event, (...args) => {
+      console.debug(chalk.grey("adapter event"), chalk.blue(event), args);
     });
   }
 }
