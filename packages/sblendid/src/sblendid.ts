@@ -1,9 +1,9 @@
-import { EventListener } from "sblendid-bindings-macos";
+import { Bindings, EventListener } from "sblendid-bindings-macos";
 import Adapter, { PeripheralListener } from "./adapter";
 import Peripheral from "./peripheral";
 
 export default class Sblendid {
-  public adapter: Adapter = new Adapter();
+  public adapter: Adapter = new Adapter(new Bindings());
   private scanListener: EventListener<"discover"> = () => {};
 
   public static async powerOn(): Promise<Sblendid> {

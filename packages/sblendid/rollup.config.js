@@ -7,7 +7,7 @@ import pkg from "./package.json";
 
 export default {
   input: "src/index.ts",
-  external: ["sblendid-bindings-macos"],
+  external: ["sblendid-bindings-macos", "events"],
   output: [
     {
       file: pkg.main,
@@ -17,9 +17,13 @@ export default {
     {
       file: pkg.module,
       format: "es",
-      external: ["sblendid-bindings-macos"],
       preferBuiltins: true
     }
   ],
-  plugins: [resolve({ preferBuiltins: true }), commonjs(), typescriptPlugin({ typescript }), terser()]
+  plugins: [
+    resolve({ preferBuiltins: true }),
+    commonjs(),
+    typescriptPlugin({ typescript }),
+    terser()
+  ]
 };
