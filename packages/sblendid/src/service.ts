@@ -33,12 +33,12 @@ export default class Service {
 
   public async on(name: NamedCUUID, listener: (value: any) => void) {
     const characteristic = await this.getCharacteristic(name);
-    characteristic.on("notify", listener);
+    await characteristic.on("notify", listener);
   }
 
   public async off(name: NamedCUUID, listener: (value: any) => void) {
     const characteristic = await this.getCharacteristic(name);
-    characteristic.off("notify", listener);
+    await characteristic.off("notify", listener);
   }
 
   private async getCharacteristic(name: NamedCUUID): Promise<Characteristic> {

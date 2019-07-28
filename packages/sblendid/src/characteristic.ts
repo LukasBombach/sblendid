@@ -83,10 +83,10 @@ export default class Characteristic<T = Buffer> {
     this.isNotifying = await this.notify(false);
   }
 
-  private onNotify(...params: Params<"read">): void {
+  private async onNotify(...params: Params<"read">): Promise<void> {
     const [pUuid, sUuid, cUuid, data, isNfy] = params;
-    if (!this.isThis(pUuid, sUuid, cUuid) || !isNfy) return;
-    this.eventEmitter.emit("notify", this.decode(data));
+    if (!this.isThis(pUuid, sUuid, cUuid)) return;
+    this.eventEmitter.emit("notify", await this.decode(data), { isNfy });
   }
 
   private isThis(pUuid: string, sUuid: SUUID, cUuid: CUUID): boolean {

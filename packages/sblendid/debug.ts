@@ -1,7 +1,9 @@
-import chalk from "chalk";
 import Adapter from "./src/adapter";
 
-export function logAll(adapter: Adapter): void {
+export function onyAnyEvent(
+  adapter: Adapter,
+  callback: (event: string, ...args: any[]) => void
+): void {
   const events: any[] = [
     "stateChange",
     "discover",
@@ -26,8 +28,6 @@ export function logAll(adapter: Adapter): void {
   ];
 
   for (const event of events) {
-    adapter.on(event, (...args) => {
-      console.debug(chalk.grey("event"), chalk.blue(event), args);
-    });
+    adapter.on(event, (...args) => callback(event, ...args));
   }
 }

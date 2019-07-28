@@ -64,12 +64,12 @@ export default class DE1 {
     return await this.getService().write(name, value);
   }
 
-  public on(name: Prop, listener: PropListener<Prop>): void {
-    this.getService().on(name, listener);
+  public async on(name: Prop, listener: PropListener<Prop>): Promise<void> {
+    await this.getService().on(name, listener);
   }
 
-  public off(name: Prop, listener: PropListener<Prop>): void {
-    this.getService().off(name, listener);
+  public async off(name: Prop, listener: PropListener<Prop>): Promise<void> {
+    await this.getService().off(name, listener);
   }
 
   private getService(): Service {
