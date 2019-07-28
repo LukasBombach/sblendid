@@ -1,21 +1,30 @@
 import DE1 from "../src";
 import { logAll } from "sblendid/debug";
 
+const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+
 (async () => {
   console.log("connecting...");
   const de1 = await DE1.connect();
 
-  console.log("connected");
-  logAll(de1.getAdapter());
+  // Log all events
+  // logAll(de1.getAdapter());
+
+  // Listening for events
+  de1.on("state", (...args: any[]) => console.log("new state", args));
 
   console.log("reading state...");
-  const state = await de1.get("state");
+  console.log("State is now:", await de1.get("state"));
 
-  console.log("reading water level...");
-  const water = await de1.getWaterlevel();
+  console.log("turning on...");
+  await de1.turnOn();
+  console.log("State is now:", await de1.get("state"));
 
-  console.log("state", state);
-  console.log("water", water);
+  console.log("turning off...");
+  await de1.turnOff();
+  console.log("State is now:", await de1.get("state"));
 
+  console.log("disconnecting...");
+  await de1.disconnect();
   process.exit();
 })();

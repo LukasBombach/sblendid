@@ -44,9 +44,7 @@ export default class Parser<T> {
 
   private getDataView(data: DataView | Buffer): DataView {
     if (data instanceof DataView) return data;
-    const { byteOffset, byteLength } = data;
-    const arrayBuffer = data.slice(byteOffset, byteOffset + byteLength);
-    return new DataView(arrayBuffer);
+    return new DataView(data.buffer);
   }
 
   private setVar(path: string, value: number | string) {

@@ -53,8 +53,7 @@ export default class Serializer<T> {
   }
 
   public buffer(): Buffer {
-    const arrayBuffer = this.dataView().buffer;
-    return Buffer.from(arrayBuffer);
+    return Buffer.from(this.dataView().buffer);
   }
 
   // todo bad typecasting

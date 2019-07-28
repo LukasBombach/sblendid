@@ -27,7 +27,7 @@ export function logAll(adapter: Adapter): void {
 
   for (const event of events) {
     adapter.on(event, (...args) => {
-      console.debug(chalk.grey("adapter event"), chalk.blue(event), args);
+      console.debug(chalk.grey("event"), chalk.blue(event), args);
     });
   }
 }

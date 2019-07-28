@@ -25,6 +25,17 @@
       "sourceMaps": true,
       "cwd": "${workspaceRoot}",
       "protocol": "inspector"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "DE1 dev",
+      "args": ["packages/de1/examples/dev.ts"],
+      "runtimeArgs": ["--nolazy", "-r", "ts-node/register"],
+      "env": { "TS_NODE_PROJECT": "packages/sblendid/tsconfig.json" },
+      "sourceMaps": true,
+      "cwd": "${workspaceRoot}",
+      "protocol": "inspector"
     }
   ]
 }

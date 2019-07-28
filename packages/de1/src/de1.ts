@@ -22,6 +22,13 @@ export default class DE1 {
     this.service = await this.machine.getService("a000", converters);
   }
 
+  public async disconnect(): Promise<void> {
+    if (!this.isConnected()) return;
+    await this.machine!.disconnect();
+    this.machine = undefined;
+    this.service = undefined;
+  }
+
   public async turnOn(): Promise<State> {
     if (!(await this.isTurnedOn())) await this.set("state", "idle");
     return await this.get("state");

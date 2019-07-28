@@ -41,7 +41,7 @@ function decode(data: Buffer): State {
 
 function encode(state: State): Buffer {
   const stateValue = states[state];
-  if (!stateValue) throw new Error(`Unknown state "${state}"`);
+  if (stateValue === undefined) throw new Error(`Unknown state "${state}"`);
   return serialize(state);
 }
 
