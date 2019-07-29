@@ -3,7 +3,8 @@ import Adapter, { PeripheralListener } from "./adapter";
 import Peripheral from "./peripheral";
 
 export default class Sblendid {
-  public adapter: Adapter = new Adapter(new Bindings());
+  public static bindings: Bindings;
+  public adapter: Adapter = new Adapter(Sblendid.bindings);
   private scanListener: EventListener<"discover"> = () => {};
 
   public static async powerOn(): Promise<Sblendid> {

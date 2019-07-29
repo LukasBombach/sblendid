@@ -23,6 +23,11 @@
   resolved "https://registry.yarnpkg.com/@types/estree/-/estree-0.0.39.tgz#e177e699ee1b8c22d23174caaa7422644389509f"
   integrity sha512-EYNwp3bU+98cpU4lAWYYL7Zz+2gryWH1qbdDTidVd6hkiR6weksdbMadyXKXNPEkQFhXM+hVO9ZygomHXp+AIw==
 
+"@types/module-alias@2.0.0":
+  version "2.0.0"
+  resolved "https://spring.jfrog.io/spring/api/npm/npm-red/@types/module-alias/-/module-alias-2.0.0.tgz#882668f8b8cdbda44812c3b592c590909e18849e"
+  integrity sha1-iCZo+LjNvaRIEsO1ksWQkJ4YhJ4=
+
 "@types/noble@0.0.39":
   version "0.0.39"
   resolved "https://registry.yarnpkg.com/@types/noble/-/noble-0.0.39.tgz#e2bbdfd42445255450b0c5c6a0c6a17b454513d0"
@@ -609,6 +614,11 @@ mkdirp@^0.5.0, mkdirp@^0.5.1:
   integrity sha1-MAV0OOrGz3+MR2fzhkjWaX11yQM=
   dependencies:
     minimist "0.0.8"
+
+module-alias@2.2.0:
+  version "2.2.0"
+  resolved "https://spring.jfrog.io/spring/api/npm/npm-red/module-alias/-/module-alias-2.2.0.tgz#a2e32275381642252bf0c51405f7a09a367479b5"
+  integrity sha1-ouMidTgWQiUr8MUUBfegmjZ0ebU=
 
 ms@^2.1.1:
   version "2.1.2"

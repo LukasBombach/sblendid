@@ -31,7 +31,7 @@
     "build:test": "node-pre-gyp install --fallback-to-build=false"
   },
   "binary": {
-    "module_name": "noble_mac",
+    "module_name": "sblendid-bindings-macos",
     "module_path": "./native/",
     "host": " /releases/download/",
     "remote_path": "{version}"
