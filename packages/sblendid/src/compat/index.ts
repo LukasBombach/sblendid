@@ -1,1 +1,2 @@
-export { default as requireBindings } from "./requireBindings";
+export { default } from "./noble";
+export { default as aliasNoble } from "./aliasNoble";

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "lib/index.cjs.js",
   "module": "lib/index.es.js",
-  "types": "types",
+  "types": "types/src",
   "files": [
     "compat.js",
     "debug.ts"
@@ -13,7 +13,7 @@
   "license": "MIT",
   "scripts": {
     "build": "rollup -c",
-    "dev": "rollup -c -w",
+    "dev": "rollup -w -c",
     "example": "ts-node --project tsconfig.json"
   },
   "devDependencies": {
