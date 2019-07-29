@@ -5,6 +5,8 @@ import typescriptPlugin from "rollup-plugin-typescript2";
 import { terser } from "rollup-plugin-terser";
 import pkg from "./package.json";
 
+const typescriptPluginOptions = { typescript, useTsconfigDeclarationDir: true };
+
 export default [
   {
     input: "src/index.ts",
@@ -24,21 +26,21 @@ export default [
     plugins: [
       resolve({ preferBuiltins: true }),
       commonjs(),
-      typescriptPlugin({ typescript }),
+      typescriptPlugin(typescriptPluginOptions),
       terser()
     ]
   },
   {
     input: "src/compat/index.ts",
     output: {
-      file: "dist/compat.js",
+      file: "compat.js",
       format: "cjs"
     },
     plugins: [
       resolve({ preferBuiltins: true }),
       commonjs(),
-      typescriptPlugin({ typescript }),
-      terser()
+      typescriptPlugin(typescriptPluginOptions)
+      // terser()
     ]
   }
 ];
