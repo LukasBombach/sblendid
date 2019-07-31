@@ -3,11 +3,7 @@
   "version": "1.0.0",
   "main": "lib/index.cjs.js",
   "module": "lib/index.es.js",
-  "types": "types/src",
-  "files": [
-    "compat.js",
-    "debug.ts"
-  ],
+  "types": "lib/src",
   "repository": "git@github.com:LukasBombach/sblendid.git",
   "author": "Lukas Bombach <lukas.bombach@googlemail.com>",
   "license": "MIT",
@@ -32,5 +28,11 @@
     "ts-node": "8.3.0",
     "typescript": "3.5.3"
   },
-  "dependencies": {}
+  "dependencies": {
+    "noble-mac": "https://github.com/Timeular/noble-mac.git",
+    "xpc-connection": "sandeepmistry/node-xpc-connection#pull/26/head"
+  },
+  "resolutions": {
+    "xpc-connection": "sandeepmistry/node-xpc-connection#pull/26/head"
+  }
 }

@@ -3,23 +3,27 @@ import Adapter, { PeripheralListener } from "./adapter";
 import Peripheral from "./peripheral";
 
 export default class Sblendid {
-  public static bindings: Bindings;
-  public adapter: Adapter = new Adapter(Sblendid.bindings);
+  public adapter: Adapter;
   private scanListener: EventListener<"discover"> = () => {};
 
-  public static async powerOn(): Promise<Sblendid> {
-    const sblendid = new Sblendid();
+  public static async powerOn(bindings: Bindings): Promise<Sblendid> {
+    const sblendid = new Sblendid(bindings);
     await sblendid.powerOn();
     return sblendid;
   }
 
   public static async connect(
-    condition: string | PeripheralListener
+    condition: string | PeripheralListener,
+    bindings: Bindings
   ): Promise<Peripheral> {
-    const sblendid = await Sblendid.powerOn();
+    const sblendid = await Sblendid.powerOn(bindings);
     const peripheral = await sblendid.find(condition);
     await peripheral.connect();
     return peripheral;
+  }
+
+  constructor(bindings: Bindings) {
+    this.adapter = new Adapter(bindings);
   }
 
   public async powerOn(): Promise<void> {
