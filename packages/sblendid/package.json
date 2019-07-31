@@ -4,6 +4,9 @@
   "main": "lib/index.cjs.js",
   "module": "lib/index.es.js",
   "types": "lib/src",
+  "files": [
+    "compat"
+  ],
   "repository": "git@github.com:LukasBombach/sblendid.git",
   "author": "Lukas Bombach <lukas.bombach@googlemail.com>",
   "license": "MIT",
