@@ -1,4 +1,4 @@
-import Adapter from "./src/adapter";
+import Adapter from "./adapter";
 
 export function onyAnyEvent(
   adapter: Adapter,
