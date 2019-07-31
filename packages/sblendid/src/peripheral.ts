@@ -1,4 +1,4 @@
-import { Advertisement, EventParameters } from "sblendid-bindings-macos";
+import { Advertisement, EventParameters } from "./bindings";
 import Adapter from "./adapter";
 import Service from "./service";
 

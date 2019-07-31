@@ -1,4 +1,4 @@
-import { Bindings, Event, Listener, Params } from "sblendid-bindings-macos";
+import Bindings, { Event, Listener, Params } from "./bindings";
 import Queue from "../src/queue";
 import Peripheral from "./peripheral";
 

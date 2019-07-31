@@ -7,7 +7,7 @@ import pkg from "./package.json";
 
 export default {
   input: "src/index.ts",
-  external: ["sblendid-bindings-macos", "events"],
+  external: ["events"],
   output: [
     {
       file: pkg.main,

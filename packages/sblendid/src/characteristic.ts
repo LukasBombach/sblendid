@@ -1,4 +1,4 @@
-import { NobleCharacteristic, Params } from "sblendid-bindings-macos";
+import { NobleCharacteristic, Params } from "./bindings";
 import Adapter from "./adapter";
 import Service from "./service";
 import { EventEmitter } from "events";

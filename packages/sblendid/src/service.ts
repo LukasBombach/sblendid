@@ -1,7 +1,7 @@
 import Adapter from "./adapter";
 import Peripheral from "./peripheral";
 import Characteristic from "./characteristic";
-import { NobleCharacteristic as NBC } from "sblendid-bindings-macos";
+import { NobleCharacteristic as NBC } from "./bindings";
 
 export default class Service {
   public adapter: Adapter;
