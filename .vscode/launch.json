@@ -1,7 +1,4 @@
 {
-  // Use IntelliSense to learn about possible attributes.
-  // Hover to view descriptions of existing attributes.
-  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
     {
@@ -20,17 +17,6 @@
       "request": "launch",
       "name": "Example deviceInfo",
       "args": ["packages/sblendid/examples/deviceInfo.ts"],
-      "runtimeArgs": ["--nolazy", "-r", "ts-node/register"],
-      "env": { "TS_NODE_PROJECT": "packages/sblendid/tsconfig.json" },
-      "sourceMaps": true,
-      "cwd": "${workspaceRoot}",
-      "protocol": "inspector"
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "DE1 dev",
-      "args": ["packages/de1/examples/dev.ts"],
       "runtimeArgs": ["--nolazy", "-r", "ts-node/register"],
       "env": { "TS_NODE_PROJECT": "packages/sblendid/tsconfig.json" },
       "sourceMaps": true,

@@ -13,12 +13,10 @@
     "example": "ts-node --project tsconfig.json"
   },
   "devDependencies": {
-    "@types/module-alias": "2.0.0",
     "@types/noble": "0.0.39",
     "@types/node": "12.6.8",
     "@types/web-bluetooth": "0.0.4",
     "chalk": "2.4.2",
-    "module-alias": "2.2.0",
     "p-timeout": "3.1.0",
     "rollup": "1.17.0",
     "rollup-plugin-auto-external": "2.0.0",
