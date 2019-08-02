@@ -34,12 +34,14 @@ export default class Peripheral {
   }
 
   public async connect(): Promise<void> {
+    if (this.state !== "disconnected") return;
     this.state = "connecting";
     await this.dispatchConnect();
     this.state = "connected";
   }
 
   public async disconnect(): Promise<void> {
+    if (this.state !== "connected") return;
     this.state = "disconnecting";
     await this.dispatchDisconnect();
     this.state = "disconnected";
