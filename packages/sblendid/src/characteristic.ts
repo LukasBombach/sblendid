@@ -57,7 +57,8 @@ export default class Characteristic<T = Buffer> {
   }
 
   public async off(event: "notify", listener: Listener<T>): Promise<void> {
-    if (!this.eventEmitter.listenerCount("notify")) await this.stopNotifing();
+    if (this.eventEmitter.listenerCount("notify") <= 1)
+      await this.stopNotifing();
     this.eventEmitter.off(event, listener);
   }
 
@@ -119,7 +120,7 @@ export default class Characteristic<T = Buffer> {
     return await this.adapter.run<"notify", boolean>(
       () => this.adapter.notify(pUuid, sUuid, uuid, notify),
       () => this.adapter.when("notify", (p, s, c) => this.isThis(p, s, c)),
-      ([, , , state]) => state
+      ([, , , state]) => state // todo this should not be an array??
     );
   }
 }

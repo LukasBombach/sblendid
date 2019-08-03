@@ -215,7 +215,9 @@ export default class Adapter {
     const returnMethod = posts.slice(-1).pop();
     for (const post of cleanupMethods) await post(params);
     const returnMethodValue = returnMethod && (await returnMethod(params));
-    return (returnMethodValue ? returnMethodValue : params) as ReturnValue;
+    return (typeof returnMethodValue !== "undefined"
+      ? returnMethodValue
+      : params) as ReturnValue;
   }
 
   public when<E extends Event>(
