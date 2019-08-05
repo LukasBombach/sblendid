@@ -3,21 +3,28 @@ import Peripheral from "./peripheral";
 import Characteristic, { Converter } from "./characteristic";
 import { NobleCharacteristic as NBC } from "./bindings";
 
-export type Converters<Names extends string> = Record<Names, Converter<any>>;
+export interface Converters1 {
+  [name: string]: Converter<any>;
+}
 
-//export type ConverterNames<C> = keyof C;
-export type ConverterNames<C extends Converters<any>> = keyof C;
+export type Converters = { name: Converter<any> };
 
-export type ConverterValue<
-  C extends Converters<N>,
-  N extends string
-> = ReturnType<C[N]["decode"]>;
+export type Converters2<Names extends string> = {
+  [name in Names]: Converter<any>
+};
 
-export type ConverterListener<C extends Converters<N>, N extends string> = (
-  value: ConverterValue<C, N>
-) => Promise<void> | void;
+export type Keys<C extends Converters> = keyof C;
+// export type Keys<C extends Converters> = Extract<keyof C, string>;
 
-export default class Service<C extends Converters<any>> {
+export type Con<C extends Converters, N extends Keys<C>> = C[N];
+
+export type Decoder<C extends Converters, N extends Keys<C>> = C[N]["decode"];
+
+export type Value<C extends Converters, N extends Keys<C>> = ReturnType<
+  C[N]["decode"]
+>;
+
+export default class Service<C extends Converters> {
   public adapter: Adapter;
   public peripheral: Peripheral;
   public uuid: SUUID;
@@ -87,7 +94,7 @@ export default class Service<C extends Converters<any>> {
     return puuid === this.peripheral.uuid && suuid === this.uuid;
   }
 
-  private getConverter(name: ConverterNames<C>): Converter<any> | undefined {
+  private getConverter(name: string): Converter<any> | undefined {
     if (!this.converters) return;
     return this.converters[name]; // todo <- this breaks loading a characteristic by uuid
   }
@@ -110,3 +117,26 @@ export default class Service<C extends Converters<any>> {
     );
   }
 }
+
+// type RecordXXX<K extends keyof any, T> = { [P in K]: T };
+// export type Converters<Names extends string> = { [K in Names]: Converter<any> };
+// export type ConverterNames<C> = keyof C;
+
+/* export type Converters<Names extends string> = Record<Names, Converter<any>>;
+
+export type ConverterNames<C extends Converters<string>> = Extract<
+  keyof C,
+  string
+>;
+
+export type ConverterValue<
+  C extends Converters<N>,
+  N extends string
+> = ReturnType<C[N]["decode"]>;
+
+export type ConverterListener<C extends Converters<N>, N extends string> = (
+  value: ConverterValue<C, N>
+) => Promise<void> | void; 
+
+export default class Service<C extends Converters<string>> {
+*/
