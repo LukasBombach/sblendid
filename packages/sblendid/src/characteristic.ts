@@ -59,12 +59,18 @@ export default class Characteristic<T = Buffer> {
     await this.dispatchWrite(buffer);
   }
 
-  public async on(event: "notify", listener: Listener<T>): Promise<void> {
+  public async on(
+    event: "notify",
+    listener: (value: T) => Promise<void> | void
+  ): Promise<void> {
     this.eventEmitter.on(event, listener);
     if (!this.isNotifying) await this.startNotifing();
   }
 
-  public async off(event: "notify", listener: Listener<T>): Promise<void> {
+  public async off(
+    event: "notify",
+    listener: (value: T) => Promise<void> | void
+  ): Promise<void> {
     if (this.eventEmitter.listenerCount("notify") <= 1)
       await this.stopNotifing();
     this.eventEmitter.off(event, listener);

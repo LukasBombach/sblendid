@@ -3,7 +3,13 @@ import Peripheral from "./peripheral";
 import Characteristic, { Converter } from "./characteristic";
 import { NobleCharacteristic as NBC } from "./bindings";
 
-// export default class Service<C extends Converters<keyof C>> {
+export type Value<C, N extends keyof C> = C[N] extends Converter<infer R>
+  ? R
+  : never;
+export type Listener<C, N extends keyof C> = (
+  value: Value<C, N>
+) => Promise<void> | void;
+
 export default class Service<C> {
   public adapter: Adapter;
   public peripheral: Peripheral;
@@ -23,37 +29,27 @@ export default class Service<C> {
     return await characteristic.read();
   }
 
-  public async write<K extends keyof C>(
-    name: K,
-    value: C[K] extends Converter<infer R> ? R : never
+  public async write<N extends keyof C>(
+    name: N,
+    value: Value<C, N>
   ): Promise<void> {
     const characteristic = await this.getCharacteristic(name);
     await characteristic.write(value);
   }
 
-  public async on<N extends keyof C>(
-    name: N,
-    listener: (
-      value: C[N] extends Converter<infer R> ? R : never
-    ) => Promise<void> | void
-  ) {
+  public async on<N extends keyof C>(name: N, listener: Listener<C, N>) {
     const characteristic = await this.getCharacteristic(name);
     await characteristic.on("notify", listener);
   }
 
-  public async off<N extends keyof C>(
-    name: N,
-    listener: (
-      value: C[N] extends Converter<infer R> ? R : never
-    ) => Promise<void> | void
-  ) {
+  public async off<N extends keyof C>(name: N, listener: Listener<C, N>) {
     const characteristic = await this.getCharacteristic(name);
     await characteristic.off("notify", listener);
   }
 
   private async getCharacteristic<N extends keyof C>(
     name: N
-  ): Promise<Characteristic<C[N] extends Converter<infer R> ? R : never>> {
+  ): Promise<Characteristic<Value<C, N>>> {
     const characteristics = await this.getCharacteristics();
     const converter = this.getConverter(name);
     if (!converter) throw new Error(`Cannot find converter`);
@@ -78,9 +74,14 @@ export default class Service<C> {
     return puuid === this.peripheral.uuid && suuid === this.uuid;
   }
 
-  private getConverter(name: string): Converter<any> | undefined {
+  private getConverter<N extends keyof C>(
+    name: N
+  ): Converter<Value<C, N>> | undefined {
     if (!this.converters) return;
-    return this.converters[name]; // todo <- this breaks loading a characteristic by uuid
+    if (this.converters[name]) return this.converters[name] as any;
+    return Object.values(this.converters).find(
+      c => c.uuid === (name as string)
+    );
   }
 
   private uuidMap<T extends { uuid: CUUID }>(arr: T[]): Record<string, T> {
@@ -88,7 +89,11 @@ export default class Service<C> {
   }
 
   private getCFromN(nbc: NBC): Characteristic {
-    return Characteristic.fromNoble(this, nbc, this.getConverter(nbc.uuid));
+    return Characteristic.fromNoble(
+      this,
+      nbc,
+      this.getConverter(nbc.uuid as any)
+    ) as any;
   }
 
   private async fetchCharacteristics(): Promise<NBC[]> {

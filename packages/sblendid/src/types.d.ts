@@ -31,7 +31,7 @@ type Promish<T> = Promise<T> | T;
 type Resolve = (value?: unknown) => void;
 type Reject = (reason?: any) => void;
 
-type Listener<T> = (value: T) => Promish<void>;
+// type Listener<T> = (value: T) => Promish<void>;
 
 interface Properties {
   read: boolean;

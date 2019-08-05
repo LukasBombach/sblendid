@@ -1,5 +1,5 @@
 import { Converter } from "../src/characteristic";
-import Service, { Converters } from "../src/service";
+import Service from "../src/service";
 
 (async () => {
   type State = "idle" | "sleep";
@@ -26,5 +26,5 @@ import Service, { Converters } from "../src/service";
   await service.read("XXX");
   await service.write("XXX", "idle");
   await service.write("state", "XXX");
-  await service.write("water", "XXX");
+  await service.write("water", { level: "1", initialLevel: 2 });
 })();
