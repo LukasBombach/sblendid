@@ -11,13 +11,15 @@ interface Converter<T> {
   encode?: Encoder<T>;
   decode?: Decoder<T>;
 }
+type Encoder<T> = (value: T) => Promish<Buffer>;
+type Decoder<T> = (value: Buffer) => Promish<T>;
 
 interface CConvertish<T> {
   encode?: Encoder<T>;
   decode?: Decoder<T>;
 }
 
-type ConverterMap<T> = Record<string, Converter<T>[]>;
+// type ConverterMap<T> = Record<string, Converter<T>[]>;
 
 type PeripheralState =
   | "connecting"
@@ -30,8 +32,6 @@ type Resolve = (value?: unknown) => void;
 type Reject = (reason?: any) => void;
 
 type Listener<T> = (value: T) => Promish<void>;
-type Encoder<T> = (value: T) => Promish<Buffer>;
-type Decoder<T> = (value: Buffer) => Promish<T>;
 
 interface Properties {
   read: boolean;

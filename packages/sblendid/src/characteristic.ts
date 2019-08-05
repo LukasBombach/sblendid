@@ -3,6 +3,14 @@ import Adapter from "./adapter";
 import Service from "./service";
 import { EventEmitter } from "events";
 
+export interface Converter<T> {
+  uuid: CUUID;
+  encode?: Encoder<T>;
+  decode: Decoder<T>;
+}
+export type Encoder<T> = (value: T) => Promise<Buffer> | Buffer;
+export type Decoder<T> = (value: Buffer) => Promise<T> | T;
+
 const defaultProperties: Properties = {
   read: false,
   write: false,
@@ -12,14 +20,14 @@ const defaultProperties: Properties = {
 export default class Characteristic<T = Buffer> {
   public uuid: CUUID;
   public properties?: Properties;
-  public service: Service;
+  public service: Service<any>;
   private adapter: Adapter;
   private converter?: Converter<T>;
   private eventEmitter = new EventEmitter();
   private isNotifying = false;
 
   public static fromNoble<T>(
-    service: Service,
+    service: Service<any>,
     noble: NobleCharacteristic,
     converter?: Converter<T>
   ): Characteristic<T> {
@@ -29,7 +37,7 @@ export default class Characteristic<T = Buffer> {
   }
 
   constructor(
-    service: Service,
+    service: Service<any>,
     uuid: CUUID,
     converter?: Converter<T>,
     properties?: Properties

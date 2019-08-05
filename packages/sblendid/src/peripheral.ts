@@ -1,6 +1,6 @@
 import { Advertisement, EventParameters } from "./bindings";
 import Adapter from "./adapter";
-import Service from "./service";
+import Service, { Converters } from "./service";
 
 export default class Peripheral {
   public adapter: Adapter;
@@ -47,17 +47,17 @@ export default class Peripheral {
     this.state = "disconnected";
   }
 
-  public async getService(
+  public async getService<C extends Converters<any>>(
     uuid: SUUID,
-    converters: Converter<any>[]
-  ): Promise<Service | undefined> {
+    converters: C
+  ): Promise<Service<C> | undefined> {
     const services = await this.getServices({ [uuid]: converters });
     return services.find(s => s.uuid === uuid);
   }
 
   public async getServices(
-    converterMap: ConverterMap<any> = {}
-  ): Promise<Service[]> {
+    converterMap: Record<string, Converters<any>> = {}
+  ): Promise<Service<any>[]> {
     if (this.state === "disconnected") await this.connect();
     if (!this.serviceUuids) this.serviceUuids = await this.fetchServices();
     return this.serviceUuids.map(
