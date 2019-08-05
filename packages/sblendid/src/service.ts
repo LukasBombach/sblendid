@@ -3,7 +3,7 @@ import Peripheral from "./peripheral";
 import Characteristic, { Converter } from "./characteristic";
 import { NobleCharacteristic as NBC } from "./bindings";
 
-export type Converters<K extends PropertyKey> = Record<K, Converter<any>>;
+/* export type Converters<K extends PropertyKey> = Record<K, Converter<any>>;
 
 export type ConverterName<C extends Converters<keyof C>> = keyof C;
 
@@ -15,9 +15,20 @@ type ConverterValue<
 export type ConverterListener<
   C extends Converters<keyof C>,
   N extends keyof C
-> = (value: ConverterValue<C, N>) => Promise<void> | void;
+> = (value: ConverterValue<C, N>) => Promise<void> | void; */
 
-export default class Service<C extends Converters<keyof C>> {
+export type ConverterName<C> = keyof C;
+
+type ConverterValue<C> = C[ConverterName<C>] extends Converter<infer R>
+  ? R
+  : never;
+
+export type ConverterListener<C> = (
+  value: ConverterValue<C>
+) => Promise<void> | void;
+
+// export default class Service<C extends Converters<keyof C>> {
+export default class Service<C> {
   public adapter: Adapter;
   public peripheral: Peripheral;
   public uuid: SUUID;
@@ -36,9 +47,9 @@ export default class Service<C extends Converters<keyof C>> {
     return await characteristic.read();
   }
 
-  public async write<N extends ConverterName<C>>(
-    name: N,
-    value: ConverterValue<C, N>
+  public async write<K extends keyof C>(
+    name: K,
+    value: C[K] extends Converter<infer R> ? R : never
   ): Promise<void> {
     const characteristic = await this.getCharacteristic(name);
     await characteristic.write(value);
@@ -46,7 +57,7 @@ export default class Service<C extends Converters<keyof C>> {
 
   public async on<N extends ConverterName<C>>(
     name: N,
-    listener: ConverterListener<C, N>
+    listener: ConverterListener<C>
   ) {
     const characteristic = await this.getCharacteristic(name);
     await characteristic.on("notify", listener);
@@ -54,7 +65,7 @@ export default class Service<C extends Converters<keyof C>> {
 
   public async off<N extends ConverterName<C>>(
     name: N,
-    listener: ConverterListener<C, N>
+    listener: ConverterListener<C>
   ) {
     const characteristic = await this.getCharacteristic(name);
     await characteristic.off("notify", listener);
@@ -62,7 +73,7 @@ export default class Service<C extends Converters<keyof C>> {
 
   private async getCharacteristic<N extends ConverterName<C>>(
     name: N
-  ): Promise<Characteristic<ConverterValue<C, N>>> {
+  ): Promise<Characteristic<ConverterValue<C>>> {
     const characteristics = await this.getCharacteristics();
     const converter = this.getConverter(name);
     if (!converter) throw new Error(`Cannot find converter`);
