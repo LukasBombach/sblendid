@@ -28,18 +28,3 @@ import Service, { Converters } from "../src/service";
   await service.write("state", "XXX");
   await service.write("water", "XXX");
 })();
-
-//type States = { [S in keyof typeof TestConverterNames]: number };
-
-/*   enum Names {
-    state,
-    water
-  } */
-/*  type StateConverter = Con<MyConverters, "state">;
-
-  const X: StateConverter = {
-    uuid: "",
-    decode: () => "idle"
-  }; */
-
-// type MyConverters2 = { [index in keyof typeof Names]: Converter<any> };
