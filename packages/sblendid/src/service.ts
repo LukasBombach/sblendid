@@ -3,28 +3,21 @@ import Peripheral from "./peripheral";
 import Characteristic, { Converter } from "./characteristic";
 import { NobleCharacteristic as NBC } from "./bindings";
 
-export interface Converters1 {
-  [name: string]: Converter<any>;
-}
+export type Converters<K extends PropertyKey> = Record<K, Converter<any>>;
 
-export type Converters = { name: Converter<any> };
+export type ConverterName<C extends Converters<keyof C>> = keyof C;
 
-export type Converters2<Names extends string> = {
-  [name in Names]: Converter<any>
-};
+type ConverterValue<
+  C extends Converters<keyof C>,
+  N extends keyof C
+> = ReturnType<C[N]["decode"]>;
 
-export type Keys<C extends Converters> = keyof C;
-// export type Keys<C extends Converters> = Extract<keyof C, string>;
+export type ConverterListener<
+  C extends Converters<keyof C>,
+  N extends keyof C
+> = (value: ConverterValue<C, N>) => Promise<void> | void;
 
-export type Con<C extends Converters, N extends Keys<C>> = C[N];
-
-export type Decoder<C extends Converters, N extends Keys<C>> = C[N]["decode"];
-
-export type Value<C extends Converters, N extends Keys<C>> = ReturnType<
-  C[N]["decode"]
->;
-
-export default class Service<C extends Converters> {
+export default class Service<C extends Converters<keyof C>> {
   public adapter: Adapter;
   public peripheral: Peripheral;
   public uuid: SUUID;
@@ -38,12 +31,12 @@ export default class Service<C extends Converters> {
     this.uuid = uuid;
   }
 
-  public async read(name: ConverterNames<C>): Promise<any> {
+  public async read(name: ConverterName<C>): Promise<any> {
     const characteristic = await this.getCharacteristic(name);
     return await characteristic.read();
   }
 
-  public async write<N extends ConverterNames<C>>(
+  public async write<N extends ConverterName<C>>(
     name: N,
     value: ConverterValue<C, N>
   ): Promise<void> {
@@ -51,7 +44,7 @@ export default class Service<C extends Converters> {
     await characteristic.write(value);
   }
 
-  public async on<N extends ConverterNames<C>>(
+  public async on<N extends ConverterName<C>>(
     name: N,
     listener: ConverterListener<C, N>
   ) {
@@ -59,7 +52,7 @@ export default class Service<C extends Converters> {
     await characteristic.on("notify", listener);
   }
 
-  public async off<N extends ConverterNames<C>>(
+  public async off<N extends ConverterName<C>>(
     name: N,
     listener: ConverterListener<C, N>
   ) {
@@ -67,7 +60,7 @@ export default class Service<C extends Converters> {
     await characteristic.off("notify", listener);
   }
 
-  private async getCharacteristic<N extends ConverterNames<C>>(
+  private async getCharacteristic<N extends ConverterName<C>>(
     name: N
   ): Promise<Characteristic<ConverterValue<C, N>>> {
     const characteristics = await this.getCharacteristics();
@@ -140,3 +133,27 @@ export type ConverterListener<C extends Converters<N>, N extends string> = (
 
 export default class Service<C extends Converters<string>> {
 */
+
+/* export interface Converters1 {
+  [name: string]: Converter<any>;
+}
+
+export type Converters = { name: Converter<any> };
+
+export type Converters2<Names extends string> = {
+  [name in Names]: Converter<any>
+}; */
+
+/* type Converters<K extends PropertyKey> = Record<K, Converter<any>>;
+
+export type Keys<C extends Converters> = keyof C;
+// export type Keys<C extends Converters> = Extract<keyof C, string>;
+
+export type Con<C extends Converters, N extends Keys<C>> = C[N];
+
+export type Decoder<C extends Converters, N extends Keys<C>> = C[N]["decode"];
+
+export type Value<C extends Converters, N extends Keys<C>> = ReturnType<
+  C[N]["decode"]
+>;
+ */

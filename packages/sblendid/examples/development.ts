@@ -1,4 +1,5 @@
-import Service, { Converters, Con } from "../src/service";
+import { Converter } from "../src/characteristic";
+import Service, { Converters } from "../src/service";
 
 (async () => {
   type State = "idle" | "sleep";
@@ -8,24 +9,10 @@ import Service, { Converters, Con } from "../src/service";
     initialLevel: number;
   }
 
-  enum Names {
-    state,
-    water
-  }
-
-  interface MyConverters extends Converters {
+  interface MyConverters {
     state: Converter<State>;
     water: Converter<Water>;
   }
-
-  type StateConverter = Con<MyConverters, "state">;
-
-  const X: StateConverter = {
-    uuid: "",
-    decode: () => "idle"
-  };
-
-  // type MyConverters2 = { [index in keyof typeof Names]: Converter<any> };
 
   const service = new Service<MyConverters>("" as any, "");
 
@@ -43,3 +30,16 @@ import Service, { Converters, Con } from "../src/service";
 })();
 
 //type States = { [S in keyof typeof TestConverterNames]: number };
+
+/*   enum Names {
+    state,
+    water
+  } */
+/*  type StateConverter = Con<MyConverters, "state">;
+
+  const X: StateConverter = {
+    uuid: "",
+    decode: () => "idle"
+  }; */
+
+// type MyConverters2 = { [index in keyof typeof Names]: Converter<any> };
