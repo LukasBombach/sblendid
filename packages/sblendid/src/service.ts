@@ -52,9 +52,10 @@ export default class Service<C> {
   ): Promise<Characteristic<Value<C, N>>> {
     const characteristics = await this.getCharacteristics();
     const converter = this.getConverter(name);
-    if (!converter) throw new Error(`Cannot find converter`);
+    if (!converter) throw new Error(`Cannot find converter for ${name}`);
     const characteristic = characteristics[converter.uuid];
-    if (!characteristic) throw new Error(`Cannot find characteristic`);
+    if (!characteristic)
+      throw new Error(`Cannot find characteristic for ${name}`);
     return characteristic as any;
   }
 
