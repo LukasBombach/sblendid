@@ -134,15 +134,9 @@ export default class Characteristic<T = Buffer> {
   // todo withoutResponse = false seems important, cannot publish without this param
   private async dispatchWrite(value: Buffer): Promise<void> {
     const [pUuid, sUuid, uuid] = this.getUuids();
-    console.log("dispatching write", pUuid, sUuid, uuid, value, false);
     await this.adapter.run<"write">(
       () => this.adapter.write(pUuid, sUuid, uuid, value, false),
-      () =>
-        this.adapter.when("write", (...args) => {
-          const [p, s, c] = args;
-          console.log("Got write", args);
-          return this.isThis(p, s, c);
-        })
+      () => this.adapter.when("write", (p, s, c) => this.isThis(p, s, c))
     );
   }
 
