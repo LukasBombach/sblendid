@@ -20,7 +20,7 @@ export default class Service<C> {
   constructor(peripheral: Peripheral, uuid: SUUID, converters?: C) {
     this.peripheral = peripheral;
     this.adapter = peripheral.adapter;
-    this.converters = converters;
+    this.converters = this.validateConverters(converters);
     this.uuid = uuid;
   }
 
@@ -65,6 +65,14 @@ export default class Service<C> {
     const characteristics = nobles.map(nbc => this.getCFromN(nbc));
     this.characteristics = this.uuidMap<Characteristic>(characteristics);
     return this.characteristics;
+  }
+
+  private validateConverters(converters?: C): C | undefined {
+    if (typeof converters === "undefined") return undefined;
+    const uuids = Object.values(converters).map(c => c.uuid);
+    const hasDuplicates = new Set(uuids).size !== uuids.length;
+    if (hasDuplicates) throw new Error("Duplicate UUIDs"); // todo better error message
+    return converters;
   }
 
   private getIds(): [string, SUUID] {
