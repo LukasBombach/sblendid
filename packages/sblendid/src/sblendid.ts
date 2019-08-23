@@ -1,10 +1,11 @@
 import MacOsBindings from "./native/noble_mac";
+import Bindings from "@sblendid/adapter-node";
 import { EventListener } from "./bindings";
 import Adapter, { PeripheralListener } from "./adapter";
 import Peripheral from "./peripheral";
 
 export default class Sblendid {
-  public adapter: Adapter = new Adapter(new MacOsBindings());
+  public adapter: Adapter = new Adapter(new Bindings());
   private scanListener: EventListener<"discover"> = () => {};
 
   public static async powerOn(): Promise<Sblendid> {
