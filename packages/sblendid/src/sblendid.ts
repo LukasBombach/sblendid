@@ -1,4 +1,3 @@
-import MacOsBindings from "./native/noble_mac";
 import Bindings from "@sblendid/adapter-node";
 import { EventListener } from "./bindings";
 import Adapter, { PeripheralListener } from "./adapter";
