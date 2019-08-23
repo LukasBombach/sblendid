@@ -82,6 +82,11 @@
   resolved "https://spring.jfrog.io/spring/api/npm/npm-red/@types/node/-/node-12.6.8.tgz#e469b4bf9d1c9832aee4907ba8a051494357c12c"
   integrity sha1-5Gm0v50cmDKu5JB7qKBRSUNXwSw=
 
+"@types/node@^12.7.2":
+  version "12.7.2"
+  resolved "https://spring.jfrog.io/spring/api/npm/npm-red/@types/node/-/node-12.7.2.tgz#c4e63af5e8823ce9cc3f0b34f7b998c2171f0c44"
+  integrity sha1-xOY69eiCPOnMPws097mYwhcfDEQ=
+
 "@types/normalize-package-data@^2.4.0":
   version "2.4.0"
   resolved "https://spring.jfrog.io/spring/api/npm/npm-red/@types/normalize-package-data/-/normalize-package-data-2.4.0.tgz#e486d0d97396d79beedd0a6e33f4534ff6b4973e"
@@ -103,6 +108,11 @@ acorn@^6.2.0:
   version "6.2.1"
   resolved "https://spring.jfrog.io/spring/api/npm/npm-red/acorn/-/acorn-6.2.1.tgz#3ed8422d6dec09e6121cc7a843ca86a330a86b51"
   integrity sha1-PthCLW3sCeYSHMeoQ8qGozCoa1E=
+
+acorn@^7.0.0:
+  version "7.0.0"
+  resolved "https://spring.jfrog.io/spring/api/npm/npm-red/acorn/-/acorn-7.0.0.tgz#26b8d1cd9a9b700350b71c0905546f64d1284e7a"
+  integrity sha1-JrjRzZqbcANQtxwJBVRvZNEoTno=
 
 ansi-styles@^3.2.1:
   version "3.2.1"
@@ -857,6 +867,17 @@ rollup-plugin-commonjs@10.0.1:
     resolve "^1.11.0"
     rollup-pluginutils "^2.8.1"
 
+rollup-plugin-commonjs@10.0.2:
+  version "10.0.2"
+  resolved "https://spring.jfrog.io/spring/api/npm/npm-red/rollup-plugin-commonjs/-/rollup-plugin-commonjs-10.0.2.tgz#61328f3a29945e2c35f2b2e824c18944fd88a54d"
+  integrity sha1-YTKPOimUXiw18rLoJMGJRP2IpU0=
+  dependencies:
+    estree-walker "^0.6.1"
+    is-reference "^1.1.2"
+    magic-string "^0.25.2"
+    resolve "^1.11.0"
+    rollup-pluginutils "^2.8.1"
+
 rollup-plugin-copy@3.1.0:
   version "3.1.0"
   resolved "https://spring.jfrog.io/spring/api/npm/npm-red/rollup-plugin-copy/-/rollup-plugin-copy-3.1.0.tgz#435589857f4e346ea63fc137d99dcc1b25f51c3b"
@@ -900,6 +921,16 @@ rollup-plugin-typescript2@0.22.0:
     rollup-pluginutils "2.8.1"
     tslib "1.10.0"
 
+rollup-plugin-typescript2@0.23.0:
+  version "0.23.0"
+  resolved "https://spring.jfrog.io/spring/api/npm/npm-red/rollup-plugin-typescript2/-/rollup-plugin-typescript2-0.23.0.tgz#a2b6669ec606862fff62a74a628a838ebad6f108"
+  integrity sha1-orZmnsYGhi//YqdKYoqDjrrW8Qg=
+  dependencies:
+    fs-extra "8.1.0"
+    resolve "1.11.1"
+    rollup-pluginutils "2.8.1"
+    tslib "1.10.0"
+
 rollup-pluginutils@2.8.1, rollup-pluginutils@^2.8.1:
   version "2.8.1"
   resolved "https://spring.jfrog.io/spring/api/npm/npm-red/rollup-pluginutils/-/rollup-pluginutils-2.8.1.tgz#8fa6dd0697344938ef26c2c09d2488ce9e33ce97"
@@ -915,6 +946,15 @@ rollup@1.17.0:
     "@types/estree" "0.0.39"
     "@types/node" "^12.6.2"
     acorn "^6.2.0"
+
+rollup@1.20.1:
+  version "1.20.1"
+  resolved "https://spring.jfrog.io/spring/api/npm/npm-red/rollup/-/rollup-1.20.1.tgz#fc66f356c5afbd7c62434f1e7a53a1e7da5a2b32"
+  integrity sha1-/GbzVsWvvXxiQ08eelOh59paKzI=
+  dependencies:
+    "@types/estree" "0.0.39"
+    "@types/node" "^12.7.2"
+    acorn "^7.0.0"
 
 run-node@^1.0.0:
   version "1.0.0"

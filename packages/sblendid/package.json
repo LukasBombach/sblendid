@@ -28,5 +28,7 @@
     "ts-node": "8.3.0",
     "typescript": "3.5.3"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@sblendid/adapter-node": "0.2.0"
+  }
 }
