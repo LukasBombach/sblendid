@@ -4,6 +4,8 @@ import { EventEmitter } from "events";
 import { inherits } from "util";
 import Bindings from "./bindings";
 
+// todo https://github.com/springmeyer/node-addon-example/
+
 function loadNativeAddonFromFs(): typeof Bindings {
   const platform = os.platform();
   const macPath = path.resolve(__dirname, "../native/noble_mac.node");
