@@ -3,10 +3,10 @@ import Adapter, { Params } from "@sblendid/adapter-node";
 import Service from "./service";
 
 export interface Converter<T> {
-  uuid: BluetoothCharacteristicUUID;
-  decode: (value: Buffer) => Promise<T> | T;
-  encode?: (value: T) => Promise<Buffer> | Buffer;
-  values?: T | T[];
+  uuid: CUUID;
+  decode: (value: Buffer) => Promish<T>;
+  encode?: (value: T) => Promish<Buffer>;
+  values?: T[];
 }
 
 export interface Properties {
@@ -18,7 +18,7 @@ export interface Properties {
 type Listener<T> = (value: T) => Promise<void> | void;
 
 export default class Characteristic<T = Buffer> {
-  public readonly uuid: BluetoothCharacteristicUUID;
+  public readonly uuid: CUUID;
   public readonly service: Service;
   public readonly properties: Properties;
   private readonly adapter: Adapter;
@@ -28,7 +28,7 @@ export default class Characteristic<T = Buffer> {
 
   constructor(
     service: Service,
-    uuid: BluetoothCharacteristicUUID,
+    uuid: CUUID,
     converter?: Converter<T>,
     properties: Properties = {}
   ) {
@@ -57,8 +57,8 @@ export default class Characteristic<T = Buffer> {
   }
 
   public async off(event: "notify", listener: Listener<T>): Promise<void> {
-    if (this.eventEmitter.listenerCount("notify") <= 1)
-      await this.stopNotifing();
+    const isLastListener = this.eventEmitter.listenerCount("notify") <= 1;
+    if (isLastListener) await this.stopNotifing();
     this.eventEmitter.off(event, listener);
   }
 
@@ -87,24 +87,16 @@ export default class Characteristic<T = Buffer> {
   }
 
   private async onNotify(...params: Params<"read">): Promise<void> {
-    const [pUuid, sUuid, cUuid, data, isNfy] = params;
-    if (!isNfy || !this.isThis(pUuid, sUuid, cUuid)) return;
+    const [pUuid, sUuid, cUuid, data, isNotification] = params;
+    if (!isNotification || !this.isThis(pUuid, sUuid, cUuid)) return;
     this.eventEmitter.emit("notify", await this.decode(data));
   }
 
-  private isThis(
-    pUuid: string,
-    sUuid: BluetoothServiceUUID,
-    cUuid: BluetoothCharacteristicUUID
-  ): boolean {
+  private isThis(pUuid: PUUID, sUuid: SUUID, cUuid: CUUID): boolean {
     return this.getUuids().every((v, i) => v === [pUuid, sUuid, cUuid][i]);
   }
 
-  private getUuids(): [
-    string,
-    BluetoothServiceUUID,
-    BluetoothCharacteristicUUID
-  ] {
+  private getUuids(): [PUUID, SUUID, CUUID] {
     return [this.service.peripheral.uuid, this.service.uuid, this.uuid];
   }
 }
