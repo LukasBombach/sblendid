@@ -1,3 +1,11 @@
+export type Item = () => Promise<any> | any;
+export type ItemReturn<T> = T extends "function"
+  ? ReturnType<Item>
+  : Promise<T>;
+export type ItemFunction<T> = (...args: any[]) => Promise<ItemReturn<T>>;
+export type Resolve = (value?: unknown) => void;
+export type Reject = (reason?: any) => void;
+
 export default class Queue {
   private items: Item[] = [];
   private working: boolean = false;

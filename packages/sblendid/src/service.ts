@@ -1,4 +1,5 @@
-import Adapter from "./adapter";
+import Adapter, { Params } from "@sblendid/adapter-node";
+// import Adapter from "./adapter";
 import Peripheral from "./peripheral";
 import Characteristic, { Converter } from "./characteristic";
 import { NobleCharacteristic as NBC } from "./bindings";
@@ -10,7 +11,7 @@ export type Listener<C, N extends keyof C> = (
   value: Value<C, N>
 ) => Promise<void> | void;
 
-export default class Service<C> {
+export default class Service<C = any> {
   public adapter: Adapter;
   public peripheral: Peripheral;
   public uuid: SUUID;

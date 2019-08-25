@@ -1,10 +1,10 @@
-import Bindings from "@sblendid/adapter-node";
+import Adapter from "@sblendid/adapter-node";
 import { EventListener } from "./bindings";
-import Adapter, { PeripheralListener } from "./adapter";
+// import Adapter, { PeripheralListener } from "./adapter";
 import Peripheral from "./peripheral";
 
 export default class Sblendid {
-  public adapter: Adapter = new Adapter(new Bindings());
+  public adapter: Adapter = new Adapter();
   private scanListener: EventListener<"discover"> = () => {};
 
   public static async powerOn(): Promise<Sblendid> {

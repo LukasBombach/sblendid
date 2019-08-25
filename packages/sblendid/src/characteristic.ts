@@ -1,63 +1,46 @@
-import { NobleCharacteristic, Params } from "./bindings";
-import Adapter from "./adapter";
-import Service from "./service";
 import { EventEmitter } from "events";
+import Adapter, { Params } from "@sblendid/adapter-node";
+import Service from "./service";
 
 export interface Converter<T> {
-  uuid: CUUID;
-  encode?: Encoder<T>;
-  decode: Decoder<T>;
+  uuid: BluetoothCharacteristicUUID;
+  decode: (value: Buffer) => Promise<T> | T;
+  encode?: (value: T) => Promise<Buffer> | Buffer;
   values?: T | T[];
 }
-export type Encoder<T> = (value: T) => Promise<Buffer> | Buffer;
-export type Decoder<T> = (value: Buffer) => Promise<T> | T;
-
-const defaultProperties: Properties = {
-  read: false,
-  write: false,
-  notify: false
-};
 
 export default class Characteristic<T = Buffer> {
-  public uuid: CUUID;
+  public uuid: BluetoothCharacteristicUUID;
+  public service: Service;
   public properties?: Properties;
-  public service: Service<any>;
   private adapter: Adapter;
   private converter?: Converter<T>;
   private eventEmitter = new EventEmitter();
   private isNotifying = false;
 
-  public static fromNoble<T>(
-    service: Service<any>,
-    noble: NobleCharacteristic,
-    converter?: Converter<T>
-  ): Characteristic<T> {
-    const properties = Object.assign({}, defaultProperties);
-    for (const name of noble.properties) properties[name] = true;
-    return new Characteristic(service, noble.uuid, converter, properties);
-  }
-
   constructor(
-    service: Service<any>,
-    uuid: CUUID,
+    service: Service,
+    uuid: BluetoothCharacteristicUUID,
     converter?: Converter<T>,
     properties?: Properties
   ) {
-    this.service = service;
     this.uuid = uuid;
+    this.service = service;
+    this.adapter = service.adapter;
     this.converter = converter;
     this.properties = properties;
-    this.adapter = service.adapter;
   }
 
   public async read(): Promise<T> {
-    const buffer = await this.dispatchRead();
+    const [pUuid, sUuid, uuid] = this.getUuids();
+    const buffer = await this.adapter.read(pUuid, sUuid, uuid);
     return await this.decode(buffer);
   }
 
-  public async write(value: T): Promise<void> {
+  public async write(value: T, withoutResponse?: boolean): Promise<void> {
+    const [pUuid, sUuid, uuid] = this.getUuids();
     const buffer = await this.encode(value);
-    await this.dispatchWrite(buffer);
+    await this.adapter.write(pUuid, sUuid, uuid, buffer, withoutResponse);
   }
 
   public async on(
@@ -89,63 +72,38 @@ export default class Characteristic<T = Buffer> {
 
   private async startNotifing(): Promise<void> {
     if (this.isNotifying) return;
+    const [pUuid, sUuid, uuid] = this.getUuids();
     this.adapter.on("read", this.onNotify.bind(this));
-    this.isNotifying = await this.notify(true);
+    this.isNotifying = await this.adapter.notify(pUuid, sUuid, uuid, true);
   }
 
   private async stopNotifing(): Promise<void> {
     if (!this.isNotifying) return;
+    const [pUuid, sUuid, uuid] = this.getUuids();
     this.adapter.off("read", this.onNotify.bind(this));
-    this.isNotifying = await this.notify(false);
+    this.isNotifying = await this.adapter.notify(pUuid, sUuid, uuid, false);
   }
 
   private async onNotify(...params: Params<"read">): Promise<void> {
-    const [pUuid, sUuid, cUuid, data, isNfy] = params;
-    if (!isNfy || !this.isThis(pUuid, sUuid, cUuid)) return;
+    const [pUuid, sUuid, BluetoothCharacteristicUUID, data, isNfy] = params;
+    if (!isNfy || !this.isThis(pUuid, sUuid, BluetoothCharacteristicUUID))
+      return;
     this.eventEmitter.emit("notify", await this.decode(data));
   }
 
-  private isThis(pUuid: string, sUuid: SUUID, cUuid: CUUID): boolean {
+  private isThis(
+    pUuid: string,
+    sUuid: BluetoothServiceUUID,
+    cUuid: BluetoothCharacteristicUUID
+  ): boolean {
     return this.getUuids().every((v, i) => v === [pUuid, sUuid, cUuid][i]);
   }
 
-  private getUuids(): [string, SUUID, CUUID] {
+  private getUuids(): [
+    string,
+    BluetoothServiceUUID,
+    BluetoothCharacteristicUUID
+  ] {
     return [this.service.peripheral.uuid, this.service.uuid, this.uuid];
-  }
-
-  private async dispatchRead(): Promise<Buffer> {
-    const [pUuid, sUuid, uuid] = this.getUuids();
-    return await this.adapter.run<"read", Buffer>(
-      () => this.adapter.read(pUuid, sUuid, uuid),
-      () => this.adapter.when("read", (p, s, c) => this.isThis(p, s, c)),
-      ([, , , buffer]) => buffer
-    );
-  }
-
-  // todo withoutResponse = false seems important, cannot publish without this param
-  // todo withoutResponse = false seems important, cannot publish without this param
-  // todo withoutResponse = false seems important, cannot publish without this param
-  // todo withoutResponse = false seems important, cannot publish without this param
-  // todo withoutResponse = false seems important, cannot publish without this param
-  // todo withoutResponse = false seems important, cannot publish without this param
-  // todo withoutResponse = false seems important, cannot publish without this param
-  // todo withoutResponse = false seems important, cannot publish without this param
-  // todo withoutResponse = false seems important, cannot publish without this param
-  // todo withoutResponse = false seems important, cannot publish without this param
-  private async dispatchWrite(value: Buffer): Promise<void> {
-    const [pUuid, sUuid, uuid] = this.getUuids();
-    await this.adapter.run<"write">(
-      () => this.adapter.write(pUuid, sUuid, uuid, value, false),
-      () => this.adapter.when("write", (p, s, c) => this.isThis(p, s, c))
-    );
-  }
-
-  private async notify(notify: boolean): Promise<boolean> {
-    const [pUuid, sUuid, uuid] = this.getUuids();
-    return await this.adapter.run<"notify", boolean>(
-      () => this.adapter.notify(pUuid, sUuid, uuid, notify),
-      () => this.adapter.when("notify", (p, s, c) => this.isThis(p, s, c)),
-      ([, , , state]) => state // todo this should not be an array??
-    );
   }
 }
