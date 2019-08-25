@@ -9,20 +9,28 @@ export interface Converter<T> {
   values?: T | T[];
 }
 
+export interface Properties {
+  readonly read?: boolean;
+  readonly write?: boolean;
+  readonly notify?: boolean;
+}
+
+type Listener<T> = (value: T) => Promise<void> | void;
+
 export default class Characteristic<T = Buffer> {
-  public uuid: BluetoothCharacteristicUUID;
-  public service: Service;
-  public properties?: Properties;
-  private adapter: Adapter;
-  private converter?: Converter<T>;
-  private eventEmitter = new EventEmitter();
+  public readonly uuid: BluetoothCharacteristicUUID;
+  public readonly service: Service;
+  public readonly properties: Properties;
+  private readonly adapter: Adapter;
+  private readonly eventEmitter = new EventEmitter();
+  private readonly converter?: Converter<T>;
   private isNotifying = false;
 
   constructor(
     service: Service,
     uuid: BluetoothCharacteristicUUID,
     converter?: Converter<T>,
-    properties?: Properties
+    properties: Properties = {}
   ) {
     this.uuid = uuid;
     this.service = service;
@@ -43,18 +51,12 @@ export default class Characteristic<T = Buffer> {
     await this.adapter.write(pUuid, sUuid, uuid, buffer, withoutResponse);
   }
 
-  public async on(
-    event: "notify",
-    listener: (value: T) => Promise<void> | void
-  ): Promise<void> {
+  public async on(event: "notify", listener: Listener<T>): Promise<void> {
     this.eventEmitter.on(event, listener);
     if (!this.isNotifying) await this.startNotifing();
   }
 
-  public async off(
-    event: "notify",
-    listener: (value: T) => Promise<void> | void
-  ): Promise<void> {
+  public async off(event: "notify", listener: Listener<T>): Promise<void> {
     if (this.eventEmitter.listenerCount("notify") <= 1)
       await this.stopNotifing();
     this.eventEmitter.off(event, listener);
@@ -85,9 +87,8 @@ export default class Characteristic<T = Buffer> {
   }
 
   private async onNotify(...params: Params<"read">): Promise<void> {
-    const [pUuid, sUuid, BluetoothCharacteristicUUID, data, isNfy] = params;
-    if (!isNfy || !this.isThis(pUuid, sUuid, BluetoothCharacteristicUUID))
-      return;
+    const [pUuid, sUuid, cUuid, data, isNfy] = params;
+    if (!isNfy || !this.isThis(pUuid, sUuid, cUuid)) return;
     this.eventEmitter.emit("notify", await this.decode(data));
   }
 

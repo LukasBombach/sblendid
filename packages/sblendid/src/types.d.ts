@@ -33,12 +33,6 @@ type Reject = (reason?: any) => void;
 
 // type Listener<T> = (value: T) => Promish<void>;
 
-interface Properties {
-  read: boolean;
-  write: boolean;
-  notify: boolean;
-}
-
-type Item = () => Promish<any>;
-type ItemReturn<T> = T extends "function" ? ReturnType<Item> : Promise<T>;
-type ItemFunction<T> = (...args: any[]) => Promise<ItemReturn<T>>;
+// type Item = () => Promish<any>;
+// type ItemReturn<T> = T extends "function" ? ReturnType<Item> : Promise<T>;
+// type ItemFunction<T> = (...args: any[]) => Promise<ItemReturn<T>>;
