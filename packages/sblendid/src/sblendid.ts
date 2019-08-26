@@ -1,11 +1,9 @@
-import Adapter from "@sblendid/adapter-node";
-import { EventListener } from "./bindings";
-// import Adapter, { PeripheralListener } from "./adapter";
+import Adapter, { Listener } from "@sblendid/adapter-node";
 import Peripheral from "./peripheral";
 
 export default class Sblendid {
   public adapter: Adapter = new Adapter();
-  private scanListener: EventListener<"discover"> = () => {};
+  private scanListener: Listener<"discover"> = () => {};
 
   public static async powerOn(): Promise<Sblendid> {
     const sblendid = new Sblendid();
@@ -23,21 +21,13 @@ export default class Sblendid {
   }
 
   public async powerOn(): Promise<void> {
-    await this.adapter.run(
-      () => this.adapter.init(),
-      () => this.adapter.when("stateChange", state => state === "poweredOn")
-    );
+    await this.adapter.powerOn();
   }
 
   public async find(
     condition: string | PeripheralListener
   ): Promise<Peripheral> {
-    return await this.adapter.run<"discover", Peripheral>(
-      () => this.adapter.startScanning(),
-      () => this.adapter.when("discover", this.getFindCondition(condition)),
-      () => this.adapter.stopScanning(),
-      peripheral => Peripheral.fromDiscover(this.adapter, peripheral)
-    );
+    return await this.adapter.find(condition);
   }
 
   public startScanning(
@@ -57,7 +47,7 @@ export default class Sblendid {
 
   private getFindCondition(
     condition: string | PeripheralListener
-  ): EventListener<"discover"> {
+  ): Listener<"discover"> {
     if (typeof condition === "function")
       return this.adapter.asPeripheral(condition);
     return this.adapter.asPeripheral(p =>

@@ -1,6 +1,8 @@
 import Adapter from "./adapter";
 import Bindings from "./types/bindings";
 
+export interface PeripheralProps {}
+
 export default class Peripheral {
   private adapter: Adapter;
   private bindings: Bindings;

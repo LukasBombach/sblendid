@@ -14,6 +14,13 @@ export default class Adapter {
     this.bindings = bindings;
   }
 
+  public async powerOn(): Promise<void> {
+    await this.run(
+      () => this.bindings.init(),
+      () => this.when("stateChange", state => state === "poweredOn")
+    );
+  }
+
   async run<E extends Event, ReturnValue = Params<E>>(
     action: Action,
     when: When<E>,

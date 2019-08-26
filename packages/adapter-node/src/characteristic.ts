@@ -1,6 +1,8 @@
 import Adapter from "./adapter";
 import Bindings from "./types/bindings";
 
+export interface CharacteristicProps {}
+
 export default class Characteristic {
   private adapter: Adapter;
   private bindings: Bindings;
