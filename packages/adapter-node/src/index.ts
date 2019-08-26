@@ -1,18 +1,16 @@
-export { default } from "./adapter";
+/// <reference path="./types/global.d.ts" />
+
+import Bindings from "./bindings";
+import Adapter from "./adapter";
+import Characteristic from "./characteristic";
+import Peripheral from "./peripheral";
+
 export { Params } from "./types/bindings";
 
-/* const defaultProperties: Properties = {
-  read: false,
-  write: false,
-  notify: false
-}; */
+export default class SblendidNodeAdapter {
+  private bindings = new Bindings();
+  private adapter = new Adapter(this.bindings);
 
-/*   public static fromNoble<T>(
-    service: Service,
-    noble: NobleCharacteristic,
-    converter?: Converter<T>
-  ): Characteristic<T> {
-    const properties = Object.assign({}, defaultProperties);
-    for (const name of noble.properties) properties[name] = true;
-    return new Characteristic(service, noble.uuid, converter, properties);
-  } */
+  public characteristic = new Characteristic(this.adapter);
+  public peripheral = new Peripheral(this.adapter);
+}

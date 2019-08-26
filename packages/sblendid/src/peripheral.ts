@@ -1,13 +1,15 @@
-import { Advertisement, EventParameters } from "./bindings";
-import Adapter from "./adapter";
+import Adapter, { Params } from "@sblendid/adapter-node";
 import Service from "./service";
+
+// type AddressType = ?
+// type Advertisement = ?
 
 export default class Peripheral {
   public adapter: Adapter;
-  public uuid: string;
-  public name: string = "";
+  public uuid: PUUID;
+  public name?: string;
   public address?: string;
-  public addressType?: string;
+  public addressType?: AddressType;
   public connectable?: boolean;
   public advertisement: Advertisement = {};
   public manufacturerData: Buffer = Buffer.from("");
@@ -16,7 +18,7 @@ export default class Peripheral {
 
   public static fromDiscover(
     adapter: Adapter,
-    params: EventParameters<"discover">
+    params: Params<"discover">
   ): Peripheral {
     const p = new Peripheral(adapter, params[0]);
     p.address = params[1];

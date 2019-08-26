@@ -10,8 +10,6 @@ export type AddressType = "public" | "random" | "unknown";
 export type NotifyState = boolean;
 export type NobleCharacteristicProperty = "read" | "write" | "notify";
 
-export type Promish<T> = Promise<T> | T;
-
 export interface Advertisement {
   localName?: string;
   txPowerLevel?: number;
