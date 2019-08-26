@@ -1,8 +1,6 @@
 import Adapter, { Params } from "@sblendid/adapter-node";
-// import Adapter from "./adapter";
 import Peripheral from "./peripheral";
 import Characteristic, { Converter } from "./characteristic";
-import { NobleCharacteristic as NBC } from "./bindings";
 
 export type Value<C, N extends keyof C> = C[N] extends Converter<infer R>
   ? R
@@ -62,7 +60,8 @@ export default class Service<C = any> {
 
   public async getCharacteristics(): Promise<Record<string, Characteristic>> {
     if (this.characteristics) return this.characteristics;
-    const nobles = await this.fetchCharacteristics();
+    const [puuid, uuid] = this.getIds();
+    const nobles = await this.adapter.getCharacteristics(puuid, uuid);
     const characteristics = nobles.map(nbc => this.getCFromN(nbc));
     this.characteristics = this.uuidMap<Characteristic>(characteristics);
     return this.characteristics;
@@ -104,15 +103,5 @@ export default class Service<C = any> {
       nbc,
       this.getConverter(nbc.uuid as any)
     ) as any;
-  }
-
-  private async fetchCharacteristics(): Promise<NBC[]> {
-    const [puuid, uuid] = this.getIds();
-    const isThis = (p: string, s: SUUID) => this.isThis(p, s);
-    return await this.adapter.run<"characteristicsDiscover", NBC[]>(
-      () => this.adapter.discoverCharacteristics(puuid, uuid, []),
-      () => this.adapter.when("characteristicsDiscover", isThis),
-      ([, , characteristics]) => characteristics
-    );
   }
 }

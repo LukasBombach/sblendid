@@ -14,7 +14,7 @@ export default class Characteristic {
     const isThis = this.isThis(pUUID, sUUID, cUUID);
     return await this.adapter.run<"read", Buffer>(
       () => this.bindings.read(pUUID, sUUID, cUUID),
-      () => this.adapter.when("read", (p, s, c) => isThis(p, s, c)),
+      () => this.adapter.when("read", isThis),
       ([, , , buffer]) => buffer
     );
   }
@@ -29,7 +29,7 @@ export default class Characteristic {
     const isThis = this.isThis(pUUID, sUUID, cUUID);
     await this.adapter.run<"write">(
       () => this.bindings.write(pUUID, sUUID, cUUID, value, withoutResponse),
-      () => this.adapter.when("write", (p, s, c) => isThis(p, s, c))
+      () => this.adapter.when("write", isThis)
     );
   }
 
@@ -42,7 +42,7 @@ export default class Characteristic {
     const isThis = this.isThis(pUUID, sUUID, cUUID);
     return await this.adapter.run<"notify", boolean>(
       () => this.bindings.notify(pUUID, sUUID, cUUID, notify),
-      () => this.adapter.when("notify", (p, s, c) => isThis(p, s, c)),
+      () => this.adapter.when("notify", isThis),
       ([, , , state]) => state
     );
   }
