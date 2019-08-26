@@ -38,14 +38,14 @@ export default class Peripheral {
   public async connect(): Promise<void> {
     if (this.state !== "disconnected") return;
     this.state = "connecting";
-    await this.dispatchConnect();
+    await this.adapter.connect(this.uuid);
     this.state = "connected";
   }
 
   public async disconnect(): Promise<void> {
     if (this.state !== "connected") return;
     this.state = "disconnecting";
-    await this.dispatchDisconnect();
+    await this.adapter.disconnect(this.uuid);
     this.state = "disconnected";
   }
 
@@ -61,7 +61,8 @@ export default class Peripheral {
     converterMap: Record<string, any> = {}
   ): Promise<Service<any>[]> {
     if (this.state === "disconnected") await this.connect();
-    if (!this.serviceUuids) this.serviceUuids = await this.fetchServices();
+    if (!this.serviceUuids)
+      this.serviceUuids = await this.adapter.getServices(this.uuid);
     return this.serviceUuids.map(
       uuid => new Service(this, uuid, converterMap[uuid])
     );
@@ -74,40 +75,10 @@ export default class Peripheral {
 
   public async getRssi(): Promise<number> {
     if (this.state === "disconnected") await this.connect();
-    return await this.fetchRssi();
+    return await this.adapter.getRssi(this.uuid);
   }
 
   public isConnected(): boolean {
     return this.state === "connected";
-  }
-
-  private async fetchServices(): Promise<SUUID[]> {
-    return await this.adapter.run<"servicesDiscover", SUUID[]>(
-      () => this.adapter.discoverServices(this.uuid, []),
-      () => this.adapter.when("servicesDiscover", uuid => uuid === this.uuid),
-      ([, serviceUuids]) => serviceUuids
-    );
-  }
-
-  private async fetchRssi(): Promise<number> {
-    return await this.adapter.run<"rssiUpdate", number>(
-      () => this.adapter.updateRssi(this.uuid),
-      () => this.adapter.when("rssiUpdate", uuid => uuid === this.uuid),
-      ([, rssi]) => rssi
-    );
-  }
-
-  private async dispatchConnect(): Promise<void> {
-    await this.adapter.run(
-      () => this.adapter.connect(this.uuid),
-      () => this.adapter.when("connect", uuid => uuid === this.uuid)
-    );
-  }
-
-  private async dispatchDisconnect(): Promise<void> {
-    await this.adapter.run(
-      () => this.adapter.disconnect(this.uuid),
-      () => this.adapter.when("disconnect", uuid => uuid === this.uuid)
-    );
   }
 }

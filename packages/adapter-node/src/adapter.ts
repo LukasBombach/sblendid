@@ -1,4 +1,4 @@
-import Bindings, { Event, Params, Listener, Promish } from "./types/bindings";
+import Bindings, { Event, Params, Listener } from "./types/bindings";
 import Queue from "./queue";
 
 export type Action = () => Promish<void>;
