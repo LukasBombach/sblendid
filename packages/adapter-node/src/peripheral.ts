@@ -1,7 +1,24 @@
 import Adapter from "./adapter";
 import Bindings from "./types/bindings";
 
-export interface PeripheralProps {}
+export type AddressType = "public" | "random" | "unknown";
+
+export interface Advertisement {
+  localName?: string;
+  txPowerLevel?: number;
+  serviceUuids?: SUUID[];
+  manufacturerData?: Buffer;
+  serviceData?: Buffer;
+}
+
+export interface PeripheralProps {
+  uuid: string;
+  address: string;
+  addressType: AddressType;
+  connectable: boolean;
+  advertisement: Advertisement;
+  rssi: number;
+}
 
 export default class Peripheral {
   private adapter: Adapter;

@@ -6,11 +6,11 @@ import Adapter, {
 import Peripheral from "./peripheral";
 
 export type PeripheralListener = (peripheral: Peripheral) => Promish<void>;
-export type FindFunction = (peripheral: Peripheral) => Promish<boolean>;
 export type FindCondition = FindFunction | string;
+type FindFunction = (peripheral: Peripheral) => Promish<boolean>;
 
 export default class Sblendid {
-  public adapter: Adapter = new Adapter();
+  private adapter: Adapter = new Adapter();
   private scanListener: Listener<"discover"> = () => {};
 
   public static async powerOn(): Promise<Sblendid> {

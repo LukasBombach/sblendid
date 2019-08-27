@@ -17,8 +17,22 @@ export default class Scanner {
     return await this.adapter.run<"discover", PeripheralProps>(
       () => this.bindings.startScanning(),
       () => this.adapter.when("discover", condition),
-      () => this.bindings.stopScanning()
-      // peripheral => Peripheral.fromDiscover(this.adapter, peripheral)
+      () => this.bindings.stopScanning(),
+      ([
+        uuid,
+        address,
+        addressType,
+        connectable,
+        advertisement = {},
+        rssi
+      ]) => ({
+        uuid,
+        address,
+        addressType,
+        connectable,
+        advertisement,
+        rssi
+      })
     );
   }
 }
