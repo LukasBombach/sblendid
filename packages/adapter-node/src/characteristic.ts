@@ -1,7 +1,16 @@
 import Adapter from "./adapter";
 import Bindings from "./types/bindings";
 
-export interface CharacteristicProps {}
+export interface Properties {
+  readonly read?: boolean;
+  readonly write?: boolean;
+  readonly notify?: boolean;
+}
+
+export interface CharacteristicData {
+  uuid: CUUID;
+  properties: Properties;
+}
 
 export default class Characteristic {
   private adapter: Adapter;

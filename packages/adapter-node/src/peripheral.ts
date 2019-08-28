@@ -1,12 +1,12 @@
 import Adapter from "./adapter";
 import Bindings from "./types/bindings";
 
-export type AddressType = "public" | "random" | "unknown";
+export type AddressType = "public" | "random";
 
 export interface Advertisement {
   localName?: string;
   txPowerLevel?: number;
-  serviceUuids?: SUUID[];
+  serviceUUIDs?: SUUID[];
   manufacturerData?: Buffer;
   serviceData?: Buffer;
 }
@@ -14,8 +14,8 @@ export interface Advertisement {
 export interface PeripheralProps {
   uuid: string;
   address: string;
-  addressType: AddressType;
-  connectable: boolean;
+  addressType?: AddressType;
+  connectable?: boolean;
   advertisement: Advertisement;
   rssi: number;
 }
@@ -29,32 +29,33 @@ export default class Peripheral {
     this.bindings = adapter.bindings;
   }
 
-  public async connect(uuid: PUUID): Promise<void> {
+  public async connect(peripheralUUID: PUUID): Promise<void> {
     await this.adapter.run(
-      () => this.bindings.connect(uuid),
-      () => this.adapter.when("connect", uuid2 => uuid2 === uuid)
+      () => this.bindings.connect(peripheralUUID),
+      () => this.adapter.when("connect", uuid => uuid === peripheralUUID)
     );
   }
 
-  public async disconnect(uuid: PUUID): Promise<void> {
+  public async disconnect(peripheralUUID: PUUID): Promise<void> {
     await this.adapter.run(
-      () => this.bindings.disconnect(uuid),
-      () => this.adapter.when("disconnect", uuid2 => uuid2 === uuid)
+      () => this.bindings.disconnect(peripheralUUID),
+      () => this.adapter.when("disconnect", uuid => uuid === peripheralUUID)
     );
   }
 
-  public async getServices(uuid: PUUID): Promise<SUUID[]> {
+  public async getServices(peripheralUUID: PUUID): Promise<SUUID[]> {
     return await this.adapter.run<"servicesDiscover", SUUID[]>(
-      () => this.bindings.discoverServices(uuid, []),
-      () => this.adapter.when("servicesDiscover", uuid2 => uuid2 === uuid),
+      () => this.bindings.discoverServices(peripheralUUID, []),
+      () =>
+        this.adapter.when("servicesDiscover", uuid => uuid === peripheralUUID),
       ([, serviceUuids]) => serviceUuids
     );
   }
 
-  public async getRssi(uuid: PUUID): Promise<number> {
+  public async getRssi(peripheralUUID: PUUID): Promise<number> {
     return await this.adapter.run<"rssiUpdate", number>(
-      () => this.bindings.updateRssi(uuid),
-      () => this.adapter.when("rssiUpdate", uuid2 => uuid2 === uuid),
+      () => this.bindings.updateRssi(peripheralUUID),
+      () => this.adapter.when("rssiUpdate", uuid => uuid === peripheralUUID),
       ([, rssi]) => rssi
     );
   }

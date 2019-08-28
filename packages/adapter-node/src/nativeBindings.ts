@@ -24,12 +24,12 @@ function loadNativeAddonFromFs(): typeof BindingsType {
   );
 }
 
-function getBindings() {
+function getNativeBindings() {
   const NativeAddon = loadNativeAddonFromFs();
   inherits(NativeAddon, EventEmitter);
   return NativeAddon;
 }
 
-const Bindings = getBindings();
+const NativeBindings = getNativeBindings();
 
-export default Bindings;
+export default NativeBindings;

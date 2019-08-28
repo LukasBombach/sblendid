@@ -1,19 +1,19 @@
 /// <reference path="./types/global.d.ts" />
-import Bindings from "./bindings";
+import NativeBindings from "./nativeBindings";
 import Adapter from "./adapter";
 import Scanner, { FindCondition } from "./scanner";
 import Peripheral, { PeripheralProps } from "./peripheral";
 import Service from "./service";
-import Characteristic, { CharacteristicProps } from "./characteristic";
+import Characteristic, { CharacteristicData } from "./characteristic";
 import { Event, Listener } from "./types/bindings";
 
 export { Event, Params, Listener } from "./types/bindings";
 export { FindCondition } from "./scanner";
 export { PeripheralProps } from "./peripheral";
-export { CharacteristicProps } from "./characteristic";
+export { CharacteristicData } from "./characteristic";
 
 export default class SblendidNodeAdapter {
-  private bindings = new Bindings();
+  private bindings = new NativeBindings();
   private adapter = new Adapter(this.bindings);
   private scanner = new Scanner(this.adapter);
   private peripheral = new Peripheral(this.adapter);
@@ -63,7 +63,7 @@ export default class SblendidNodeAdapter {
   public getCharacteristics(
     pUUID: PUUID,
     sUUID: SUUID
-  ): Promise<CharacteristicProps[]> {
+  ): Promise<CharacteristicData[]> {
     return this.service.getCharacteristics(pUUID, sUUID);
   }
 

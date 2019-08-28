@@ -1,4 +1,5 @@
 import Adapter from "./adapter";
+import { CharacteristicData } from "./characteristic";
 import Bindings, { NobleCharacteristic } from "./types/bindings";
 
 export default class Service {
@@ -13,16 +14,25 @@ export default class Service {
   public async getCharacteristics(
     pUUID: PUUID,
     sUUID: SUUID
-  ): Promise<NobleCharacteristic[]> {
+  ): Promise<CharacteristicData[]> {
     const isThis = this.isThis(pUUID, sUUID);
     return await this.adapter.run<
       "characteristicsDiscover",
-      NobleCharacteristic[]
+      CharacteristicData[]
     >(
       () => this.bindings.discoverCharacteristics(pUUID, sUUID, []),
       () => this.adapter.when("characteristicsDiscover", isThis),
-      ([, , characteristics]) => characteristics
+      ([, , characteristics]) => this.getCharacteristicData(characteristics)
     );
+  }
+
+  private getCharacteristicData(
+    nobleCharacteristics: NobleCharacteristic[]
+  ): CharacteristicData[] {
+    return nobleCharacteristics.map(({ uuid, properties }) => {
+      propertiess;
+      return { uuid };
+    });
   }
 
   private isThis(...originalValues: any[]): (...values: any[]) => boolean {
