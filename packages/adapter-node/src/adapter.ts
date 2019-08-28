@@ -1,24 +1,16 @@
-import Bindings, { Event, Params, Listener } from "./types/bindings";
-import BindingsHelper from "./bingings";
-
-export type Action = () => Promish<void>;
-export type When<E extends Event> = () => Promise<Params<E>>;
-export type Post<E extends Event, ReturnValue = Params<E>> = (
-  params: Params<E>
-) => Promish<ReturnValue | void>;
+import Bindings from "./bindings";
 
 export default class Adapter {
-  public bindingsHelper: BindingsHelper;
+  private bindings: Bindings;
 
-  constructor(bindingsHelper: BindingsHelper) {
-    this.bindingsHelper = bindingsHelper;
+  constructor(bindings: Bindings) {
+    this.bindings = bindings;
   }
 
   public async powerOn(): Promise<void> {
-    await this.bindingsHelper.run(
-      () => this.bindingsHelper.bindings.init(),
-      () =>
-        this.bindingsHelper.when("stateChange", state => state === "poweredOn")
+    await this.bindings.run(
+      () => this.bindings.init(),
+      () => this.bindings.when("stateChange", state => state === "poweredOn")
     );
   }
 }

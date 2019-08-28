@@ -1,5 +1,4 @@
-import Adapter from "./adapter";
-import Bindings from "./types/bindings";
+import Bindings from "./bindings";
 
 export type AddressType = "public" | "random";
 
@@ -21,41 +20,38 @@ export interface PeripheralProps {
 }
 
 export default class Peripheral {
-  private adapter: Adapter;
   private bindings: Bindings;
 
-  constructor(adapter: Adapter) {
-    this.adapter = adapter;
-    this.bindings = adapter.bindings;
+  constructor(bindings: Bindings) {
+    this.bindings = bindings;
   }
 
-  public async connect(peripheralUUID: PUUID): Promise<void> {
-    await this.adapter.run(
-      () => this.bindings.connect(peripheralUUID),
-      () => this.adapter.when("connect", uuid => uuid === peripheralUUID)
+  public async connect(pUUID: PUUID): Promise<void> {
+    await this.bindings.run(
+      () => this.bindings.connect(pUUID),
+      () => this.bindings.when("connect", uuid => uuid === pUUID)
     );
   }
 
-  public async disconnect(peripheralUUID: PUUID): Promise<void> {
-    await this.adapter.run(
-      () => this.bindings.disconnect(peripheralUUID),
-      () => this.adapter.when("disconnect", uuid => uuid === peripheralUUID)
+  public async disconnect(pUUID: PUUID): Promise<void> {
+    await this.bindings.run(
+      () => this.bindings.disconnect(pUUID),
+      () => this.bindings.when("disconnect", uuid => uuid === pUUID)
     );
   }
 
-  public async getServices(peripheralUUID: PUUID): Promise<SUUID[]> {
-    return await this.adapter.run<"servicesDiscover", SUUID[]>(
-      () => this.bindings.discoverServices(peripheralUUID, []),
-      () =>
-        this.adapter.when("servicesDiscover", uuid => uuid === peripheralUUID),
+  public async getServices(pUUID: PUUID): Promise<SUUID[]> {
+    return await this.bindings.run<"servicesDiscover", SUUID[]>(
+      () => this.bindings.discoverServices(pUUID, []),
+      () => this.bindings.when("servicesDiscover", uuid => uuid === pUUID),
       ([, serviceUuids]) => serviceUuids
     );
   }
 
-  public async getRssi(peripheralUUID: PUUID): Promise<number> {
-    return await this.adapter.run<"rssiUpdate", number>(
-      () => this.bindings.updateRssi(peripheralUUID),
-      () => this.adapter.when("rssiUpdate", uuid => uuid === peripheralUUID),
+  public async getRssi(pUUID: PUUID): Promise<number> {
+    return await this.bindings.run<"rssiUpdate", number>(
+      () => this.bindings.updateRssi(pUUID),
+      () => this.bindings.when("rssiUpdate", uuid => uuid === pUUID),
       ([, rssi]) => rssi
     );
   }

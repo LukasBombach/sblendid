@@ -1,14 +1,12 @@
-import Adapter from "./adapter";
+import Bindings from "./bindings";
 import { CharacteristicData } from "./characteristic";
-import Bindings, { NobleCharacteristic } from "./types/bindings";
+import { NobleCharacteristic } from "./types/bindings";
 
 export default class Service {
-  private adapter: Adapter;
   private bindings: Bindings;
 
-  constructor(adapter: Adapter) {
-    this.adapter = adapter;
-    this.bindings = adapter.bindings;
+  constructor(bindings: Bindings) {
+    this.bindings = bindings;
   }
 
   public async getCharacteristics(
@@ -16,12 +14,12 @@ export default class Service {
     sUUID: SUUID
   ): Promise<CharacteristicData[]> {
     const isThis = this.isThis(pUUID, sUUID);
-    return await this.adapter.run<
+    return await this.bindings.run<
       "characteristicsDiscover",
       CharacteristicData[]
     >(
       () => this.bindings.discoverCharacteristics(pUUID, sUUID, []),
-      () => this.adapter.when("characteristicsDiscover", isThis),
+      () => this.bindings.when("characteristicsDiscover", isThis),
       ([, , characteristics]) => this.getCharacteristicData(characteristics)
     );
   }

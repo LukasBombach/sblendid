@@ -1,5 +1,5 @@
 /// <reference path="./types/global.d.ts" />
-import NativeBindings from "./nativeBindings";
+import Bindings from "./bindings";
 import Adapter from "./adapter";
 import Scanner, { FindCondition } from "./scanner";
 import Peripheral, { PeripheralProps } from "./peripheral";
@@ -13,12 +13,12 @@ export { PeripheralProps } from "./peripheral";
 export { CharacteristicData } from "./characteristic";
 
 export default class SblendidNodeAdapter {
-  private bindings = new NativeBindings();
+  private bindings = new Bindings();
   private adapter = new Adapter(this.bindings);
-  private scanner = new Scanner(this.adapter);
-  private peripheral = new Peripheral(this.adapter);
-  private service = new Service(this.adapter);
-  private characteristic = new Characteristic(this.adapter);
+  private scanner = new Scanner(this.bindings);
+  private peripheral = new Peripheral(this.bindings);
+  private service = new Service(this.bindings);
+  private characteristic = new Characteristic(this.bindings);
 
   public powerOn(): Promise<void> {
     return this.adapter.powerOn();

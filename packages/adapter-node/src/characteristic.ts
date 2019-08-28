@@ -1,5 +1,4 @@
-import Adapter from "./adapter";
-import Bindings from "./types/bindings";
+import Bindings from "./bindings";
 
 export interface Properties {
   readonly read?: boolean;
@@ -13,19 +12,17 @@ export interface CharacteristicData {
 }
 
 export default class Characteristic {
-  private adapter: Adapter;
   private bindings: Bindings;
 
-  constructor(adapter: Adapter) {
-    this.adapter = adapter;
-    this.bindings = adapter.bindings;
+  constructor(bindings: Bindings) {
+    this.bindings = bindings;
   }
 
   public async read(pUUID: PUUID, sUUID: SUUID, cUUID: CUUID): Promise<Buffer> {
     const isThis = this.isThis(pUUID, sUUID, cUUID);
-    return await this.adapter.run<"read", Buffer>(
+    return await this.bindings.run<"read", Buffer>(
       () => this.bindings.read(pUUID, sUUID, cUUID),
-      () => this.adapter.when("read", isThis),
+      () => this.bindings.when("read", isThis),
       ([, , , buffer]) => buffer
     );
   }
@@ -38,9 +35,9 @@ export default class Characteristic {
     withoutResponse = false
   ): Promise<void> {
     const isThis = this.isThis(pUUID, sUUID, cUUID);
-    await this.adapter.run<"write">(
+    await this.bindings.run<"write">(
       () => this.bindings.write(pUUID, sUUID, cUUID, value, withoutResponse),
-      () => this.adapter.when("write", isThis)
+      () => this.bindings.when("write", isThis)
     );
   }
 
@@ -51,9 +48,9 @@ export default class Characteristic {
     notify: boolean
   ): Promise<boolean> {
     const isThis = this.isThis(pUUID, sUUID, cUUID);
-    return await this.adapter.run<"notify", boolean>(
+    return await this.bindings.run<"notify", boolean>(
       () => this.bindings.notify(pUUID, sUUID, cUUID, notify),
-      () => this.adapter.when("notify", isThis),
+      () => this.bindings.when("notify", isThis),
       ([, , , state]) => state
     );
   }
