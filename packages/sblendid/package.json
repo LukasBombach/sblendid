@@ -30,6 +30,6 @@
     "typescript": "3.5.3"
   },
   "peerDependencies": {
-    "@sblendid/adapter-node": "0.2.0"
+    "@sblendid/adapter-node": ">=0.2.0"
   }
 }
