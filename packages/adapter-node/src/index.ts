@@ -36,27 +36,27 @@ export default class SblendidNodeAdapter {
     return this.scanner.find(condition);
   }
 
-  public connect(uuid: PUUID): Promise<void> {
-    return this.peripheral.connect(uuid);
+  public connect(pUUID: PUUID): Promise<void> {
+    return this.peripheral.connect(pUUID);
   }
 
-  public disconnect(uuid: PUUID): Promise<void> {
-    return this.peripheral.disconnect(uuid);
+  public disconnect(pUUID: PUUID): Promise<void> {
+    return this.peripheral.disconnect(pUUID);
   }
 
-  public getServices(uuid: PUUID): Promise<SUUID[]> {
-    return this.peripheral.getServices(uuid);
+  public getServices(pUUID: PUUID): Promise<SUUID[]> {
+    return this.peripheral.getServices(pUUID);
   }
 
-  public getRssi(uuid: PUUID): Promise<number> {
-    return this.peripheral.getRssi(uuid);
+  public getRssi(pUUID: PUUID): Promise<number> {
+    return this.peripheral.getRssi(pUUID);
   }
 
-  public on<E extends Event>(event: E, listener: Listener<E>): Promish<any> {
+  public on<E extends Event>(event: E, listener: Listener<E>): void {
     this.bindings.on(event, listener);
   }
 
-  public off<E extends Event>(event: E, listener: Listener<E>): Promish<any> {
+  public off<E extends Event>(event: E, listener: Listener<E>): void {
     this.bindings.off(event, listener);
   }
 

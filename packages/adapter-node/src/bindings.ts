@@ -176,24 +176,15 @@ export default class Adapter {
     this.bindings.writeHandle(peripheralUuid, handle, data, withoutResponse);
   }
 
-  on<E extends Event>(
-    event: E,
-    listener: Listener<E>
-  ): Promise<void | boolean> | void | boolean {
+  on<E extends Event>(event: E, listener: Listener<E>): void {
     this.bindings.on(event, listener);
   }
 
-  off<E extends Event>(
-    event: E,
-    listener: Listener<E>
-  ): Promise<void | boolean> | void | boolean {
+  off<E extends Event>(event: E, listener: Listener<E>): void {
     this.bindings.off(event, listener);
   }
 
-  once<E extends Event>(
-    event: E,
-    listener: Listener<E>
-  ): Promise<void | boolean> | void | boolean {
+  once<E extends Event>(event: E, listener: Listener<E>): void {
     this.bindings.once(event, listener);
   }
 
