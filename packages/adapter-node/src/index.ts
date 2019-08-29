@@ -9,7 +9,7 @@ import { Event, Listener } from "./types/bindings";
 
 export { Event, Params, Listener } from "./types/bindings";
 export { FindCondition } from "./scanner";
-export { PeripheralData } from "./peripheral";
+export { PeripheralData, AddressType, Advertisement } from "./peripheral";
 export { CharacteristicData } from "./characteristic";
 
 export default class SblendidNodeAdapter {

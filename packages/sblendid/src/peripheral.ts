@@ -1,22 +1,33 @@
-import Adapter, { Params, PeripheralData } from "@sblendid/adapter-node";
+import Adapter, {
+  PeripheralData,
+  AddressType,
+  Advertisement
+} from "@sblendid/adapter-node";
 import Service from "./service";
 
 export default class Peripheral {
   public adapter: Adapter;
   public uuid: PUUID;
-  public name?: string;
-  public address?: string;
-  public addressType?: AddressType;
+  public name: string;
+  public address: string;
+  public addressType: AddressType;
   public connectable?: boolean;
   public advertisement: Advertisement = {};
   public manufacturerData: Buffer = Buffer.from("");
   public state: PeripheralState = "disconnected";
   private serviceUuids?: SUUID[];
 
-  constructor(adapter: Adapter, uuid: string, props?: PeripheralData) {
+  constructor(adapter: Adapter, props: PeripheralData) {
+    const { uuid, address, addressType, connectable, advertisement } = props;
+    const { manufacturerData, localName } = advertisement;
     this.adapter = adapter;
     this.uuid = uuid;
-    if (props) this.setProps(props);
+    this.address = address;
+    this.addressType = addressType;
+    this.connectable = connectable;
+    this.advertisement = advertisement;
+    this.manufacturerData = manufacturerData || Buffer.from("");
+    this.name = localName || this.manufacturerData.toString("hex");
   }
 
   public async connect(): Promise<void> {
@@ -64,16 +75,5 @@ export default class Peripheral {
 
   public isConnected(): boolean {
     return this.state === "connected";
-  }
-
-  private setProps(props: PeripheralData): void {
-    const { address, addressType, connectable, advertisement } = props;
-    const { manufacturerData, localName } = advertisement;
-    this.address = address;
-    this.addressType = addressType;
-    this.connectable = connectable;
-    this.advertisement = advertisement;
-    this.manufacturerData = manufacturerData || Buffer.from("");
-    this.name = localName || this.manufacturerData.toString("hex");
   }
 }

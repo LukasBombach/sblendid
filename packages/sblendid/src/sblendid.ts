@@ -6,8 +6,8 @@ import Adapter, {
 import Peripheral from "./peripheral";
 
 export type PeripheralListener = (peripheral: Peripheral) => Promish<void>;
+export type FindFunction = (peripheral: Peripheral) => Promish<boolean>;
 export type FindCondition = FindFunction | string;
-type FindFunction = (peripheral: Peripheral) => Promish<boolean>;
 
 export default class Sblendid {
   private adapter: Adapter = new Adapter();
@@ -31,13 +31,14 @@ export default class Sblendid {
   }
 
   public async find(condition: FindCondition): Promise<Peripheral> {
-    const props = await this.adapter.find(this.getFindCondition(condition));
-    return Peripheral.fromProps(props);
+    const adapterFindCondition = this.getFindCondition(condition);
+    const data = await this.adapter.find(adapterFindCondition);
+    return new Peripheral(this.adapter, data);
   }
 
   public startScanning(listener: PeripheralListener): void {
     this.adapter.off("discover", this.scanListener);
-    this.scanListener = this.asPeripheral(listener);
+    this.scanListener = this.getDiscoverListener(listener);
     this.adapter.on("discover", this.scanListener);
     this.adapter.startScanning();
   }
@@ -49,14 +50,19 @@ export default class Sblendid {
   }
 
   private getFindCondition(condition: FindCondition): AdapterFindCondition {
-    if (typeof condition === "function") return this.asPeripheral(condition);
-    return this.asPeripheral(p =>
-      [p.uuid, p.address, p.name].includes(condition)
-    );
+    if (typeof condition === "function")
+      return this.getDiscoverListener(condition);
+    return this.getDiscoverListener(data => {
+      const { uuid, address, name } = [p.uuid, p.address, p.name].includes(
+        condition
+      );
+    });
   }
 
-  private asPeripheral(listener: PeripheralListener): Listener<"discover"> {
-    return (...args: Params<"discover">) =>
-      listener(Peripheral.fromDiscover(this.adapter, args));
+  private getDiscoverListener(
+    listener: PeripheralListener
+  ): Listener<"discover"> {
+    return (...data: Params<"discover">) =>
+      listener(new Peripheral(this.adapter, data));
   }
 }
