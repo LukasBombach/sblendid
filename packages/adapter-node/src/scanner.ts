@@ -1,8 +1,8 @@
 import Bindings from "./bindings";
-import { PeripheralProps } from "./peripheral";
+import { PeripheralData } from "./peripheral";
 import { Listener, Params, AddressType, Advertisement } from "./types/bindings";
 
-export type FindCondition = (peripheralProps: PeripheralProps) => boolean;
+export type FindCondition = (peripheralData: PeripheralData) => boolean;
 
 export default class Scanner {
   private bindings: Bindings;
@@ -11,28 +11,28 @@ export default class Scanner {
     this.bindings = bindings;
   }
 
-  public async find(condition: FindCondition): Promise<PeripheralProps> {
-    return await this.bindings.run<"discover", PeripheralProps>(
+  public async find(condition: FindCondition): Promise<PeripheralData> {
+    return await this.bindings.run<"discover", PeripheralData>(
       () => this.bindings.startScanning(),
       () => this.bindings.when("discover", this.getDiscoverListener(condition)),
       () => this.bindings.stopScanning(),
-      params => this.getPeripheralProps(...params)
+      params => this.getPeripheralData(...params)
     );
   }
 
   private getDiscoverListener(condition: FindCondition): Listener<"discover"> {
     return (...params: Params<"discover">) =>
-      condition(this.getPeripheralProps(...params));
+      condition(this.getPeripheralData(...params));
   }
 
-  private getPeripheralProps(
+  private getPeripheralData(
     uuid: string,
     address: string,
     addressType: AddressType,
     connectable: boolean,
     advertisement: Advertisement,
     rssi: number
-  ): PeripheralProps {
+  ): PeripheralData {
     return {
       uuid,
       address,

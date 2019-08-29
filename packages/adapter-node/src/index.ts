@@ -2,14 +2,14 @@
 import Bindings from "./bindings";
 import Adapter from "./adapter";
 import Scanner, { FindCondition } from "./scanner";
-import Peripheral, { PeripheralProps } from "./peripheral";
+import Peripheral, { PeripheralData } from "./peripheral";
 import Service from "./service";
 import Characteristic, { CharacteristicData } from "./characteristic";
 import { Event, Listener } from "./types/bindings";
 
 export { Event, Params, Listener } from "./types/bindings";
 export { FindCondition } from "./scanner";
-export { PeripheralProps } from "./peripheral";
+export { PeripheralData } from "./peripheral";
 export { CharacteristicData } from "./characteristic";
 
 export default class SblendidNodeAdapter {
@@ -32,7 +32,7 @@ export default class SblendidNodeAdapter {
     return this.bindings.stopScanning();
   }
 
-  public find(condition: FindCondition): Promise<PeripheralProps> {
+  public find(condition: FindCondition): Promise<PeripheralData> {
     return this.scanner.find(condition);
   }
 

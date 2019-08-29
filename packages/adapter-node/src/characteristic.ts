@@ -1,9 +1,9 @@
 import Bindings from "./bindings";
 
 export interface Properties {
-  readonly read?: boolean;
-  readonly write?: boolean;
-  readonly notify?: boolean;
+  read: boolean;
+  write: boolean;
+  notify: boolean;
 }
 
 export interface CharacteristicData {

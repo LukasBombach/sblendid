@@ -1,4 +1,4 @@
-import Adapter, { Params, PeripheralProps } from "@sblendid/adapter-node";
+import Adapter, { Params, PeripheralData } from "@sblendid/adapter-node";
 import Service from "./service";
 
 export default class Peripheral {
@@ -13,7 +13,7 @@ export default class Peripheral {
   public state: PeripheralState = "disconnected";
   private serviceUuids?: SUUID[];
 
-  constructor(adapter: Adapter, uuid: string, props?: PeripheralProps) {
+  constructor(adapter: Adapter, uuid: string, props?: PeripheralData) {
     this.adapter = adapter;
     this.uuid = uuid;
     if (props) this.setProps(props);
@@ -66,7 +66,7 @@ export default class Peripheral {
     return this.state === "connected";
   }
 
-  private setProps(props: PeripheralProps): void {
+  private setProps(props: PeripheralData): void {
     const { address, addressType, connectable, advertisement } = props;
     const { manufacturerData, localName } = advertisement;
     this.address = address;

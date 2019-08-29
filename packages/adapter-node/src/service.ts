@@ -1,6 +1,12 @@
 import Bindings from "./bindings";
-import { CharacteristicData } from "./characteristic";
+import { CharacteristicData, Properties } from "./characteristic";
 import { NobleCharacteristic } from "./types/bindings";
+
+const defaultProperties: Properties = {
+  read: false,
+  write: false,
+  notify: false
+};
 
 export default class Service {
   private bindings: Bindings;
@@ -27,9 +33,10 @@ export default class Service {
   private getCharacteristicData(
     nobleCharacteristics: NobleCharacteristic[]
   ): CharacteristicData[] {
-    return nobleCharacteristics.map(({ uuid, properties }) => {
-      propertiess;
-      return { uuid };
+    return nobleCharacteristics.map(({ uuid, ...noble }) => {
+      const properties = Object.assign({}, defaultProperties);
+      for (const prop of noble.properties) properties[prop] = true;
+      return { uuid, properties };
     });
   }
 

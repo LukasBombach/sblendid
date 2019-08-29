@@ -10,7 +10,7 @@ export interface Advertisement {
   serviceData?: Buffer;
 }
 
-export interface PeripheralProps {
+export interface PeripheralData {
   uuid: string;
   address: string;
   addressType: AddressType;
