@@ -20,7 +20,7 @@ while still giving you full access to all Bluetooth Low Energy functions.
 ## Installation
 
 ```shell
-npm i sblendid --save
+npm i --save @sblendid/sblendid @sblendid/adapter-node
 ```
 
 ## Usage (examples)
