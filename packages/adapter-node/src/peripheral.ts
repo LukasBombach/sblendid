@@ -1,6 +1,6 @@
 import Bindings from "./bindings";
 
-export type AddressType = "public" | "random";
+export type AddressType = "public" | "random" | "unknown";
 
 export interface Advertisement {
   localName?: string;
@@ -13,7 +13,7 @@ export interface Advertisement {
 export interface PeripheralProps {
   uuid: string;
   address: string;
-  addressType?: AddressType;
+  addressType: AddressType;
   connectable?: boolean;
   advertisement: Advertisement;
   rssi: number;

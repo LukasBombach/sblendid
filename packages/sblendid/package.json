@@ -13,6 +13,7 @@
     "example": "ts-node --project tsconfig.json"
   },
   "devDependencies": {
+    "@sblendid/adapter-node": "0.2.0",
     "@types/noble": "0.0.39",
     "@types/node": "12.6.8",
     "@types/web-bluetooth": "0.0.4",
@@ -28,7 +29,7 @@
     "ts-node": "8.3.0",
     "typescript": "3.5.3"
   },
-  "dependencies": {
+  "peerDependencies": {
     "@sblendid/adapter-node": "0.2.0"
   }
 }
