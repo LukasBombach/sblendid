@@ -12,8 +12,8 @@ import Sblendid from "../src";
       : chalk.red("not connectable");
 
     const servicesLabel = "Advertised services";
-    const serviceUuids = p.advertisement.serviceUuids || chalk.dim("none");
+    const serviceUUIDs = p.advertisement.serviceUUIDs || chalk.dim("none");
 
-    console.log(uuid, connectable, servicesLabel, serviceUuids);
+    console.log(uuid, connectable, servicesLabel, serviceUUIDs);
   });
 })();

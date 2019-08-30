@@ -21,8 +21,8 @@ const converters = [
 
   const deviceInfo = await peripheral.getService("180a", converters);
 
-  console.log("Manufacturer:", await deviceInfo.read("manufacturer"));
-  console.log("Model:", await deviceInfo.read("model"));
+  console.log("Manufacturer:", await deviceInfo!.read("manufacturer"));
+  console.log("Model:", await deviceInfo!.read("model"));
 
   peripheral.disconnect();
   process.exit();
