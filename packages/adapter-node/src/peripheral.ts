@@ -10,15 +10,6 @@ export interface Advertisement {
   serviceData?: Buffer;
 }
 
-export interface PeripheralData {
-  uuid: string;
-  address: string;
-  addressType: AddressType;
-  connectable?: boolean;
-  advertisement: Advertisement;
-  rssi: number;
-}
-
 export default class Peripheral {
   private bindings: Bindings;
 

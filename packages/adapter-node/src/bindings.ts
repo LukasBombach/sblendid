@@ -7,6 +7,9 @@ export type When<E extends Event> = () => Promise<Params<E>>;
 export type Post<E extends Event, ReturnValue = Params<E>> = (
   params: Params<E>
 ) => Promish<ReturnValue | void>;
+export type WhenCondition<E extends Event> = (
+  ...params: Params<E>
+) => Promish<boolean>;
 
 export default class Adapter {
   private bindings: Bindings = new NativeBindings();
@@ -205,9 +208,9 @@ export default class Adapter {
 
   public when<E extends Event>(
     event: E,
-    condition: Listener<E>
+    condition: WhenCondition<E>
   ): Promise<Params<E>> {
-    return new Promise<Params<E>>((resolve, reject) => {
+    return new Promise<Params<E>>(resolve => {
       const queue = new Queue();
       const listener = async (...params: Params<E>) => {
         const conditionIsMet = await queue.add(() => condition(...params));

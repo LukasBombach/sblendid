@@ -8,6 +8,7 @@ import Peripheral from "./peripheral";
 export type PeripheralListener = (peripheral: Peripheral) => Promish<void>;
 export type FindFunction = (peripheral: Peripheral) => Promish<boolean>;
 export type FindCondition = FindFunction | string;
+type PeripheralData = Params<"discover">;
 
 export default class Sblendid {
   private adapter: Adapter = new Adapter();
@@ -31,9 +32,9 @@ export default class Sblendid {
   }
 
   public async find(condition: FindCondition): Promise<Peripheral> {
-    const adapterFindCondition = this.getFindCondition(condition);
-    const data = await this.adapter.find(adapterFindCondition);
-    return new Peripheral(this.adapter, data);
+    const adapterCondition = this.getAdapterCondition(condition);
+    const peripheralData = await this.adapter.find(adapterCondition);
+    return new Peripheral(this.adapter, peripheralData);
   }
 
   public startScanning(listener: PeripheralListener): void {
@@ -49,14 +50,25 @@ export default class Sblendid {
     this.adapter.stopScanning();
   }
 
-  private getFindCondition(condition: FindCondition): AdapterFindCondition {
-    if (typeof condition === "function")
-      return this.getDiscoverListener(condition);
-    return this.getDiscoverListener(data => {
-      const { uuid, address, name } = [p.uuid, p.address, p.name].includes(
-        condition
-      );
-    });
+  private getAdapterCondition(condition: FindCondition): AdapterFindCondition {
+    return typeof condition === "string"
+      ? this.getConditionFromString(condition)
+      : this.getConditionFromFunction(condition);
+  }
+
+  private getConditionFromString(str: string): AdapterFindCondition {
+    return (...peripheralData: PeripheralData) => {
+      const [uuid, address, , , advertisement] = peripheralData;
+      const { localName } = advertisement;
+      return [uuid, address, localName].includes(str);
+    };
+  }
+
+  private getConditionFromFunction(fn: FindFunction): AdapterFindCondition {
+    return (...peripheralData: PeripheralData) => {
+      const peripheral = new Peripheral(this.adapter, peripheralData);
+      return fn(peripheral);
+    };
   }
 
   private getDiscoverListener(
