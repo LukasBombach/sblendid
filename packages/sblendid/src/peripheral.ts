@@ -1,7 +1,7 @@
 import Adapter, {
-  PeripheralData,
   AddressType,
-  Advertisement
+  Advertisement,
+  Params
 } from "@sblendid/adapter-node";
 import Service from "./service";
 
@@ -17,8 +17,8 @@ export default class Peripheral {
   public state: PeripheralState = "disconnected";
   private serviceUuids?: SUUID[];
 
-  constructor(adapter: Adapter, props: PeripheralData) {
-    const { uuid, address, addressType, connectable, advertisement } = props;
+  constructor(adapter: Adapter, props: Params<"discover">) {
+    const [uuid, address, addressType, connectable, advertisement] = props;
     const { manufacturerData, localName } = advertisement;
     this.adapter = adapter;
     this.uuid = uuid;

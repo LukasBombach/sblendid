@@ -1,4 +1,4 @@
-import Adapter, { Params } from "@sblendid/adapter-node";
+import Adapter, { CharacteristicData } from "@sblendid/adapter-node";
 import Peripheral from "./peripheral";
 import Characteristic, { Converter } from "./characteristic";
 
@@ -62,7 +62,7 @@ export default class Service<C = any> {
     if (this.characteristics) return this.characteristics;
     const [puuid, uuid] = this.getIds();
     const nobles = await this.adapter.getCharacteristics(puuid, uuid);
-    const characteristics = nobles.map(nbc => this.getCFromN(nbc));
+    const characteristics = nobles.map(data => this.getCFromN(data));
     this.characteristics = this.uuidMap<Characteristic>(characteristics);
     return this.characteristics;
   }
@@ -79,10 +79,6 @@ export default class Service<C = any> {
     return [this.peripheral.uuid, this.uuid];
   }
 
-  private isThis(puuid: string, suuid: SUUID): boolean {
-    return puuid === this.peripheral.uuid && suuid === this.uuid;
-  }
-
   private getConverter<N extends keyof C>(
     name: N
   ): Converter<Value<C, N>> | undefined {
@@ -97,11 +93,9 @@ export default class Service<C = any> {
     return arr.reduce((o, c) => ({ ...o, [c.uuid]: c }), {});
   }
 
-  private getCFromN(nbc: NBC): Characteristic {
-    return Characteristic.fromNoble(
-      this,
-      nbc,
-      this.getConverter(nbc.uuid as any)
-    ) as any;
+  private getCFromN(data: CharacteristicData): Characteristic {
+    const { uuid, properties } = data;
+    const converter = this.getConverter(uuid as any) as any;
+    return new Characteristic(this, uuid, converter, properties);
   }
 }
