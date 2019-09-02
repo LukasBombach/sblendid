@@ -4,6 +4,7 @@ import Adapter, {
   Params
 } from "@sblendid/adapter-node";
 import Service from "./service";
+import { Converter } from "./characteristic";
 
 export default class Peripheral {
   public adapter: Adapter;
@@ -44,16 +45,16 @@ export default class Peripheral {
     this.state = "disconnected";
   }
 
-  public async getService<C>(
+  public async getService<C extends Converter<any>[]>(
     uuid: SUUID,
     converters: C
   ): Promise<Service<C> | undefined> {
     const services = await this.getServices({ [uuid]: converters });
-    return services.find(s => s.uuid === uuid);
+    return services[0]; //.find(s => s.uuid === uuid);
   }
 
-  public async getServices(
-    converterMap: Record<string, any> = {}
+  public async getServices<C extends Converter<any>[]>(
+    converterMap: Record<string, C> = {}
   ): Promise<Service<any>[]> {
     if (this.state === "disconnected") await this.connect();
     if (!this.serviceUuids)

@@ -9,7 +9,7 @@ export type Listener<C, N extends keyof C> = (
   value: Value<C, N>
 ) => Promise<void> | void;
 
-export default class Service<C = any> {
+export default class Service<C extends Converter<any>[]> {
   public adapter: Adapter;
   public peripheral: Peripheral;
   public uuid: SUUID;
