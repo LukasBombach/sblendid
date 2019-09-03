@@ -2,7 +2,7 @@ import Sblendid from "../sblendid";
 import Peripheral from "../peripheral";
 
 const setup = {
-  name: "DE1",
+  name: "Find Me",
   service: "180a",
   numScanPeripherals: 5
 };
