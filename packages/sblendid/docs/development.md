@@ -15,10 +15,10 @@ Having said that, _I use LightBlue Explorer_ because I have an iPhone and it was
 Now my test setup is kind of biased towards LightBlue Explorer because this is what you need to to to get my setup working:
 
 1. [Install LightBlue Explorer on your iOS device](https://apps.apple.com/us/app/lightblue-explorer/id557428110)
-1. Open the app and click on "Virtual Devices" in the menu bar [Screenshot](./imageslightblue_explorer_virtual_devices_empty.jpeg)
+1. Open the app and click on "Virtual Devices" in the menu bar [Screenshot](./images/lightblue_explorer_virtual_devices_empty.jpeg)
 1. Click the plus icon on the top right to add a new device
-1. There is a pre-defined device called "Find Me", select that one [Screenshot](./lightblue_explorer_virtual_devices_find_me.jpeg)
-1. Click save and you're done
+1. There is a pre-defined device called "Find Me", select that one [Screenshot](./images/lightblue_explorer_virtual_devices_find_me.jpeg)
+1. Click save and you're done, it should look like this [Screenshot](./images/lightblue_explorer_virtual_devices_find_me.jpeg)
 
 All my tests should work with that device. When you have created that device and the app is running and you phone is not locked all your tests should run.
 
