@@ -50,7 +50,7 @@ export default class Peripheral {
     converters: C
   ): Promise<Service<C> | undefined> {
     const services = await this.getServices({ [uuid]: converters });
-    return services[0]; //.find(s => s.uuid === uuid);
+    return services[0];
   }
 
   public async getServices<C extends Converter<any>[]>(

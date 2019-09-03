@@ -1,70 +1,90 @@
 import Sblendid from "../sblendid";
-import timeout from "p-timeout";
+import Peripheral from "../peripheral";
 
 const setup = {
   name: "DE1",
-  service: "180a"
+  service: "180a",
+  numScanPeripherals: 5
 };
 
-describe("Sblendid E2E tests", () => {
+describe("Sblendid", () => {
   it("can power on the adapter using its static method", async () => {
-    await Sblendid.powerOn();
-  }, 20000);
+    await expect(Sblendid.powerOn()).resolves.toBeInstanceOf(Sblendid);
+  }, 10000);
 
   it("can connect to the first connectable peripheral", async () => {
     const peripheral = await Sblendid.connect(p => Boolean(p.connectable));
+    expect(peripheral).toBeInstanceOf(Peripheral);
+    expect(peripheral.isConnected()).toBe(true);
     await peripheral.disconnect();
-  }, 20000);
+  }, 10000);
 
   it("can connect to a peripheral by name", async () => {
     const peripheral = await Sblendid.connect(setup.name);
+    expect(peripheral).toBeInstanceOf(Peripheral);
+    expect(peripheral.isConnected()).toBe(true);
     await peripheral.disconnect();
-  }, 20000);
+  }, 10000);
 
   it("can connect to a peripheral with an async find function", async () => {
-    const peripheral = await Sblendid.connect(p =>
-      timeout(p.hasService(setup.service), 2000, () => false)
+    const peripheral = await Sblendid.connect(
+      p => new Promise(res => (p.connectable ? res(true) : res(false)))
     );
+    expect(peripheral).toBeInstanceOf(Peripheral);
+    expect(peripheral.isConnected()).toBe(true);
     await peripheral.disconnect();
-  }, 20000);
+  }, 10000);
 
-  it("can power on the adapter using its static method", async () => {
+  it("can power on the adapter using its instance method", async () => {
     const sblendid = new Sblendid();
-    await sblendid.powerOn();
-  }, 20000);
+    await expect(sblendid.powerOn()).resolves.toBe(undefined);
+  }, 10000);
 
   it("can find the first connectable peripheral", async () => {
     const sblendid = await Sblendid.powerOn();
-    await sblendid.find(p => Boolean(p.connectable));
-  }, 20000);
+    const peripheral = await sblendid.find(p => Boolean(p.connectable));
+    expect(peripheral).toBeInstanceOf(Peripheral);
+  }, 10000);
 
   it("can find a peripheral by name", async () => {
     const sblendid = await Sblendid.powerOn();
-    await sblendid.find(setup.name);
-  }, 20000);
+    const peripheral = await sblendid.find(setup.name);
+    expect(peripheral).toBeInstanceOf(Peripheral);
+  }, 10000);
 
   it("can find a peripheral with an async find function", async () => {
     const sblendid = await Sblendid.powerOn();
-    await sblendid.find(p =>
-      timeout(p.hasService(setup.service), 2000, () => false)
+    const peripheral = await sblendid.find(
+      p => new Promise(res => (p.connectable ? res(true) : res(false)))
     );
-  }, 20000);
+    expect(peripheral).toBeInstanceOf(Peripheral);
+  }, 10000);
 
-  it("can stat and stop scanning for peripherals", async () => {
+  it(`can scan for ${setup.numScanPeripherals} peripherals`, async () => {
     const sblendid = await Sblendid.powerOn();
-    sblendid.startScanning();
-    await new Promise(resolve => setTimeout(resolve, 500));
-    sblendid.stopScanning();
-  }, 20000);
-
-  it("can scan for peripherals", done => {
-    Sblendid.powerOn().then(sblendid => {
-      let peripheralsFound = 0;
+    let peripheralsFound = 0;
+    expect.assertions(1);
+    await new Promise(resolve => {
       sblendid.startScanning(() => {
-        if (++peripheralsFound < 10) return;
-        sblendid.stopScanning();
-        done();
+        if (++peripheralsFound >= setup.numScanPeripherals) resolve();
       });
     });
-  }, 20000);
+    expect(peripheralsFound).toBe(setup.numScanPeripherals);
+    sblendid.stopScanning();
+  }, 10000);
+
+  it("stops scaning for peripherals", async () => {
+    const sblendid = await Sblendid.powerOn();
+    let peripheralsFound = 0;
+    expect.assertions(2);
+    await new Promise(resolve => {
+      sblendid.startScanning(() => {
+        if (++peripheralsFound >= setup.numScanPeripherals) resolve();
+      });
+    });
+    expect(peripheralsFound).toBe(setup.numScanPeripherals);
+    sblendid.stopScanning();
+    await new Promise(resolve => setTimeout(resolve, 300));
+    expect(peripheralsFound).toBe(setup.numScanPeripherals);
+  }, 10000);
 });
