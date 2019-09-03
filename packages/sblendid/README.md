@@ -97,7 +97,7 @@ Please refer to the full documentation for an complete description of the API an
 - [Full documentation]()
 - [API Description]()
 - [Examples for common use cases]()
-- [Development]()
+- [Development](./docs/development.md)
 
 ## License
 
