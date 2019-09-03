@@ -11,7 +11,7 @@ export type FindCondition = FindFunction | string;
 type PeripheralData = Params<"discover">;
 
 export default class Sblendid {
-  private adapter: Adapter = new Adapter();
+  public adapter: Adapter = new Adapter();
   private scanListener: Listener<"discover"> = () => {};
 
   public static async powerOn(): Promise<Sblendid> {
