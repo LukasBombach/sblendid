@@ -61,22 +61,22 @@ describe("Sblendid", () => {
   }, 10000);
 
   it(`can scan for ${setup.numScanPeripherals} peripherals`, async () => {
+    expect.assertions(1);
     let numFound = 0;
     const sblendid = await Sblendid.powerOn();
     const max = setup.numScanPeripherals;
     const helper = (resolve: Function) => () => ++numFound >= max && resolve();
-    expect.assertions(1);
     await new Promise(resolve => sblendid.startScanning(helper(resolve)));
     expect(numFound).toBe(max);
     sblendid.stopScanning();
   }, 10000);
 
   it("stops scaning for peripherals", async () => {
+    expect.assertions(2);
     let numFound = 0;
     const sblendid = await Sblendid.powerOn();
     const max = setup.numScanPeripherals;
     const helper = (resolve: Function) => () => ++numFound >= max && resolve();
-    expect.assertions(2);
     await new Promise(resolve => sblendid.startScanning(helper(resolve)));
     expect(numFound).toBe(max);
     sblendid.stopScanning();
