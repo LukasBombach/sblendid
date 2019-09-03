@@ -61,30 +61,26 @@ describe("Sblendid", () => {
   }, 10000);
 
   it(`can scan for ${setup.numScanPeripherals} peripherals`, async () => {
+    let numFound = 0;
     const sblendid = await Sblendid.powerOn();
-    let peripheralsFound = 0;
+    const max = setup.numScanPeripherals;
+    const helper = (resolve: Function) => () => ++numFound >= max && resolve();
     expect.assertions(1);
-    await new Promise(resolve => {
-      sblendid.startScanning(() => {
-        if (++peripheralsFound >= setup.numScanPeripherals) resolve();
-      });
-    });
-    expect(peripheralsFound).toBe(setup.numScanPeripherals);
+    await new Promise(resolve => sblendid.startScanning(helper(resolve)));
+    expect(numFound).toBe(max);
     sblendid.stopScanning();
   }, 10000);
 
   it("stops scaning for peripherals", async () => {
+    let numFound = 0;
     const sblendid = await Sblendid.powerOn();
-    let peripheralsFound = 0;
+    const max = setup.numScanPeripherals;
+    const helper = (resolve: Function) => () => ++numFound >= max && resolve();
     expect.assertions(2);
-    await new Promise(resolve => {
-      sblendid.startScanning(() => {
-        if (++peripheralsFound >= setup.numScanPeripherals) resolve();
-      });
-    });
-    expect(peripheralsFound).toBe(setup.numScanPeripherals);
+    await new Promise(resolve => sblendid.startScanning(helper(resolve)));
+    expect(numFound).toBe(max);
     sblendid.stopScanning();
     await new Promise(resolve => setTimeout(resolve, 300));
-    expect(peripheralsFound).toBe(setup.numScanPeripherals);
+    expect(numFound).toBe(max);
   }, 10000);
 });
