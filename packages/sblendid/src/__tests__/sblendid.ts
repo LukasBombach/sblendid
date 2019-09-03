@@ -9,53 +9,53 @@ const setup = {
 describe("Sblendid E2E tests", () => {
   it("can power on the adapter using its static method", async () => {
     await Sblendid.powerOn();
-  }, 10000);
+  }, 20000);
 
   it("can connect to the first connectable peripheral", async () => {
     const peripheral = await Sblendid.connect(p => Boolean(p.connectable));
     await peripheral.disconnect();
-  }, 10000);
+  }, 20000);
 
   it("can connect to a peripheral by name", async () => {
     const peripheral = await Sblendid.connect(setup.name);
     await peripheral.disconnect();
-  }, 10000);
+  }, 20000);
 
   it("can connect to a peripheral with an async find function", async () => {
     const peripheral = await Sblendid.connect(p =>
       timeout(p.hasService(setup.service), 2000, () => false)
     );
     await peripheral.disconnect();
-  }, 10000);
+  }, 20000);
 
   it("can power on the adapter using its static method", async () => {
     const sblendid = new Sblendid();
     await sblendid.powerOn();
-  }, 10000);
+  }, 20000);
 
   it("can find the first connectable peripheral", async () => {
     const sblendid = await Sblendid.powerOn();
     await sblendid.find(p => Boolean(p.connectable));
-  }, 10000);
+  }, 20000);
 
   it("can find a peripheral by name", async () => {
     const sblendid = await Sblendid.powerOn();
     await sblendid.find(setup.name);
-  }, 10000);
+  }, 20000);
 
   it("can find a peripheral with an async find function", async () => {
     const sblendid = await Sblendid.powerOn();
     await sblendid.find(p =>
       timeout(p.hasService(setup.service), 2000, () => false)
     );
-  }, 10000);
+  }, 20000);
 
   it("can stat and stop scanning for peripherals", async () => {
     const sblendid = await Sblendid.powerOn();
     sblendid.startScanning();
     await new Promise(resolve => setTimeout(resolve, 500));
     sblendid.stopScanning();
-  }, 10000);
+  }, 20000);
 
   it("can scan for peripherals", done => {
     Sblendid.powerOn().then(sblendid => {
@@ -66,5 +66,5 @@ describe("Sblendid E2E tests", () => {
         done();
       });
     });
-  }, 10000);
+  }, 20000);
 });
