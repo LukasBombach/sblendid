@@ -19,7 +19,7 @@ type Listener<T> = (value: T) => Promise<void> | void;
 
 export default class Characteristic<T = Buffer> {
   public readonly uuid: CUUID;
-  public readonly service: Service;
+  public readonly service: Service<any>;
   public readonly properties: Properties;
   private readonly adapter: Adapter;
   private readonly eventEmitter = new EventEmitter();
@@ -27,7 +27,7 @@ export default class Characteristic<T = Buffer> {
   private isNotifying = false;
 
   constructor(
-    service: Service,
+    service: Service<any>,
     uuid: CUUID,
     converter?: Converter<T>,
     properties: Properties = {}
