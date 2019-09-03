@@ -37,7 +37,7 @@ export default class Sblendid {
     return new Peripheral(this.adapter, peripheralData);
   }
 
-  public startScanning(listener: PeripheralListener): void {
+  public startScanning(listener?: PeripheralListener): void {
     this.adapter.off("discover", this.scanListener);
     this.scanListener = this.getDiscoverListener(listener);
     this.adapter.on("discover", this.scanListener);
@@ -72,7 +72,7 @@ export default class Sblendid {
   }
 
   private getDiscoverListener(
-    listener: PeripheralListener
+    listener: PeripheralListener = () => {}
   ): Listener<"discover"> {
     return (...data: Params<"discover">) =>
       listener(new Peripheral(this.adapter, data));
