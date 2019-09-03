@@ -1,13 +1,10 @@
 import Sblendid from "../sblendid";
 import Peripheral from "../peripheral";
 
-const setup = {
-  name: "Find Me",
-  service: "180a",
-  numScanPeripherals: 5
-};
+describe.skip("Sblendid", () => {
+  const name = "Find Me";
+  const max = 5;
 
-describe("Sblendid", () => {
   it("can power on the adapter using its static method", async () => {
     await expect(Sblendid.powerOn()).resolves.toBeInstanceOf(Sblendid);
   }, 10000);
@@ -20,7 +17,7 @@ describe("Sblendid", () => {
   }, 10000);
 
   it("can connect to a peripheral by name", async () => {
-    const peripheral = await Sblendid.connect(setup.name);
+    const peripheral = await Sblendid.connect(name);
     expect(peripheral).toBeInstanceOf(Peripheral);
     expect(peripheral.isConnected()).toBe(true);
     await peripheral.disconnect();
@@ -48,7 +45,7 @@ describe("Sblendid", () => {
 
   it("can find a peripheral by name", async () => {
     const sblendid = await Sblendid.powerOn();
-    const peripheral = await sblendid.find(setup.name);
+    const peripheral = await sblendid.find(name);
     expect(peripheral).toBeInstanceOf(Peripheral);
   }, 10000);
 
@@ -60,11 +57,10 @@ describe("Sblendid", () => {
     expect(peripheral).toBeInstanceOf(Peripheral);
   }, 10000);
 
-  it(`can scan for ${setup.numScanPeripherals} peripherals`, async () => {
+  it(`can scan for ${max} peripherals`, async () => {
     expect.assertions(1);
     let numFound = 0;
     const sblendid = await Sblendid.powerOn();
-    const max = setup.numScanPeripherals;
     const helper = (resolve: Function) => () => ++numFound >= max && resolve();
     await new Promise(resolve => sblendid.startScanning(helper(resolve)));
     expect(numFound).toBe(max);
@@ -75,7 +71,6 @@ describe("Sblendid", () => {
     expect.assertions(2);
     let numFound = 0;
     const sblendid = await Sblendid.powerOn();
-    const max = setup.numScanPeripherals;
     const helper = (resolve: Function) => () => ++numFound >= max && resolve();
     await new Promise(resolve => sblendid.startScanning(helper(resolve)));
     expect(numFound).toBe(max);
