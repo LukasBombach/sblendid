@@ -97,7 +97,7 @@ Please refer to the full documentation for an complete description of the API an
 - [Full documentation]()
 - [API Description]()
 - [Examples for common use cases]()
-- [Development](./docs/development.md)
+- [Development](https://github.com/LukasBombach/sblendid/blob/master/packages/sblendid/docs/development.md)
 
 ## License
 
