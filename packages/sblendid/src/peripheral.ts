@@ -47,10 +47,10 @@ export default class Peripheral {
 
   public async getService<C extends Converter<any>[]>(
     uuid: SUUID,
-    converters: C
+    converters: C | [] = []
   ): Promise<Service<C> | undefined> {
     const services = await this.getServices({ [uuid]: converters });
-    return services[0];
+    return services.find(s => s.uuid === uuid);
   }
 
   public async getServices<C extends Converter<any>[]>(

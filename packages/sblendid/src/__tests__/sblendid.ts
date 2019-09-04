@@ -1,7 +1,7 @@
 import Sblendid from "../sblendid";
 import Peripheral from "../peripheral";
 
-describe("Sblendid", () => {
+describe.skip("Sblendid", () => {
   const name = "Find Me";
   const max = 5;
 
@@ -9,6 +9,7 @@ describe("Sblendid", () => {
     await expect(Sblendid.powerOn()).resolves.toBeInstanceOf(Sblendid);
   }, 10000);
 
+  // todo make this condition based on the name
   it("can connect to the first connectable peripheral", async () => {
     const peripheral = await Sblendid.connect(p => Boolean(p.connectable));
     expect(peripheral).toBeInstanceOf(Peripheral);
