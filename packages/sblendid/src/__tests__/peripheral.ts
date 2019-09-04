@@ -11,22 +11,11 @@ describe("Peripheral", () => {
   beforeAll(async () => {
     const sblendid = await Sblendid.powerOn();
     peripheral = await sblendid.find(name);
-    connnectSpy = jest
-      .spyOn(peripheral.adapter, "connect")
-      .mockImplementation((uuid: string) => {
-        console.log(
-          "🌕 mock is getting called, calling adapter.peripheral.connect"
-        );
-        console.log("🌕 adapter method is", adapter.connect.toString());
-
-        return adapter.connect(uuid);
-      });
-
-    console.log("🌕 mocked method is", peripheral.adapter.connect.toString());
+    connnectSpy = jest.spyOn(peripheral.adapter, "connect");
   }, 10000);
 
   beforeEach(() => {
-    connnectSpy.mockReset();
+    connnectSpy.mockClear();
   });
 
   afterAll(async () => {

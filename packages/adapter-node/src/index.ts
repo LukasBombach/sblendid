@@ -72,7 +72,6 @@ export default class SblendidNodeAdapter {
   }
 
   public connect(pUUID: PUUID): Promise<void> {
-    console.log("🙃🙃🙃 orig 🙃🙃🙃");
     return this.peripheral.connect(pUUID);
   }
 
