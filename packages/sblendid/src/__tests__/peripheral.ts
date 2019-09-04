@@ -24,14 +24,14 @@ describe("Peripheral", () => {
 
   it("connects to peripheral", async () => {
     await expect(peripheral.connect()).resolves.toBe(undefined);
-    // expect(connnectSpy).toBeCalledTimes(1);
+    expect(connnectSpy).toBeCalledTimes(1);
     await peripheral.disconnect();
   }, 10000);
 
   it("does not connect to peripheral if it is already connected", async () => {
     await expect(peripheral.connect()).resolves.toBe(undefined);
     await expect(peripheral.connect()).resolves.toBe(undefined);
-    // expect(connnectSpy).toBeCalledTimes(1);
+    expect(connnectSpy).toBeCalledTimes(1);
   }, 10000);
 
   it("does updates the state when it connects", async () => {
