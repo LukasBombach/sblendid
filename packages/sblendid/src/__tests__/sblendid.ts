@@ -1,7 +1,7 @@
 import Sblendid from "../sblendid";
 import Peripheral from "../peripheral";
 
-describe.skip("Sblendid", () => {
+describe("Sblendid", () => {
   const name = "Find Me";
   const max = 5;
 

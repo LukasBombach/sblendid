@@ -1,10 +1,6 @@
 module.exports = {
-  roots: ["<rootDir>/src"],
+  preset: "ts-jest",
+  testEnvironment: "node",
   verbose: true,
-  notify: true,
-  notifyMode: "always",
-  collectCoverage: true,
-  transform: {
-    "^.+\\.ts$": "ts-jest"
-  }
+  collectCoverage: true
 };
