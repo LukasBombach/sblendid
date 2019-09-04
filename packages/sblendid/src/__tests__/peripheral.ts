@@ -3,15 +3,27 @@ import Sblendid from "../sblendid";
 import Peripheral from "../peripheral";
 
 describe("Peripheral", () => {
-  const name = "DE1";
+  const name = "Find Me";
+  const adapter = new Adapter();
   let connnectSpy: jest.SpyInstance<Promise<void>, [string]>;
   let peripheral: Peripheral;
 
   beforeAll(async () => {
     const sblendid = await Sblendid.powerOn();
     peripheral = await sblendid.find(name);
-    connnectSpy = jest.spyOn(sblendid.adapter, "connect");
-  });
+    connnectSpy = jest
+      .spyOn(peripheral.adapter, "connect")
+      .mockImplementation((uuid: string) => {
+        console.log(
+          "🌕 mock is getting called, calling adapter.peripheral.connect"
+        );
+        console.log("🌕 adapter method is", adapter.connect.toString());
+
+        return adapter.connect(uuid);
+      });
+
+    console.log("🌕 mocked method is", peripheral.adapter.connect.toString());
+  }, 10000);
 
   beforeEach(() => {
     connnectSpy.mockReset();

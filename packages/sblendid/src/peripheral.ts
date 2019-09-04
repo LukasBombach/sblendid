@@ -32,10 +32,17 @@ export default class Peripheral {
   }
 
   public async connect(): Promise<void> {
+    console.log("🔴 called connect");
+    // debugger;
     if (this.state !== "disconnected") return;
+    console.log("🔴 passed disconnected guard");
     this.state = "connecting";
+    console.log("🔴 set state to connecting, calling adapter.connect");
+    console.log("🔴 ", this.adapter.connect.toString());
     await this.adapter.connect(this.uuid);
+    console.log("🔴 adapter.connect returned");
     this.state = "connected";
+    console.log("🔴 set state to connected");
   }
 
   public async disconnect(): Promise<void> {
