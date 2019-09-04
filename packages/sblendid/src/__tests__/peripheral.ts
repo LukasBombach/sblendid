@@ -4,7 +4,7 @@ import Service from "../service";
 
 describe("Peripheral", () => {
   const name = "Find Me";
-  const deviceInfoService = "180a";
+  const serviceUUID = "180a";
   const converters = [
     {
       uuid: "2a29",
@@ -85,42 +85,60 @@ describe("Peripheral", () => {
     expect(service).toBe(undefined);
   }, 10000);
 
-  it("gets a service from a peripheral", async () => {
-    const service = await peripheral.getService(deviceInfoService);
+  it("gets a service from a peripheral (even disconnected)", async () => {
+    await peripheral.disconnect();
+    const service = await peripheral.getService(serviceUUID);
     expect(service).toBeInstanceOf(Service);
-    expect(service!.uuid).toBe(deviceInfoService);
+    expect(service!.uuid).toBe(serviceUUID);
   }, 10000);
 
   it("gets a service from a peripheral (with converters)", async () => {
-    const service = await peripheral.getService(deviceInfoService, converters);
+    const service = await peripheral.getService(serviceUUID, converters);
     expect(service).toBeInstanceOf(Service);
-    expect(service!.uuid).toBe(deviceInfoService);
+    expect(service!.uuid).toBe(serviceUUID);
     expect(service!["converters"]).toBe(converters);
   }, 10000);
 
-  it("gets all services from a peripheral", async () => {
+  it("gets all services from a peripheral (even disconnected)", async () => {
+    await peripheral.disconnect();
     const services = await peripheral.getServices();
     expect(services.map(s => s.uuid).sort()).toMatchSnapshot();
   }, 10000);
 
-  it.skip("gets all services from a peripheral (with converters)", async () => {
-    // const services = await peripheral.getServices(converters);
-    // expect(services.map(s => s.uuid).sort()).toMatchSnapshot();
+  it("gets all services from a peripheral (with converters)", async () => {
+    const converterMap = { [serviceUUID]: converters };
+    const services = await peripheral.getServices(converterMap);
+    const deviceInfoService = services.find(s => s.uuid === serviceUUID);
+    expect(services.map(s => s.uuid).sort()).toMatchSnapshot();
+    expect(deviceInfoService!["converters"]).toBe(converters);
   }, 10000);
 
   it("says when a peripheral has a service", async () => {
-    // hasService(uuid)
+    await expect(peripheral.hasService(serviceUUID)).resolves.toBe(true);
   }, 10000);
 
   it("says when a peripheral does not have a service", async () => {
-    // hasService(uuid)
+    await expect(peripheral.hasService("UUIDThatCannotBeThere")).resolves.toBe(
+      false
+    );
   }, 10000);
 
-  it("says when a peripheral is connected", async () => {
-    // isConnected()
+  it("returns true when a peripheral is connected", async () => {
+    await peripheral.connect();
+    expect(peripheral.isConnected()).toBe(true);
   }, 10000);
 
-  it("says when a peripheral is not connected", async () => {
-    // isConnected()
+  it("returns false when a peripheral is not connected", async () => {
+    await peripheral.disconnect();
+    expect(peripheral.isConnected()).toBe(false);
+  }, 10000);
+
+  it("returns the RSSI of a peripheral", async () => {
+    await expect(peripheral.getRssi()).resolves.toEqual(expect.any(Number));
+  }, 10000);
+
+  it("returns the RSSI of a peripheral for a disconnected peripheral", async () => {
+    await peripheral.disconnect();
+    await expect(peripheral.getRssi()).resolves.toEqual(expect.any(Number));
   }, 10000);
 });
