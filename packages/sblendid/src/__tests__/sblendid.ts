@@ -57,6 +57,12 @@ describe("Sblendid", () => {
     expect(peripheral).toBeInstanceOf(Peripheral);
   }, 10000);
 
+  it("can start scanning without a callback", async () => {
+    const sblendid = await Sblendid.powerOn();
+    expect(() => sblendid.startScanning()).not.toThrow();
+    sblendid.stopScanning();
+  }, 10000);
+
   it(`can scan for ${max} peripherals`, async () => {
     expect.assertions(1);
     let numFound = 0;
