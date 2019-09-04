@@ -20,7 +20,7 @@ export default class SblendidNodeAdapter {
   private service = new Service(this.bindings);
   private characteristic = new Characteristic(this.bindings);
 
-  constructor(debug = true) {
+  constructor(debug = false) {
     if (debug) {
       this.logAllEvents();
     }
@@ -72,6 +72,7 @@ export default class SblendidNodeAdapter {
   }
 
   public connect(pUUID: PUUID): Promise<void> {
+    console.log("🙃🙃🙃 orig 🙃🙃🙃");
     return this.peripheral.connect(pUUID);
   }
 

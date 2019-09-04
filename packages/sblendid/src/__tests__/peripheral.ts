@@ -10,19 +10,19 @@ describe("Peripheral", () => {
   beforeAll(async () => {
     const sblendid = await Sblendid.powerOn();
     peripheral = await sblendid.find(name);
-    // connnectSpy = jest.spyOn(sblendid.adapter, "connect");
+    connnectSpy = jest.spyOn(sblendid.adapter, "connect");
   });
 
   beforeEach(() => {
-    // connnectSpy.mockReset();
+    connnectSpy.mockReset();
   });
 
   afterAll(async () => {
     await peripheral.disconnect();
-    // connnectSpy.mockRestore();
+    connnectSpy.mockRestore();
   });
 
-  it.only("connects to peripheral", async () => {
+  it("connects to peripheral", async () => {
     await expect(peripheral.connect()).resolves.toBe(undefined);
     // expect(connnectSpy).toBeCalledTimes(1);
     await peripheral.disconnect();

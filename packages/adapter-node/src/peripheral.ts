@@ -18,7 +18,7 @@ export default class Peripheral {
   }
 
   public async connect(pUUID: PUUID): Promise<void> {
-    console.log("#### connect has been called ###");
+    console.log("🎉🎉🎉 connect has been called 🎉🎉🎉");
     await this.bindings.run(
       () => this.bindings.connect(pUUID),
       () => this.bindings.when("connect", uuid => uuid === pUUID)
