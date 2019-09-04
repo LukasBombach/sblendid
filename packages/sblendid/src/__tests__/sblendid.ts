@@ -1,7 +1,7 @@
 import Sblendid from "../sblendid";
 import Peripheral from "../peripheral";
 
-describe.skip("Sblendid", () => {
+describe("Sblendid", () => {
   const name = "Find Me";
   const max = 5;
 
@@ -9,8 +9,7 @@ describe.skip("Sblendid", () => {
     await expect(Sblendid.powerOn()).resolves.toBeInstanceOf(Sblendid);
   }, 10000);
 
-  // todo make this condition based on the name
-  it("can connect to the first connectable peripheral", async () => {
+  it("can connect to a peripheral using a condition", async () => {
     const peripheral = await Sblendid.connect(p => Boolean(p.connectable));
     expect(peripheral).toBeInstanceOf(Peripheral);
     expect(peripheral.isConnected()).toBe(true);
@@ -24,7 +23,7 @@ describe.skip("Sblendid", () => {
     await peripheral.disconnect();
   }, 10000);
 
-  it("can connect to a peripheral with an async find function", async () => {
+  it("can connect to a peripheral using an async condition", async () => {
     const peripheral = await Sblendid.connect(
       p => new Promise(res => (p.connectable ? res(true) : res(false)))
     );
