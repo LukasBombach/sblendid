@@ -36,14 +36,29 @@ export default class Service<C extends Converter<any>[]> {
     await characteristic.write(value);
   }
 
-  public async on<N extends keyof C>(name: N, listener: Listener<C, N>) {
+  public async on<N extends keyof C>(
+    name: N,
+    listener: Listener<C, N>
+  ): Promise<void> {
     const characteristic = await this.getCharacteristic(name);
     await characteristic.on("notify", listener);
   }
 
-  public async off<N extends keyof C>(name: N, listener: Listener<C, N>) {
+  public async off<N extends keyof C>(
+    name: N,
+    listener: Listener<C, N>
+  ): Promise<void> {
     const characteristic = await this.getCharacteristic(name);
     await characteristic.off("notify", listener);
+  }
+
+  public async getCharacteristics(): Promise<Record<string, Characteristic>> {
+    if (this.characteristics) return this.characteristics;
+    const [puuid, uuid] = this.getIds();
+    const nobles = await this.adapter.getCharacteristics(puuid, uuid);
+    const characteristics = nobles.map(data => this.getCFromN(data));
+    this.characteristics = this.uuidMap<Characteristic>(characteristics);
+    return this.characteristics;
   }
 
   private async getCharacteristic<N extends keyof C>(
@@ -56,15 +71,6 @@ export default class Service<C extends Converter<any>[]> {
     if (!characteristic)
       throw new Error(`Cannot find characteristic for ${name}`);
     return characteristic as any;
-  }
-
-  public async getCharacteristics(): Promise<Record<string, Characteristic>> {
-    if (this.characteristics) return this.characteristics;
-    const [puuid, uuid] = this.getIds();
-    const nobles = await this.adapter.getCharacteristics(puuid, uuid);
-    const characteristics = nobles.map(data => this.getCFromN(data));
-    this.characteristics = this.uuidMap<Characteristic>(characteristics);
-    return this.characteristics;
   }
 
   private validateConverters(converters?: C): C | undefined {

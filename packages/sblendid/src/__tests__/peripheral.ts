@@ -38,7 +38,6 @@ describe("Peripheral", () => {
     await peripheral.disconnect();
     connnectSpy.mockRestore();
     disconnnectSpy.mockRestore();
-    await peripheral.disconnect();
   });
 
   it("connects to peripheral", async () => {
