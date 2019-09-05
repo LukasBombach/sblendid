@@ -2,7 +2,7 @@ import Sblendid from "../sblendid";
 import Peripheral from "../peripheral";
 import Service from "../service";
 
-describe("Peripheral", () => {
+describe.skip("Peripheral", () => {
   const name = "Find Me";
   const serviceUUID = "180a";
   const converters = [

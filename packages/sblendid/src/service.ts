@@ -1,39 +1,45 @@
-import Adapter, { CharacteristicData } from "@sblendid/adapter-node";
+import { CharacteristicData } from "@sblendid/adapter-node";
 import Peripheral from "./peripheral";
 import Characteristic, { Converter } from "./characteristic";
 
-export type Value<C, N extends keyof C> = C[N] extends Converter<infer R>
+/* export type ConverterValue<C, N extends keyof C> = C[N] extends Converter<
+  infer R
+>
   ? R
-  : never;
-export type Listener<C, N extends keyof C> = (
-  value: Value<C, N>
-) => Promise<void> | void;
+  : never; */
+//type ConverterValue<C extends Converters<keyof C>, N extends keyof C> = C[N] extends Converter<infer R> ? R : never;
 
-export default class Service<C extends Converter<any>[]> {
-  public adapter: Adapter;
-  public peripheral: Peripheral;
+/* export type Listener<C> = (value: Value<C>) => Promish<void>;
+export type Converters = Converter<any>[];
+export type NameOrCUUID<C> = C extends Converters ? keyof C : CUUID;
+export type Value<C, N> = C extends Converters ? C[N] extends Converter<infer R> ? R : Buffer; */
+
+export type Converters = Converter[];
+
+export default class Service<C extends Converters> {
   public uuid: SUUID;
-  private converters?: C;
-  private characteristics?: Record<string, Characteristic>;
+  private peripheral: Peripheral;
+  private characteristics?: Characteristic[];
+  private converters: C | [] = [];
 
-  constructor(peripheral: Peripheral, uuid: SUUID, converters?: C) {
+  constructor(peripheral: Peripheral, uuid: SUUID, converters: C | [] = []) {
     this.peripheral = peripheral;
-    this.adapter = peripheral.adapter;
-    this.converters = this.validateConverters(converters);
     this.uuid = uuid;
+    this.converters = converters;
   }
 
-  public async read(name: keyof C): Promise<any> {
+  public async read(name: NameOrCUUID<C>): Promise<Value<C>> {
     const characteristic = await this.getCharacteristic(name);
     return await characteristic.read();
   }
 
   public async write<N extends keyof C>(
     name: N,
-    value: Value<C, N>
+    value: Value<C, N>,
+    withoutResponse?: boolean
   ): Promise<void> {
     const characteristic = await this.getCharacteristic(name);
-    await characteristic.write(value);
+    await characteristic.write(value, withoutResponse);
   }
 
   public async on<N extends keyof C>(
@@ -55,7 +61,8 @@ export default class Service<C extends Converter<any>[]> {
   public async getCharacteristics(): Promise<Record<string, Characteristic>> {
     if (this.characteristics) return this.characteristics;
     const [puuid, uuid] = this.getIds();
-    const nobles = await this.adapter.getCharacteristics(puuid, uuid);
+    const { adapter } = this.peripheral;
+    const nobles = await adapter.getCharacteristics(puuid, uuid);
     const characteristics = nobles.map(data => this.getCFromN(data));
     this.characteristics = this.uuidMap<Characteristic>(characteristics);
     return this.characteristics;
@@ -71,14 +78,6 @@ export default class Service<C extends Converter<any>[]> {
     if (!characteristic)
       throw new Error(`Cannot find characteristic for ${name}`);
     return characteristic as any;
-  }
-
-  private validateConverters(converters?: C): C | undefined {
-    if (typeof converters === "undefined") return undefined;
-    const uuids = Object.values(converters).map(c => c.uuid);
-    const hasDuplicates = new Set(uuids).size !== uuids.length;
-    if (hasDuplicates) throw new Error("Duplicate UUIDs"); // todo better error message
-    return converters;
   }
 
   private getIds(): [string, SUUID] {

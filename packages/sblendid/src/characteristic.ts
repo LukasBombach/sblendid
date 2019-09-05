@@ -2,11 +2,10 @@ import { EventEmitter } from "events";
 import Adapter, { Params } from "@sblendid/adapter-node";
 import Service from "./service";
 
-export interface Converter<T> {
+export interface Converter<T = Buffer> {
   uuid: CUUID;
-  decode: (value: Buffer) => Promish<T>;
+  decode?: (value: Buffer) => Promish<T>;
   encode?: (value: T) => Promish<Buffer>;
-  values?: T[];
 }
 
 export interface Properties {
