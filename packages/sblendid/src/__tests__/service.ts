@@ -5,6 +5,7 @@ import Peripheral from "../peripheral";
 describe("Service", () => {
   const name = "Find Me";
   const deviceInfoUUID = "180a";
+  const manufacturerUUID = "2a29";
   let peripheral: Peripheral;
   const deviceInfoConverters = [
     {
@@ -45,7 +46,10 @@ describe("Service", () => {
   }, 10000);
 
   it("reads a characteristic using its UUID", async () => {
-    // read(name)
+    const deviceInfoService = new Service(peripheral, deviceInfoUUID);
+    const buffer = await deviceInfoService.read(manufacturerUUID);
+    expect(buffer).toBeInstanceOf(Buffer);
+    expect(buffer.toString()).not.toBe("");
   }, 10000);
 
   it("reads a characteristic using a converter name", async () => {
