@@ -35,10 +35,13 @@ const items: MyItems = [infoItem, pressureItem];
 const names: ItemName<MyItems> = "infossss";
 const values: ItemValue<MyItems, "info"> = 222;
 
-function decodeItem<N extends string>(
-  name: ItemName<MyItems, N>,
+type MyItemName = ItemName<MyItems>;
+type MyItemValue<N extends MyItemName> = ItemValue<MyItems, N>;
+
+function decodeItem<N extends MyItemName>(
+  name: N,
   buffer: Buffer
-): ItemValue<MyItems, N> {
+): MyItemValue<N> {
   const item = items.find(item => item.name === name)!;
   return item.decode(buffer);
 }
