@@ -1,4 +1,4 @@
-interface Item<T> {
+/* interface Item<T> {
   name: string;
   uuid: CUUID;
   decode: (value: Buffer) => T;
@@ -45,3 +45,4 @@ function decodeItem<N extends MyItemName>(
   const item = items.find(item => item.name === name)!;
   return item.decode(buffer);
 }
+ */

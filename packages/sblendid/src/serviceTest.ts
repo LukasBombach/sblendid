@@ -1,4 +1,4 @@
-// type BluetoothCharacteristicUUID = number | string;
+/* // type BluetoothCharacteristicUUID = number | string;
 
 // type CUUID = number | string;
 
@@ -70,3 +70,4 @@ const info = service.read("info");
 
 const service2 = new Service();
 const info2 = service2.read("180a");
+ */
