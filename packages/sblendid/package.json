@@ -10,7 +10,7 @@
   "scripts": {
     "build": "rollup -c rollup.config.ts",
     "dev": "rollup -c rollup.config.ts -w",
-    "test": "jest",
+    "test": "jest -c jest.config.json",
     "example": "ts-node --project tsconfig.json"
   },
   "devDependencies": {

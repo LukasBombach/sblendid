@@ -1,4 +1,4 @@
-import { CharacteristicData } from "@sblendid/adapter-node";
+import Adapter, { CharacteristicData } from "@sblendid/adapter-node";
 import Characteristic, { Converter } from "./characteristic";
 import Peripheral from "./peripheral";
 
@@ -21,13 +21,15 @@ export type ConvertersValue<
 
 export default class Service<C> {
   public uuid: SUUID;
-  private peripheral: Peripheral;
+  public adapter: Adapter;
+  public peripheral: Peripheral;
   private converters?: Converters;
   private characteristics?: Characteristic<any>[];
 
   constructor(peripheral: Peripheral, uuid: SUUID, converters?: C) {
     this.uuid = uuid;
     this.peripheral = peripheral;
+    this.adapter = peripheral.adapter;
     this.converters = converters as any; // todo O M G FIX THIS
   }
 

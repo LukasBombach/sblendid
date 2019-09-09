@@ -21,14 +21,3 @@ Array [
   "d0611e78bbb44591a5f8487910ae4366",
 ]
 `;
-
-exports[`Peripheral gets all services from a peripheral 1`] = `
-Array [
-  "1802",
-  "1805",
-  "180a",
-  "180f",
-  "9fa480e0496745429390d343dc5d04ae",
-  "d0611e78bbb44591a5f8487910ae4366",
-]
-`;

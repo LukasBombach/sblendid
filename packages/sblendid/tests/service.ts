@@ -7,25 +7,24 @@ describe("Service", () => {
   const deviceInfoUUID = "180a";
   const manufacturerUUID = "2a29";
   const alertUUID = "2a06";
+
   let peripheral: Peripheral;
-  const converters = [
-    {
+
+  const converters = {
+    manufacturer: {
       uuid: "2a29",
-      name: "manufacturer",
       decode: (buffer: Buffer) => buffer.toString()
     },
-    {
+    model: {
       uuid: "2a24",
-      name: "model",
       decode: (buffer: Buffer) => buffer.toString()
     },
-    {
+    alert: {
       uuid: "2a06",
-      name: "alert",
       decode: (buffer: Buffer) => buffer.toString(),
       encode: (message: string) => Buffer.from(message, "utf8")
     }
-  ];
+  };
 
   beforeAll(async () => {
     peripheral = await Sblendid.connect(name);
@@ -46,7 +45,7 @@ describe("Service", () => {
   }, 10000);
 
   it("invalidates converters", async () => {
-    const faulyConverters = [...converters, converters[0]];
+    const faulyConverters = { ...converters, model: converters.model };
     expect(
       () => new Service(peripheral, deviceInfoUUID, faulyConverters)
     ).toThrow("Duplicate UUIDs");
@@ -72,9 +71,9 @@ describe("Service", () => {
 
   it("writes a characteristic using its UUID", async () => {
     const deviceInfoService = new Service(peripheral, deviceInfoUUID);
-    await expect(deviceInfoService.write(alertUUID, "message")).resolves.toBe(
-      undefined
-    );
+    await expect(
+      deviceInfoService.write(alertUUID, Buffer.from("message"))
+    ).resolves.toBe(undefined);
   }, 10000);
 
   it("writes a characteristic using a converter name", async () => {
@@ -91,7 +90,7 @@ describe("Service", () => {
   it("writes a characteristic using its UUID without response", async () => {
     const deviceInfoService = new Service(peripheral, deviceInfoUUID);
     await expect(
-      deviceInfoService.write(alertUUID, "message", true)
+      deviceInfoService.write(alertUUID, Buffer.from("message"), true)
     ).resolves.toBe(undefined);
   }, 10000);
 
