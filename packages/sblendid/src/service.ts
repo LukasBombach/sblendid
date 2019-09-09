@@ -66,6 +66,7 @@ export default class Service<C> {
   public async getCharacteristic<N extends Name<C>>(
     name: N
   ): Promise<Characteristic<Value<C, N>>> {
+    debugger;
     const uuid = this.getCUUID(name);
     const characteristics = await this.getCharacteristics();
     const characteristic = characteristics.find(c => c.uuid === uuid);
