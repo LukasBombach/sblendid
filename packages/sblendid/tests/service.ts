@@ -9,6 +9,7 @@ describe("Service", () => {
   const alertUUID = "2a06";
 
   let peripheral: Peripheral;
+  let services: Service<any>[];
 
   const converters = {
     manufacturer: {
@@ -28,6 +29,9 @@ describe("Service", () => {
 
   beforeAll(async () => {
     peripheral = await Sblendid.connect(name);
+    // todo this needs to be done before services can be used directly
+    // todo this must be done automatically by the service class
+    services = await peripheral.getServices();
   }, 10000);
 
   afterAll(async () => {
@@ -51,12 +55,11 @@ describe("Service", () => {
     ).toThrow("Duplicate UUIDs");
   }, 10000);
 
-  it.only("reads a characteristic using its UUID", async () => {
-    debugger;
+  it("reads a characteristic using its UUID", async () => {
     const deviceInfoService = new Service(peripheral, deviceInfoUUID);
-    // const buffer = await deviceInfoService.read(manufacturerUUID);
-    // expect(buffer).toBeInstanceOf(Buffer);
-    // expect(buffer.toString()).toMatch(/.+/);
+    const buffer = await deviceInfoService.read(manufacturerUUID);
+    expect(buffer).toBeInstanceOf(Buffer);
+    expect(buffer.toString()).toMatch(/.+/);
   }, 10000);
 
   it("reads a characteristic using a converter name", async () => {
