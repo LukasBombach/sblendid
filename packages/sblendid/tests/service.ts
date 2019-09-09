@@ -1,6 +1,6 @@
-import Service from "../service";
-import Sblendid from "../sblendid";
-import Peripheral from "../peripheral";
+import Service from "../src/service";
+import Sblendid from "../src/sblendid";
+import Peripheral from "../src/peripheral";
 
 describe("Service", () => {
   const name = "Find Me";

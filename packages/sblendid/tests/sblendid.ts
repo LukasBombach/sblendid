@@ -1,5 +1,5 @@
-import Sblendid from "../sblendid";
-import Peripheral from "../peripheral";
+import Sblendid from "../src/sblendid";
+import Peripheral from "../src/peripheral";
 
 describe.skip("Sblendid", () => {
   const name = "Find Me";

@@ -1,6 +1,7 @@
 {
   "preset": "ts-jest",
   "testEnvironment": "node",
+  "testMatch": ["./tests/**/*.ts"],
   "verbose": true,
   "collectCoverage": true
 }
