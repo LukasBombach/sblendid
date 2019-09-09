@@ -1,4 +1,4 @@
-interface Converter<T = Buffer> {
+/* interface Converter<T = Buffer> {
   name: string;
   uuid: CUUID;
   decode: (value: Buffer) => T;
@@ -8,12 +8,14 @@ type Converters = ReadonlyArray<Converter<any>>;
 
 type Names<C extends Converters> = C[number]["name"];
 
-type Value<
-  C extends Converters,
-  N extends Names<C>
-> = Extract<C[number], { name: N }> extends Converter<infer V> ? V : never;
+type Value<C extends Converters, N extends Names<C>> = Extract<
+  C[number],
+  { name: N }
+> extends Converter<infer V>
+  ? V
+  : never;
 
-type Const<T> = <const>T;
+type ConstConverters<C extends Converters> = C;
 
 class Service<C extends Converters> {
   private converters?: Converters;
@@ -29,7 +31,7 @@ class Service<C extends Converters> {
       return this.getBufferForUUID(name);
     }
   }
-}
+} */
 
 /* const infoConverter = {
   name: "info",
