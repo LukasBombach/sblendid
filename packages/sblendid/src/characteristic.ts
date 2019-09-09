@@ -28,8 +28,8 @@ export default class Characteristic<T = Buffer> {
   constructor(
     service: Service<any>,
     uuid: CUUID,
-    converter?: Converter<T>,
-    properties: Properties = {}
+    properties: Properties = {},
+    converter?: Converter<T>
   ) {
     this.uuid = uuid;
     this.service = service;
