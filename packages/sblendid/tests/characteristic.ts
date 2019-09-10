@@ -69,10 +69,41 @@ describe("Characteristic", () => {
     expect(value.toString()).toMatch(/.+/);
   });
 
-  it.todo("can write using a UUID");
-  it.todo("can write using a converter");
-  it.todo("can notify using a UUID");
-  it.todo("can notify using a converter");
+  it("can write using a UUID", async () => {
+    const characteristic = new Characteristic(deviceInfo, uuid);
+    await expect(characteristic.write(Buffer.from("message"))).resolves.toBe(
+      undefined
+    );
+  });
+
+  it("can write using a converter", async () => {
+    const characteristic = new Characteristic(
+      deviceInfo,
+      uuid,
+      undefined,
+      converter
+    );
+    await expect(characteristic.write("message")).resolves.toBe(undefined);
+  });
+
+  it("can notify using a UUID", async () => {
+    const characteristic = new Characteristic(deviceInfo, uuid);
+    await expect(characteristic.on("notify", () => {})).resolves.toBe(
+      undefined
+    );
+  });
+  it("can notify using a converter", async () => {
+    const characteristic = new Characteristic(
+      deviceInfo,
+      uuid,
+      undefined,
+      converter
+    );
+    await expect(characteristic.on("notify", () => {})).resolves.toBe(
+      undefined
+    );
+  });
+
   it.todo("can stop notifying using a UUID");
   it.todo("can stop notifying using a converter");
 });
