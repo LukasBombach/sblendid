@@ -1,6 +1,6 @@
-import Service from "../src/service";
 import Sblendid from "../src/sblendid";
 import Peripheral from "../src/peripheral";
+import Service from "../src/service";
 import Characteristic, { Converter } from "../src/characteristic";
 
 describe("Service", () => {
