@@ -69,7 +69,7 @@ export default class Service<C> {
     const uuid = this.getCUUID(name);
     const characteristics = await this.getCharacteristics();
     const characteristic = characteristics.find(c => c.uuid === uuid);
-    const errorMessage = `Cannot find Characteristic for"${name}"`;
+    const errorMessage = `Cannot find Characteristic for "${name}"`;
     if (!characteristic) throw new Error(errorMessage);
     return characteristic;
   }
@@ -78,7 +78,10 @@ export default class Service<C> {
     if (this.characteristics) return this.characteristics;
     const { adapter, uuid: puuid } = this.peripheral;
     const data = await adapter.getCharacteristics(puuid, this.uuid);
-    return data.map(data => this.getCharactersticFromData(data));
+    this.characteristics = data.map(data =>
+      this.getCharactersticFromData(data)
+    );
+    return this.characteristics;
   }
 
   private getCharactersticFromData(data: CharacteristicData): Characteristic {
@@ -89,8 +92,8 @@ export default class Service<C> {
   }
 
   private getCUUID(name: Name<C>): CUUID {
-    if (!this.converters) return name as CUUID;
     if (typeof name === "number") return name;
+    if (!this.converters) return name as CUUID;
     const converter = this.converters[name as string];
     return converter ? converter.uuid : (name as CUUID);
   }

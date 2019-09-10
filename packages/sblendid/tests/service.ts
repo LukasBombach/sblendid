@@ -1,7 +1,7 @@
 import Service from "../src/service";
 import Sblendid from "../src/sblendid";
 import Peripheral from "../src/peripheral";
-import { Converter } from "../src/characteristic";
+import Characteristic, { Converter } from "../src/characteristic";
 
 describe("Service", () => {
   const name = "Find Me";
@@ -76,6 +76,8 @@ describe("Service", () => {
       () => new Service(peripheral, deviceInfoUUID, converters)
     ).not.toThrow();
   }, 10000);
+
+  it.todo("invalidates converters with duplicate UUIDs");
 
   it("reads a characteristic using its UUID", async () => {
     const deviceInfoService = new Service(peripheral, deviceInfoUUID);
@@ -155,9 +157,70 @@ describe("Service", () => {
     expect(characteristics.map(c => c.uuid).sort()).toMatchSnapshot();
   }, 10000);
 
+  it("caches avalable characteristics", async () => {
+    const service = new Service(peripheral, deviceInfoUUID);
+    const spy = jest.spyOn(service.peripheral.adapter, "getCharacteristics");
+    await service.getCharacteristics();
+    await service.getCharacteristics();
+    expect(spy).toHaveBeenCalledTimes(1);
+  }, 10000);
+
   it("gets all avalable characteristics using converers", async () => {
     const service = new Service(peripheral, deviceInfoUUID, converters);
     const characteristics = await service.getCharacteristics();
     expect(characteristics.map(c => c.uuid).sort()).toMatchSnapshot();
+  }, 10000);
+
+  it("gets a characteristic by a uuid that is a string", async () => {
+    const service = new Service(peripheral, deviceInfoUUID);
+    const characteristic = await service.getCharacteristic(manufacturerUUID);
+    expect(characteristic).toBeInstanceOf(Characteristic);
+    expect(characteristic.uuid).toBe(manufacturerUUID);
+  }, 10000);
+
+  it("gets a characteristic by a converter name", async () => {
+    const service = new Service(peripheral, deviceInfoUUID, converters);
+    const characteristic = await service.getCharacteristic("manufacturer");
+    expect(characteristic).toBeInstanceOf(Characteristic);
+    expect(characteristic.uuid).toBe(manufacturerUUID);
+  }, 10000);
+
+  it("gets a characteristic by a uuid that is a number", async () => {
+    const service = new Service(peripheral, deviceInfoUUID);
+    const numberUUID = 9999;
+    const characteristics = [new Characteristic(service, numberUUID)];
+    service.getCharacteristics = jest
+      .fn()
+      .mockImplementation(() => Promise.resolve(characteristics));
+    const characteristic = await service.getCharacteristic(numberUUID);
+    expect(characteristic).toBe(characteristics[0]);
+    expect(characteristic.uuid).toBe(numberUUID);
+  }, 10000);
+
+  it("gets a characteristic by UUID when a converter can't be found", async () => {
+    const service = new Service(peripheral, deviceInfoUUID, converters);
+    const uuid = "2a02";
+    const characteristics = [new Characteristic(service, uuid)];
+    service.getCharacteristics = jest
+      .fn()
+      .mockImplementation(() => Promise.resolve(characteristics));
+    const characteristic = await service.getCharacteristic(uuid as any);
+    expect(characteristic).toBe(characteristics[0]);
+    expect(characteristic.uuid).toBe(uuid);
+  }, 10000);
+
+  it("throws an error when trying to get an unknown characteristic", async () => {
+    const service = new Service(peripheral, deviceInfoUUID);
+    const name = "Definitely unknown characteristic UUID";
+    const error = new Error(`Cannot find Characteristic for "${name}"`);
+    await expect(service.getCharacteristic(name)).rejects.toEqual(error);
+  }, 10000);
+
+  it("throws an error when trying to get an unknown characteristic using converters", async () => {
+    const uuid = "Definitely unknown characteristic UUID";
+    const faultyConverter = { wrong: { uuid } };
+    const error = new Error(`Cannot find Characteristic for "wrong"`);
+    const service = new Service(peripheral, deviceInfoUUID, faultyConverter);
+    await expect(service.getCharacteristic("wrong")).rejects.toEqual(error);
   }, 10000);
 });
