@@ -1,29 +1,27 @@
 import Service from "../src/service";
 import Sblendid from "../src/sblendid";
 import Peripheral from "../src/peripheral";
+import { Converter } from "../src/characteristic";
 
-describe.only("Service", () => {
+describe("Service", () => {
   const name = "Find Me";
   const deviceInfoUUID = "180a";
   const manufacturerUUID = "2a29";
-  const alertUUID = "2a06";
 
   let peripheral: Peripheral;
   let services: Service<any>[];
+
+  let writableSUUID: SUUID;
+  let writableCUUID: CUUID;
+  let notifyableSUUID: SUUID;
+  let notifyableCUUID: CUUID;
+  let writeConverters: { message: Converter<string> };
+  let notifyConverters: { message: Converter<string> };
 
   const converters = {
     manufacturer: {
       uuid: "2a29",
       decode: (buffer: Buffer) => buffer.toString()
-    },
-    model: {
-      uuid: "2a24",
-      decode: (buffer: Buffer) => buffer.toString()
-    },
-    alert: {
-      uuid: "2a06",
-      decode: (buffer: Buffer) => buffer.toString(),
-      encode: (message: string) => Buffer.from(message, "utf8")
     }
   };
 
@@ -32,6 +30,37 @@ describe.only("Service", () => {
     // todo this needs to be done before services can be used directly
     // todo this must be done automatically by the service class
     services = await peripheral.getServices();
+    // todo this is hands down the worst code I have ever seen
+    while (writableSUUID === undefined && notifyableSUUID === undefined) {
+      for (const service of services) {
+        const characteristics = await service.getCharacteristics();
+        for (const { uuid, properties } of characteristics) {
+          if (properties.write) {
+            writableSUUID = service.uuid;
+            writableCUUID = uuid;
+          }
+          if (properties.notify) {
+            notifyableSUUID = service.uuid;
+            notifyableCUUID = uuid;
+          }
+        }
+      }
+    }
+
+    writeConverters = {
+      message: {
+        uuid: writableCUUID,
+        decode: (buffer: Buffer) => buffer.toString(),
+        encode: (message: string) => Buffer.from(message, "utf8")
+      }
+    };
+    notifyConverters = {
+      message: {
+        uuid: notifyableCUUID,
+        decode: (buffer: Buffer) => buffer.toString(),
+        encode: (message: string) => Buffer.from(message, "utf8")
+      }
+    };
   }, 10000);
 
   afterAll(async () => {
@@ -46,13 +75,6 @@ describe.only("Service", () => {
     expect(
       () => new Service(peripheral, deviceInfoUUID, converters)
     ).not.toThrow();
-  }, 10000);
-
-  it.skip("invalidates converters", async () => {
-    const faulyConverters = { ...converters, model: converters.model };
-    expect(
-      () => new Service(peripheral, deviceInfoUUID, faulyConverters)
-    ).toThrow("Duplicate UUIDs");
   }, 10000);
 
   it("reads a characteristic using its UUID", async () => {
@@ -74,58 +96,68 @@ describe.only("Service", () => {
   }, 10000);
 
   it("writes a characteristic using its UUID", async () => {
-    const deviceInfoService = new Service(peripheral, deviceInfoUUID);
+    const service = new Service(peripheral, writableSUUID);
     await expect(
-      deviceInfoService.write(alertUUID, Buffer.from("message"))
+      service.write(writableCUUID, Buffer.from("message"))
     ).resolves.toBe(undefined);
   }, 10000);
 
   it("writes a characteristic using a converter name", async () => {
-    const deviceInfoService = new Service(
-      peripheral,
-      deviceInfoUUID,
-      converters
-    );
-    await expect(deviceInfoService.write("alert", "message")).resolves.toBe(
-      undefined
-    );
+    const service = new Service(peripheral, writableSUUID, writeConverters);
+    await expect(service.write("message", "message")).resolves.toBe(undefined);
   }, 10000);
 
   it("writes a characteristic using its UUID without response", async () => {
-    const deviceInfoService = new Service(peripheral, deviceInfoUUID);
+    const service = new Service(peripheral, writableSUUID);
     await expect(
-      deviceInfoService.write(alertUUID, Buffer.from("message"), true)
+      service.write(writableCUUID, Buffer.from("message"), true)
     ).resolves.toBe(undefined);
   }, 10000);
 
   it("writes a characteristic using a converter name without response", async () => {
-    const deviceInfoService = new Service(
-      peripheral,
-      deviceInfoUUID,
-      converters
+    const service = new Service(peripheral, writableSUUID, writeConverters);
+    await expect(service.write("message", "message", true)).resolves.toBe(
+      undefined
     );
-    await expect(
-      deviceInfoService.write("alert", "message", true)
-    ).resolves.toBe(undefined);
   }, 10000);
 
   it("can listen to notifications using a UUID", async () => {
-    // on(name, listener)
+    const service = new Service(peripheral, notifyableSUUID);
+    await expect(service.on(notifyableCUUID, () => {})).resolves.toBe(
+      undefined
+    );
   }, 10000);
 
   it("can listen to notifications using a converter name", async () => {
-    // on(name, listener)
+    const service = new Service(peripheral, notifyableSUUID, notifyConverters);
+    await expect(service.on("message", () => {})).resolves.toBe(undefined);
   }, 10000);
 
   it("can stop listening to notifications using a UUID", async () => {
-    // off(name, listener)
+    const service = new Service(peripheral, notifyableSUUID);
+    const listener = () => {};
+    service.on(notifyableCUUID, listener);
+    await expect(service.off(notifyableCUUID, listener)).resolves.toBe(
+      undefined
+    );
   }, 10000);
 
   it("can stop listening to notifications using a converter name", async () => {
-    // off(name, listener)
+    const service = new Service(peripheral, notifyableSUUID, notifyConverters);
+    const listener = () => {};
+    service.on("message", listener);
+    await expect(service.off("message", listener)).resolves.toBe(undefined);
   }, 10000);
 
   it("gets all avalable characteristics", async () => {
-    // getCharacteristics()
+    const service = new Service(peripheral, deviceInfoUUID);
+    const characteristics = await service.getCharacteristics();
+    expect(characteristics.map(c => c.uuid).sort()).toMatchSnapshot();
+  }, 10000);
+
+  it("gets all avalable characteristics using converers", async () => {
+    const service = new Service(peripheral, deviceInfoUUID, converters);
+    const characteristics = await service.getCharacteristics();
+    expect(characteristics.map(c => c.uuid).sort()).toMatchSnapshot();
   }, 10000);
 });

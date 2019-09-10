@@ -20,25 +20,14 @@ import Sblendid from "../src";
       const characteristics = await service.getCharacteristics();
       for (const characteristic of characteristics) {
         const { uuid, properties } = characteristic;
-        console.log(chalk.blue(`characteristic ${uuid}`));
-        if (properties.write) {
-          console.log("writing", uuid);
-          await characteristic.write(Buffer.from("test", "utf-8"));
-          // process.exit();
-        }
-        // console.log(characteristic.properties);
-        // if (characteristic.properties.notify) {
-        //   console.log("sub", characteristic.uuid);
-        //   characteristic.on("notify", (...args) => {
-        //     console.log(chalk.red(`${characteristic.uuid}`), args);
-        //   });
-        // }
+        const props = Object.entries(properties)
+          .filter(([, v]) => v)
+          .map(([p]) => p)
+          .join(", ");
+        console.log(chalk.redBright(`characteristic ${uuid}`), props);
       }
-
-      // if (service.uuid === "1802") {
-      //   service.on("2a06", (...args) => console.log("2a06!", args));
-      // }
     }
+    process.exit();
   } catch (error) {
     console.error(error);
     process.exit();
