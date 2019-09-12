@@ -1,5 +1,5 @@
 import { EventEmitter } from "events";
-import Adapter, { Params } from "@sblendid/adapter-node";
+import { Params } from "@sblendid/adapter-node";
 import Service from "./service";
 
 export interface Converter<T = Buffer> {
@@ -9,93 +9,98 @@ export interface Converter<T = Buffer> {
 }
 
 export interface Properties {
-  readonly read?: boolean;
-  readonly write?: boolean;
-  readonly notify?: boolean;
+  read?: boolean;
+  write?: boolean;
+  notify?: boolean;
 }
 
-type Listener<T> = (value: T) => Promise<void> | void;
+export interface Options<C extends Converter<any> | undefined> {
+  properties?: Properties;
+  converter?: C;
+}
 
-export default class Characteristic<T = Buffer> {
-  public readonly uuid: CUUID;
-  public readonly service: Service<any>;
-  public readonly properties: Properties;
-  private readonly adapter: Adapter;
-  private readonly eventEmitter = new EventEmitter();
-  private readonly converter?: Converter<T>;
-  private isNotifying = false;
+export type Value<C> = C extends Converter<infer V> ? V : Buffer;
+export type Listener<C> = (value: Value<C>) => Promish<void>;
 
-  constructor(
-    service: Service<any>,
-    uuid: CUUID,
-    properties: Properties = {},
-    converter?: Converter<T>
-  ) {
+export default class Characteristic<
+  C extends Converter<any> | undefined = undefined
+> {
+  public uuid: CUUID;
+  public service: Service;
+  public properties: Properties;
+  private eventEmitter = new EventEmitter();
+  private converter?: C;
+
+  constructor(uuid: CUUID, service: Service, options: Options<C> = {}) {
     this.uuid = uuid;
     this.service = service;
-    this.adapter = service.adapter;
-    this.converter = converter;
-    this.properties = properties;
+    this.properties = options.properties || {};
+    this.converter = options.converter;
   }
 
-  public async read(): Promise<T> {
-    const [pUuid, sUuid, uuid] = this.getUuids();
-    const buffer = await this.adapter.read(pUuid, sUuid, uuid);
+  public async read(): Promise<Value<C>> {
+    const [puuid, suuid, uuid] = this.getUuids();
+    const buffer = await this.service.adapter.read(puuid, suuid, uuid);
     return await this.decode(buffer);
   }
 
-  public async write(value: T, withoutResponse?: boolean): Promise<void> {
-    const [pUuid, sUuid, uuid] = this.getUuids();
+  public async write(
+    value: Value<C>,
+    withoutResponse?: boolean
+  ): Promise<void> {
+    const [puuid, suuid, uuid] = this.getUuids();
     const buffer = await this.encode(value);
-    await this.adapter.write(pUuid, sUuid, uuid, buffer, withoutResponse);
+    const adapter = this.service.adapter;
+    await adapter.write(puuid, suuid, uuid, buffer, withoutResponse);
   }
 
-  public async on(event: "notify", listener: Listener<T>): Promise<void> {
+  public async on(event: "notify", listener: Listener<C>): Promise<void> {
     this.eventEmitter.on(event, listener);
-    if (!this.isNotifying) await this.startNotifing();
+    const isFirstListener = this.eventEmitter.listenerCount("notify") === 1;
+    if (isFirstListener) await this.startNotifing();
   }
 
-  public async off(event: "notify", listener: Listener<T>): Promise<void> {
-    const isLastListener = this.eventEmitter.listenerCount("notify") <= 1;
-    if (isLastListener) await this.stopNotifing();
+  public async off(event: "notify", listener: Listener<C>): Promise<void> {
     this.eventEmitter.off(event, listener);
+    const isLastListener = this.eventEmitter.listenerCount("notify") === 0;
+    if (isLastListener) await this.stopNotifing();
   }
 
-  private async decode(buffer: Buffer): Promise<T> {
-    if (!this.converter || !this.converter.decode) return buffer as any;
+  private async decode(buffer: Buffer): Promise<Value<C>> {
+    if (!this.converter || !this.converter.decode) return buffer as Value<C>; // todo hmm not right
     return await this.converter.decode(buffer);
   }
 
-  private async encode(value: T): Promise<Buffer> {
-    if (!this.converter || !this.converter.encode) return value as any;
+  private async encode(value: Value<C>): Promise<Buffer> {
+    if (!this.converter || !this.converter.encode) return value;
     return await this.converter.encode(value);
   }
 
   private async startNotifing(): Promise<void> {
-    if (this.isNotifying) return;
-    const [pUuid, sUuid, uuid] = this.getUuids();
-    this.adapter.on("read", this.onNotify.bind(this));
-    this.isNotifying = await this.adapter.notify(pUuid, sUuid, uuid, true);
+    const [puuid, suuid, uuid] = this.getUuids();
+    const adapter = this.service.adapter;
+    adapter.on("read", this.onNotify.bind(this));
+    await adapter.notify(puuid, suuid, uuid, true);
   }
 
   private async stopNotifing(): Promise<void> {
-    if (!this.isNotifying) return;
-    const [pUuid, sUuid, uuid] = this.getUuids();
-    this.adapter.off("read", this.onNotify.bind(this));
-    this.isNotifying = await this.adapter.notify(pUuid, sUuid, uuid, false);
+    const [puuid, suuid, uuid] = this.getUuids();
+    const adapter = this.service.adapter;
+    adapter.off("read", this.onNotify.bind(this));
+    await adapter.notify(puuid, suuid, uuid, false);
   }
 
   private async onNotify(...params: Params<"read">): Promise<void> {
-    const [pUuid, sUuid, cUuid, data, isNotification] = params;
-    if (!isNotification || !this.isThis(pUuid, sUuid, cUuid)) return;
+    const [puuid, suuid, cuuid, data, isNotification] = params;
+    if (!isNotification || !this.isThis(puuid, suuid, cuuid)) return;
     this.eventEmitter.emit("notify", await this.decode(data));
-  }
-
-  private isThis(pUuid: PUUID, sUuid: SUUID, cUuid: CUUID): boolean {
-    return this.getUuids().every((v, i) => v === [pUuid, sUuid, cUuid][i]);
   }
 
   private getUuids(): [PUUID, SUUID, CUUID] {
     return [this.service.peripheral.uuid, this.service.uuid, this.uuid];
+  }
+
+  private isThis(puuid: PUUID, suuid: SUUID, cuuid: CUUID): boolean {
+    return this.getUuids().every((v, i) => v === [puuid, suuid, cuuid][i]);
   }
 }
