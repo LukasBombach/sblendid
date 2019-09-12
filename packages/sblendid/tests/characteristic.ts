@@ -41,8 +41,8 @@ describe("Characteristic", () => {
     ];
 
     for (const [service, uuid, properties, converter] of permutations) {
-      const [s, u, p, c] = [service, uuid, properties, converter];
-      const characteristic = new Characteristic(s, u, p, c);
+      const options = { properties, converter };
+      const characteristic = new Characteristic(uuid, service, options);
       expect(characteristic.uuid).toBe(uuid);
       expect(characteristic.service).toBe(service);
       expect(characteristic.properties).toEqual(properties || {});
@@ -51,54 +51,39 @@ describe("Characteristic", () => {
   });
 
   it("can read using a UUID", async () => {
-    const characteristic = new Characteristic(deviceInfo, uuid);
+    const characteristic = new Characteristic(uuid, deviceInfo);
     const buffer = await characteristic.read();
     expect(buffer).toBeInstanceOf(Buffer);
     expect(buffer.toString()).toMatch(/.+/);
   });
 
   it("can read using a converter", async () => {
-    const characteristic = new Characteristic(
-      deviceInfo,
-      uuid,
-      undefined,
-      converter
-    );
+    const characteristic = new Characteristic(uuid, deviceInfo, { converter });
     const value = await characteristic.read();
     expect(typeof value).toBe("string");
     expect(value.toString()).toMatch(/.+/);
   });
 
   it("can write using a UUID", async () => {
-    const characteristic = new Characteristic(deviceInfo, uuid);
+    const characteristic = new Characteristic(uuid, deviceInfo);
     await expect(characteristic.write(Buffer.from("message"))).resolves.toBe(
       undefined
     );
   });
 
   it("can write using a converter", async () => {
-    const characteristic = new Characteristic(
-      deviceInfo,
-      uuid,
-      undefined,
-      converter
-    );
+    const characteristic = new Characteristic(uuid, deviceInfo, { converter });
     await expect(characteristic.write("message")).resolves.toBe(undefined);
   });
 
   it("can notify using a UUID", async () => {
-    const characteristic = new Characteristic(deviceInfo, uuid);
+    const characteristic = new Characteristic(uuid, deviceInfo);
     await expect(characteristic.on("notify", () => {})).resolves.toBe(
       undefined
     );
   });
   it("can notify using a converter", async () => {
-    const characteristic = new Characteristic(
-      deviceInfo,
-      uuid,
-      undefined,
-      converter
-    );
+    const characteristic = new Characteristic(uuid, deviceInfo, { converter });
     await expect(characteristic.on("notify", () => {})).resolves.toBe(
       undefined
     );
