@@ -14,12 +14,12 @@ export type Listener<C, N extends Name<C>> = (
   value: Value<C, N>
 ) => Promish<void>;
 
-export type ConvertersValue<
+type ConvertersValue<
   C extends Converters,
   N extends Name<C>
 > = C[N] extends Converter<infer V> ? V : never;
 
-export default class Service<C> {
+export default class Service<C extends Converters | undefined = undefined> {
   public uuid: SUUID;
   public adapter: Adapter;
   public peripheral: Peripheral;
@@ -30,7 +30,7 @@ export default class Service<C> {
     this.uuid = uuid;
     this.peripheral = peripheral;
     this.adapter = peripheral.adapter;
-    this.converters = converters as any; // todo O M G FIX THIS
+    this.converters = converters;
   }
 
   public async read<N extends Name<C>>(name: N): Promise<Value<C, N>> {
