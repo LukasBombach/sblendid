@@ -188,7 +188,7 @@ describe("Service", () => {
   it("gets a characteristic by a uuid that is a number", async () => {
     const service = new Service(peripheral, deviceInfoUUID);
     const numberUUID = 9999;
-    const characteristics = [new Characteristic(service, numberUUID)];
+    const characteristics = [new Characteristic(numberUUID, service)];
     service.getCharacteristics = jest
       .fn()
       .mockImplementation(() => Promise.resolve(characteristics));
@@ -200,7 +200,7 @@ describe("Service", () => {
   it("gets a characteristic by UUID when a converter can't be found", async () => {
     const service = new Service(peripheral, deviceInfoUUID, converters);
     const uuid = "2a02";
-    const characteristics = [new Characteristic(service, uuid)];
+    const characteristics = [new Characteristic(uuid, service)];
     service.getCharacteristics = jest
       .fn()
       .mockImplementation(() => Promise.resolve(characteristics));

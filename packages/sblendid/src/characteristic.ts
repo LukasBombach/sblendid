@@ -50,7 +50,6 @@ export default class Characteristic<
   ): Promise<void> {
     const [puuid, suuid, uuid] = this.getUuids();
     const buffer = await this.encode(value);
-    console.log("write", puuid, suuid, uuid, buffer, withoutResponse);
     await this.getAdapter().write(puuid, suuid, uuid, buffer, withoutResponse);
   }
 
