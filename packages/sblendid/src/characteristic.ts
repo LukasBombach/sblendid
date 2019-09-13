@@ -1,5 +1,5 @@
 import { EventEmitter } from "events";
-import { Params } from "@sblendid/adapter-node";
+import Adapter, { Params } from "@sblendid/adapter-node";
 import Service from "./service";
 
 export interface Converter<T = Buffer> {
@@ -40,7 +40,7 @@ export default class Characteristic<
 
   public async read(): Promise<Value<C>> {
     const [puuid, suuid, uuid] = this.getUuids();
-    const buffer = await this.service.adapter.read(puuid, suuid, uuid);
+    const buffer = await this.getAdapter().read(puuid, suuid, uuid);
     return await this.decode(buffer);
   }
 
@@ -50,8 +50,7 @@ export default class Characteristic<
   ): Promise<void> {
     const [puuid, suuid, uuid] = this.getUuids();
     const buffer = await this.encode(value);
-    const adapter = this.service.adapter;
-    await adapter.write(puuid, suuid, uuid, buffer, withoutResponse);
+    await this.getAdapter().write(puuid, suuid, uuid, buffer, withoutResponse);
   }
 
   public async on(event: "notify", listener: Listener<C>): Promise<void> {
@@ -78,14 +77,14 @@ export default class Characteristic<
 
   private async startNotifing(): Promise<void> {
     const [puuid, suuid, uuid] = this.getUuids();
-    const adapter = this.service.adapter;
+    const adapter = this.getAdapter();
     adapter.on("read", this.onNotify.bind(this));
     await adapter.notify(puuid, suuid, uuid, true);
   }
 
   private async stopNotifing(): Promise<void> {
     const [puuid, suuid, uuid] = this.getUuids();
-    const adapter = this.service.adapter;
+    const adapter = this.getAdapter();
     adapter.off("read", this.onNotify.bind(this));
     await adapter.notify(puuid, suuid, uuid, false);
   }
@@ -94,6 +93,10 @@ export default class Characteristic<
     const [puuid, suuid, cuuid, data, isNotification] = params;
     if (!isNotification || !this.isThis(puuid, suuid, cuuid)) return;
     this.eventEmitter.emit("notify", await this.decode(data));
+  }
+
+  private getAdapter(): Adapter {
+    return this.service.peripheral.adapter;
   }
 
   private getUuids(): [PUUID, SUUID, CUUID] {
