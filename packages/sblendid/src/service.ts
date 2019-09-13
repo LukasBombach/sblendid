@@ -1,12 +1,15 @@
 import Adapter, { CharacteristicData } from "@sblendid/adapter-node";
-import Characteristic, { Converter } from "./characteristic";
+import Characteristic, { Converter, Value } from "./characteristic";
 import Peripheral from "./peripheral";
 
-export type Converters = Record<string, Converter<any>>;
+/* 
+export type ContererX<
+  C extends Converters,
+  N extends keyof C
+> = C[N] extends Converter<any> ? C : undefined;
 
-export type Name<C> = C extends Converters ? keyof C : CUUID;
 
-export type Value<C, N extends Name<C>> = C extends Converters
+export type Values<C, N extends Name<C>> = C extends Converters
   ? ConvertersValue<C, N>
   : Buffer;
 
@@ -18,6 +21,25 @@ type ConvertersValue<
   C extends Converters,
   N extends Name<C>
 > = C[N] extends Converter<infer V> ? V : never;
+
+// type ConvertersConverter<C extends Converters, N extends keyof C> = Pick<C, N>;
+
+export type Value<C, N extends Name<C>> = C extends Converters
+  ? N extends keyof C
+    ? C[N] extends Converter<infer V>
+      ? V
+      : never
+    : never
+  : Buffer;
+
+type ConvertersValue<
+  C extends Converters,
+  N extends Name<C>
+> = C[N] extends Converter<infer V> ? V : never;
+*/
+
+export type Converters = Record<string, Converter<any>>;
+export type Name<C> = C extends Converters ? keyof C : CUUID;
 
 export default class Service<C extends Converters | undefined = undefined> {
   public uuid: SUUID;
@@ -65,7 +87,7 @@ export default class Service<C extends Converters | undefined = undefined> {
 
   public async getCharacteristic<N extends Name<C>>(
     name: N
-  ): Promise<Characteristic<Value<C, N>>> {
+  ): Promise<Characteristic<>> {
     const uuid = this.getCUUID(name);
     const characteristics = await this.getCharacteristics();
     const characteristic = characteristics.find(c => c.uuid === uuid);
@@ -89,6 +111,13 @@ export default class Service<C extends Converters | undefined = undefined> {
     const converters = this.converters || {};
     const converter = Object.values(converters).find(c => c.uuid === uuid);
     return new Characteristic(this, uuid, properties, converter);
+  }
+
+  private getConverter<N extends Name<C>>(
+    uuid: CUUID
+  ): N extends keyof C ? C[N] : undefined {
+    const converters = this.converters || {};
+    return Object.values(converters).find(c => c.uuid === uuid);
   }
 
   private getCUUID(name: Name<C>): CUUID {
