@@ -50,6 +50,7 @@ export default class Characteristic<
   ): Promise<void> {
     const [puuid, suuid, uuid] = this.getUuids();
     const buffer = await this.encode(value);
+    console.log("write", puuid, suuid, uuid, buffer, withoutResponse);
     await this.getAdapter().write(puuid, suuid, uuid, buffer, withoutResponse);
   }
 
@@ -71,7 +72,11 @@ export default class Characteristic<
   }
 
   private async encode(value: Value<C>): Promise<Buffer> {
-    if (!this.converter || !this.converter.encode) return value;
+    if (!this.converter) return value;
+    if (!this.converter.encode)
+      throw new Error(
+        "Cannot write using a converter without an encode method"
+      );
     return await this.converter.encode(value);
   }
 

@@ -14,7 +14,8 @@ describe("Characteristic", () => {
   const name = "Find Me";
   const uuid = "2a29";
   const decode = (buffer: Buffer) => buffer.toString();
-  const converter = { uuid, decode };
+  const encode = (message: string) => Buffer.from(message, "utf8");
+  const converter = { uuid, decode, encode };
 
   let peripheral: Peripheral;
   let services: Service<any>[];
@@ -74,6 +75,15 @@ describe("Characteristic", () => {
   it("can write using a converter", async () => {
     const characteristic = new Characteristic(uuid, deviceInfo, { converter });
     await expect(characteristic.write("message")).resolves.toBe(undefined);
+  });
+
+  it("throws an error when writing using a converter without an encode fn", async () => {
+    const converter = { uuid, decode };
+    const characteristic = new Characteristic(uuid, deviceInfo, { converter });
+    const error = new Error(
+      "Cannot write using a converter without an encode method"
+    );
+    await expect(characteristic.write("message")).rejects.toEqual(error);
   });
 
   it("can notify using a UUID", async () => {
