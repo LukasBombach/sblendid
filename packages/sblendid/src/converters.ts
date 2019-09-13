@@ -14,6 +14,11 @@ type PickConverter<
   N extends Names<C>
 > = C extends Converters ? (N extends keyof C ? C[N] : undefined) : undefined;
 
+type PickConverterByUUID<
+  C extends MaybeConverters,
+  I extends CUUID
+> = C extends Converters ? C[string][I] : undefined;
+
 type Value<C extends MaybeConverters, N extends Names<C>> = PickConverter<
   C,
   N
@@ -40,6 +45,8 @@ const converters: MyConverters = {
     decode: (buffer: Buffer) => buffer.readInt16BE(0)
   }
 };
+
+const u: PickConverterByUUID<MyConverters, "a"> = "u";
 
 const a: Names<MyConverters> = "model";
 const b: Names<undefined> = "model";

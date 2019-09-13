@@ -26,12 +26,12 @@ export default class Characteristic<
   C extends Converter<any> | undefined = undefined
 > {
   public uuid: CUUID;
-  public service: Service;
+  public service: Service<any>;
   public properties: Properties;
   private eventEmitter = new EventEmitter();
   private converter?: C;
 
-  constructor(uuid: CUUID, service: Service, options: Options<C> = {}) {
+  constructor(uuid: CUUID, service: Service<any>, options: Options<C> = {}) {
     this.uuid = uuid;
     this.service = service;
     this.properties = options.properties || {};

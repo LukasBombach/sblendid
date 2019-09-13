@@ -85,11 +85,16 @@ export default class Service<C extends MaybeConverters = undefined> {
     return this.characteristics;
   }
 
-  private getCharactersticFromData(data: CharacteristicData): Characteristic {
+  private getCharactersticFromData(
+    data: CharacteristicData
+  ): Characteristic<any> {
     const { uuid, properties } = data;
     const converters = this.converters || {};
     const converter = Object.values(converters).find(c => c.uuid === uuid);
-    return new Characteristic(this, uuid, properties, converter);
+    return new Characteristic<any>(uuid, this, {
+      properties,
+      converter
+    });
   }
 
   private getCUUID(name: Names<C>): CUUID {
