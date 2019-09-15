@@ -1,3 +1,4 @@
+import { Params } from "@sblendid/adapter-node";
 import Sblendid from "../src/sblendid";
 import Peripheral from "../src/peripheral";
 import Service from "../src/service";
@@ -20,6 +21,10 @@ describe("Characteristic", () => {
   let peripheral: Peripheral;
   let services: Service<any>[];
   let deviceInfo: Service<any>;
+
+  function readParams(data: Buffer, notify: boolean): Params<"read"> {
+    return [peripheral.uuid, deviceInfo.uuid, uuid, data, notify];
+  }
 
   beforeAll(async () => {
     peripheral = await Sblendid.connect(name);
@@ -92,6 +97,7 @@ describe("Characteristic", () => {
       undefined
     );
   });
+
   it("can notify using a converter", async () => {
     const characteristic = new Characteristic(uuid, deviceInfo, { converter });
     await expect(characteristic.on("notify", () => {})).resolves.toBe(
@@ -99,6 +105,90 @@ describe("Characteristic", () => {
     );
   });
 
-  it.todo("can stop notifying using a UUID");
-  it.todo("can stop notifying using a converter");
+  it("emits a notify event", async () => {
+    const characteristic = new Characteristic(uuid, deviceInfo);
+    const { bindings } = characteristic.service.peripheral.adapter["bindings"];
+    const listener = jest.fn();
+    const data = Buffer.from("message", "utf8");
+    const params = readParams(data, true);
+    characteristic.on("notify", listener);
+    bindings.emit("read", ...params);
+    await new Promise(setImmediate);
+    expect(listener).toHaveBeenCalledWith(data);
+  });
+
+  it("emits a notify event using a converter", async () => {
+    const characteristic = new Characteristic(uuid, deviceInfo, { converter });
+    const { bindings } = characteristic.service.peripheral.adapter["bindings"];
+    const listener = jest.fn();
+    const message = "message";
+    const data = Buffer.from(message, "utf8");
+    const params = readParams(data, true);
+    characteristic.on("notify", listener);
+    bindings.emit("read", ...params);
+    await new Promise(setImmediate);
+    expect(listener).toHaveBeenCalledWith(message);
+  });
+
+  it("emit ignores non-notify read events", async () => {
+    const characteristic = new Characteristic(uuid, deviceInfo);
+    const { bindings } = characteristic.service.peripheral.adapter["bindings"];
+    const listener = jest.fn();
+    const data = Buffer.from("message", "utf8");
+    const params = readParams(data, false);
+    characteristic.on("notify", listener);
+    bindings.emit("read", ...params);
+    await new Promise(setImmediate);
+    expect(listener).not.toHaveBeenCalledWith(data);
+  });
+
+  it("can stop notifying using a UUID", async () => {
+    const characteristic = new Characteristic(uuid, deviceInfo);
+    const { bindings } = characteristic.service.peripheral.adapter["bindings"];
+    const listener = jest.fn();
+    const data = Buffer.from("message", "utf8");
+    const params = readParams(data, true);
+    characteristic.on("notify", listener);
+    characteristic.off("notify", listener);
+    bindings.emit("read", ...params);
+    await new Promise(setImmediate);
+    expect(listener).not.toHaveBeenCalledWith(data);
+  });
+
+  it("can stop notifying using a converter", async () => {
+    const characteristic = new Characteristic(uuid, deviceInfo, { converter });
+    const { bindings } = characteristic.service.peripheral.adapter["bindings"];
+    const listener = jest.fn();
+    const message = "message";
+    const data = Buffer.from(message, "utf8");
+    const params = readParams(data, true);
+    characteristic.on("notify", listener);
+    characteristic.off("notify", listener);
+    bindings.emit("read", ...params);
+    await new Promise(setImmediate);
+    expect(listener).not.toHaveBeenCalledWith(message);
+  });
+
+  it("starts notifications only once", async () => {
+    const characteristic = new Characteristic(uuid, deviceInfo);
+    const spy = jest.spyOn(characteristic.service.peripheral.adapter, "notify");
+    const listener = jest.fn();
+    const listener2 = jest.fn();
+    characteristic.on("notify", listener);
+    characteristic.on("notify", listener2);
+    expect(spy).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not stop notifications when there are still active listeners", async () => {
+    const characteristic = new Characteristic(uuid, deviceInfo);
+    const spy = jest.spyOn(characteristic.service.peripheral.adapter, "notify");
+    const listener = jest.fn();
+    const listener2 = jest.fn();
+    characteristic.on("notify", listener);
+    characteristic.on("notify", listener2);
+    spy.mockClear();
+    characteristic.off("notify", listener);
+    characteristic.off("notify", listener2);
+    expect(spy).toHaveBeenCalledTimes(1);
+  });
 });
