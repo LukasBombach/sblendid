@@ -10,6 +10,12 @@ export interface Options {
 
 export type ServiceConverters = Record<SUUID, MaybeConverters>;
 
+export type State =
+  | "connecting"
+  | "connected"
+  | "disconnecting"
+  | "disconnected";
+
 export default class Peripheral {
   public uuid: PUUID;
   public adapter: Adapter;
@@ -18,7 +24,7 @@ export default class Peripheral {
   public addressType: AddressType;
   public advertisement: Advertisement = {};
   public connectable?: boolean;
-  public state: PeripheralState = "disconnected";
+  public state: State = "disconnected";
   private serviceUuids?: SUUID[];
 
   constructor(uuid: PUUID, adapter: Adapter, options: Options) {

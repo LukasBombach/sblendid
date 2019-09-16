@@ -1,14 +1,13 @@
 import Adapter, {
   Params,
   Listener,
-  FindCondition as AdapterFindCondition
+  FindCondition
 } from "@sblendid/adapter-node";
-import Peripheral from "./peripheral";
+import Peripheral, { Options } from "./peripheral";
 
 export type PeripheralListener = (peripheral: Peripheral) => Promish<void>;
 export type FindFunction = (peripheral: Peripheral) => Promish<boolean>;
-export type FindCondition = FindFunction | string;
-type PeripheralData = Params<"discover">;
+export type Condition = FindFunction | string;
 
 export default class Sblendid {
   public adapter: Adapter = new Adapter();
@@ -20,7 +19,7 @@ export default class Sblendid {
     return sblendid;
   }
 
-  public static async connect(condition: FindCondition): Promise<Peripheral> {
+  public static async connect(condition: Condition): Promise<Peripheral> {
     const sblendid = await Sblendid.powerOn();
     const peripheral = await sblendid.find(condition);
     await peripheral.connect();
@@ -31,10 +30,11 @@ export default class Sblendid {
     await this.adapter.powerOn();
   }
 
-  public async find(condition: FindCondition): Promise<Peripheral> {
+  public async find(condition: Condition): Promise<Peripheral> {
     const adapterCondition = this.getAdapterCondition(condition);
-    const peripheralData = await this.adapter.find(adapterCondition);
-    return new Peripheral(this.adapter, peripheralData);
+    const discoverParams = await this.adapter.find(adapterCondition);
+    const [uuid, options] = this.parseDiscoverParams(discoverParams);
+    return new Peripheral(uuid, this.adapter, options);
   }
 
   public startScanning(listener?: PeripheralListener): void {
@@ -50,23 +50,24 @@ export default class Sblendid {
     this.adapter.stopScanning();
   }
 
-  private getAdapterCondition(condition: FindCondition): AdapterFindCondition {
+  private getAdapterCondition(condition: Condition): FindCondition {
     return typeof condition === "string"
       ? this.getConditionFromString(condition)
       : this.getConditionFromFunction(condition);
   }
 
-  private getConditionFromString(str: string): AdapterFindCondition {
-    return (...peripheralData: PeripheralData) => {
+  private getConditionFromString(str: string): FindCondition {
+    return (...peripheralData: Params<"discover">) => {
       const [uuid, address, , , advertisement] = peripheralData;
       const { localName } = advertisement;
       return [uuid, address, localName].includes(str);
     };
   }
 
-  private getConditionFromFunction(fn: FindFunction): AdapterFindCondition {
-    return (...peripheralData: PeripheralData) => {
-      const peripheral = new Peripheral(this.adapter, peripheralData);
+  private getConditionFromFunction(fn: FindFunction): FindCondition {
+    return (...discoverParams: Params<"discover">) => {
+      const [uuid, options] = this.parseDiscoverParams(discoverParams);
+      const peripheral = new Peripheral(uuid, this.adapter, options);
       return fn(peripheral);
     };
   }
@@ -74,7 +75,16 @@ export default class Sblendid {
   private getDiscoverListener(
     listener: PeripheralListener = () => {}
   ): Listener<"discover"> {
-    return (...data: Params<"discover">) =>
-      listener(new Peripheral(this.adapter, data));
+    return (...discoverParams: Params<"discover">) => {
+      const [uuid, options] = this.parseDiscoverParams(discoverParams);
+      const peripheral = new Peripheral(uuid, this.adapter, options);
+      listener(peripheral);
+    };
+  }
+
+  private parseDiscoverParams(data: Params<"discover">): [string, Options] {
+    const [uuid, address, addressType, connectable, advertisement] = data;
+    const options = { address, addressType, connectable, advertisement };
+    return [uuid, options];
   }
 }
