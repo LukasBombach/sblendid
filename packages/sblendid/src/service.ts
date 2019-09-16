@@ -22,16 +22,20 @@ export type Listener<C extends MaybeConverters, N extends Names<C>> = (
   value: PickValue<C, N>
 ) => Promish<void>;
 
+export interface Options<C extends MaybeConverters> {
+  converters?: C;
+}
+
 export default class Service<C extends MaybeConverters = undefined> {
   public uuid: SUUID;
   public peripheral: Peripheral;
   private converters?: Converters;
   private characteristics?: Characteristic<any>[];
 
-  constructor(peripheral: Peripheral, uuid: SUUID, converters?: C) {
+  constructor(uuid: SUUID, peripheral: Peripheral, options: Options<C> = {}) {
     this.uuid = uuid;
     this.peripheral = peripheral;
-    this.converters = converters;
+    this.converters = options.converters;
   }
 
   public async read<N extends Names<C>>(name: N): Promise<PickValue<C, N>> {
@@ -79,10 +83,14 @@ export default class Service<C extends MaybeConverters = undefined> {
     if (this.characteristics) return this.characteristics;
     const { adapter, uuid: puuid } = this.peripheral;
     const data = await adapter.getCharacteristics(puuid, this.uuid);
-    this.characteristics = data.map(data =>
-      this.getCharactersticFromData(data)
-    );
+    this.characteristics = this.mapCharactersticFromData(data);
     return this.characteristics;
+  }
+
+  private mapCharactersticFromData(
+    data: CharacteristicData[]
+  ): Characteristic<any>[] {
+    return data.map(data => this.getCharactersticFromData(data));
   }
 
   private getCharactersticFromData(
@@ -91,10 +99,8 @@ export default class Service<C extends MaybeConverters = undefined> {
     const { uuid, properties } = data;
     const converters = this.converters || {};
     const converter = Object.values(converters).find(c => c.uuid === uuid);
-    return new Characteristic<any>(uuid, this, {
-      properties,
-      converter
-    });
+    const options = { properties, converter };
+    return new Characteristic<any>(uuid, this, options);
   }
 
   private getCUUID(name: Names<C>): CUUID {
