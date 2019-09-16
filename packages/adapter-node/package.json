@@ -9,8 +9,7 @@
   ],
   "license": "MIT",
   "scripts": {
-    "build": "rollup -c rollup.config.ts",
-    "dev": "rollup -c rollup.config.ts -w"
+    "build": "rollup -c rollup.config.ts"
   },
   "devDependencies": {
     "@types/noble": "0.0.39",

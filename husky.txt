@@ -1,5 +1,0 @@
-note to self, husky cannot handle a commit message called
-
-yarn upgrade --lates
-
-so I need to do this bullshit commit
