@@ -1,34 +1,34 @@
-import Adapter, {
-  AddressType,
-  Advertisement,
-  Params
-} from "@sblendid/adapter-node";
-import Service from "./service";
-import { Converter } from "./characteristic";
+import Adapter, { AddressType, Advertisement } from "@sblendid/adapter-node";
+import Service, { MaybeConverters } from "./service";
+
+export interface Options {
+  address: string;
+  addressType: AddressType;
+  advertisement: Advertisement;
+  connectable?: boolean;
+}
+
+export type ServiceConverters = Record<SUUID, MaybeConverters>;
 
 export default class Peripheral {
-  public adapter: Adapter;
   public uuid: PUUID;
+  public adapter: Adapter;
   public name: string;
   public address: string;
   public addressType: AddressType;
-  public connectable?: boolean;
   public advertisement: Advertisement = {};
-  public manufacturerData: Buffer = Buffer.from("");
+  public connectable?: boolean;
   public state: PeripheralState = "disconnected";
   private serviceUuids?: SUUID[];
 
-  constructor(adapter: Adapter, props: Params<"discover">) {
-    const [uuid, address, addressType, connectable, advertisement] = props;
-    const { manufacturerData, localName } = advertisement;
-    this.adapter = adapter;
+  constructor(uuid: PUUID, adapter: Adapter, options: Options) {
     this.uuid = uuid;
-    this.address = address;
-    this.addressType = addressType;
-    this.connectable = connectable;
-    this.advertisement = advertisement;
-    this.manufacturerData = manufacturerData || Buffer.from("");
-    this.name = localName || this.manufacturerData.toString("hex");
+    this.adapter = adapter;
+    this.name = options.advertisement.localName || "";
+    this.address = options.address;
+    this.addressType = options.addressType;
+    this.advertisement = options.advertisement;
+    this.connectable = options.connectable;
   }
 
   public async connect(): Promise<void> {
@@ -45,23 +45,20 @@ export default class Peripheral {
     this.state = "disconnected";
   }
 
-  public async getService<C extends Converter<any>[]>(
+  public async getService<C extends MaybeConverters>(
     uuid: SUUID,
-    converters: C | [] = []
+    converters: C
   ): Promise<Service<C> | undefined> {
     const services = await this.getServices({ [uuid]: converters });
     return services.find(s => s.uuid === uuid);
   }
 
-  public async getServices<C extends Converter<any>[]>(
-    converterMap: Record<string, C> = {}
+  public async getServices(
+    serviceConverters?: ServiceConverters
   ): Promise<Service<any>[]> {
     if (this.state === "disconnected") await this.connect();
-    if (!this.serviceUuids)
-      this.serviceUuids = await this.adapter.getServices(this.uuid);
-    return this.serviceUuids.map(
-      uuid => new Service(this, uuid, converterMap[uuid])
-    );
+    const uuids = await this.getSUUIDs();
+    return uuids.map(uuid => this.getServiceForUUID(uuid, serviceConverters));
   }
 
   public async hasService(uuid: SUUID): Promise<boolean> {
@@ -76,5 +73,20 @@ export default class Peripheral {
 
   public isConnected(): boolean {
     return this.state === "connected";
+  }
+
+  // todo this can probably be mapped to Service<Converters>
+  private getServiceForUUID(
+    uuid: SUUID,
+    serviceConverters: ServiceConverters = {}
+  ): Service<any> {
+    const converters = serviceConverters[uuid];
+    return new Service(uuid, this, { converters });
+  }
+
+  private async getSUUIDs(): Promise<SUUID[]> {
+    if (this.serviceUuids) return this.serviceUuids;
+    this.serviceUuids = await this.adapter.getServices(this.uuid);
+    return this.serviceUuids;
   }
 }
