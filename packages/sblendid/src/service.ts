@@ -83,17 +83,17 @@ export default class Service<C extends MaybeConverters = undefined> {
     if (this.characteristics) return this.characteristics;
     const { adapter, uuid: puuid } = this.peripheral;
     const data = await adapter.getCharacteristics(puuid, this.uuid);
-    this.characteristics = this.mapCharactersticFromData(data);
+    this.characteristics = this.mapDataToCharacterstics(data);
     return this.characteristics;
   }
 
-  private mapCharactersticFromData(
+  private mapDataToCharacterstics(
     data: CharacteristicData[]
   ): Characteristic<any>[] {
-    return data.map(data => this.getCharactersticFromData(data));
+    return data.map(data => this.getCharactersticForData(data));
   }
 
-  private getCharactersticFromData(
+  private getCharactersticForData(
     data: CharacteristicData
   ): Characteristic<any> {
     const { uuid, properties } = data;
