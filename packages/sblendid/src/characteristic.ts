@@ -14,17 +14,16 @@ export interface Properties {
   notify?: boolean;
 }
 
-export interface Options<C extends Converter<any> | undefined> {
+export interface Options<C extends MaybeConverter> {
   properties?: Properties;
   converter?: C;
 }
 
 export type Value<C> = C extends Converter<infer V> ? V : Buffer;
 export type Listener<C> = (value: Value<C>) => Promish<void>;
+export type MaybeConverter = Converter<any> | undefined;
 
-export default class Characteristic<
-  C extends Converter<any> | undefined = undefined
-> {
+export default class Characteristic<C extends MaybeConverter = undefined> {
   public uuid: CUUID;
   public service: Service<any>;
   public properties: Properties;
@@ -61,36 +60,40 @@ export default class Characteristic<
 
   public async off(event: "notify", listener: Listener<C>): Promise<void> {
     this.eventEmitter.off(event, listener);
-    const isLastListener = this.eventEmitter.listenerCount("notify") === 0;
-    if (isLastListener) await this.stopNotifing();
+    const wasLastListener = this.eventEmitter.listenerCount("notify") === 0;
+    if (wasLastListener) await this.stopNotifing();
   }
 
   private async decode(buffer: Buffer): Promise<Value<C>> {
-    if (!this.converter || !this.converter.decode) return buffer as Value<C>; // todo hmm not right
+    const error = "Cannot read using a converter without a decode method";
+    if (!this.converter) return buffer as Value<C>;
+    if (!this.converter.decode) throw new Error(error);
     return await this.converter.decode(buffer);
   }
 
   private async encode(value: Value<C>): Promise<Buffer> {
+    const error = "Cannot write using a converter without an encode method";
     if (!this.converter) return value;
-    if (!this.converter.encode)
-      throw new Error(
-        "Cannot write using a converter without an encode method"
-      );
+    if (!this.converter.encode) throw new Error(error);
     return await this.converter.encode(value);
   }
 
   private async startNotifing(): Promise<void> {
     const [puuid, suuid, uuid] = this.getUuids();
+    const error = `Failed to turn on notifications for ${uuid}`;
     const adapter = this.getAdapter();
     adapter.on("read", this.onNotify.bind(this));
-    await adapter.notify(puuid, suuid, uuid, true);
+    const notify = await adapter.notify(puuid, suuid, uuid, true);
+    if (notify !== true) throw new Error(error);
   }
 
   private async stopNotifing(): Promise<void> {
     const [puuid, suuid, uuid] = this.getUuids();
+    const error = `Failed to turn off notifications for ${uuid}`;
     const adapter = this.getAdapter();
     adapter.off("read", this.onNotify.bind(this));
-    await adapter.notify(puuid, suuid, uuid, false);
+    const notify = await adapter.notify(puuid, suuid, uuid, false);
+    if (notify !== false) throw new Error(error);
   }
 
   private async onNotify(...params: Params<"read">): Promise<void> {
