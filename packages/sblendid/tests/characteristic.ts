@@ -162,7 +162,18 @@ describe("Characteristic", () => {
     expect(listener).toHaveBeenCalledWith(message);
   });
 
-  it.todo("emit ignores non-this-characteristics");
+  it("emit ignores non-this-characteristic read events", async () => {
+    const characteristic = new Characteristic(time.uuid, timeService);
+    const { bindings } = characteristic.service.peripheral.adapter["bindings"];
+    const listener = jest.fn();
+    const data = Buffer.from("message", "utf8");
+    const params = readParamsTime(data, true);
+    params[2] = "something else";
+    await characteristic.on("notify", listener);
+    bindings.emit("read", ...params);
+    await new Promise(setImmediate);
+    expect(listener).not.toHaveBeenCalled();
+  });
 
   it("emit ignores non-notify read events", async () => {
     const characteristic = new Characteristic(time.uuid, timeService);
@@ -173,7 +184,7 @@ describe("Characteristic", () => {
     await characteristic.on("notify", listener);
     bindings.emit("read", ...params);
     await new Promise(setImmediate);
-    expect(listener).not.toHaveBeenCalledWith(data);
+    expect(listener).not.toHaveBeenCalled();
   });
 
   it("can stop notifying using a UUID", async () => {
