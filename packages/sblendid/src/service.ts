@@ -1,3 +1,4 @@
+/// <reference path="./types.d.ts" />
 import { CharacteristicData } from "@sblendid/adapter-node";
 import Characteristic, { Converter, Value } from "./characteristic";
 import Peripheral from "./peripheral";

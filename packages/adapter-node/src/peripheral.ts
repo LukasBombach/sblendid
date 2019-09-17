@@ -2,12 +2,17 @@ import Bindings from "./bindings";
 
 export type AddressType = "public" | "random" | "unknown";
 
+export interface ServiceData {
+  uuid: string;
+  data: Buffer;
+}
+
 export interface Advertisement {
   localName?: string;
   txPowerLevel?: number;
   serviceUUIDs?: SUUID[];
   manufacturerData?: Buffer;
-  serviceData?: Buffer;
+  serviceData?: ServiceData[];
 }
 
 export default class Peripheral {

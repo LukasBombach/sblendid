@@ -99,14 +99,14 @@ describe("Peripheral", () => {
   it("gets all services from a peripheral (even disconnected)", async () => {
     await peripheral.disconnect();
     const services = await peripheral.getServices();
-    expect(services.map(s => s.uuid).sort()).toMatchSnapshot();
+    expect(services).toSatisfyAll(s => s instanceof Service);
   }, 10000);
 
   it("gets all services from a peripheral (with converters)", async () => {
     const converterMap = { [serviceUUID]: converters };
     const services = await peripheral.getServices(converterMap);
     const deviceInfoService = services.find(s => s.uuid === serviceUUID);
-    expect(services.map(s => s.uuid).sort()).toMatchSnapshot();
+    expect(services).toSatisfyAll(s => s instanceof Service);
     expect(deviceInfoService!["converters"]).toBe(converters);
   }, 10000);
 

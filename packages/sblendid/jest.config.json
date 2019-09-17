@@ -1,5 +1,6 @@
 {
   "preset": "ts-jest",
+  "setupFilesAfterEnv": ["jest-extended"],
   "testEnvironment": "node",
   "testMatch": ["<rootDir>/tests/*.[jt]s?(x)"],
   "collectCoverage": true,
