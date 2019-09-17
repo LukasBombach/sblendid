@@ -1,151 +1,116 @@
-import { NobleCharacteristic, Params } from "./bindings";
-import Adapter from "./adapter";
-import Service from "./service";
 import { EventEmitter } from "events";
+import Adapter, { Params } from "@sblendid/adapter-node";
+import Service from "./service";
 
-export interface Converter<T> {
+export interface Converter<T = Buffer> {
   uuid: CUUID;
-  encode?: Encoder<T>;
-  decode: Decoder<T>;
-  values?: T | T[];
+  decode?: (value: Buffer) => Promish<T>;
+  encode?: (value: T) => Promish<Buffer>;
 }
-export type Encoder<T> = (value: T) => Promise<Buffer> | Buffer;
-export type Decoder<T> = (value: Buffer) => Promise<T> | T;
 
-const defaultProperties: Properties = {
-  read: false,
-  write: false,
-  notify: false
-};
+export interface Properties {
+  read?: boolean;
+  write?: boolean;
+  notify?: boolean;
+}
 
-export default class Characteristic<T = Buffer> {
+export interface Options<C extends MaybeConverter> {
+  properties?: Properties;
+  converter?: C;
+}
+
+export type Value<C> = C extends Converter<infer V> ? V : Buffer;
+export type Listener<C> = (value: Value<C>) => Promish<void>;
+export type MaybeConverter = Converter<any> | undefined;
+
+export default class Characteristic<C extends MaybeConverter = undefined> {
   public uuid: CUUID;
-  public properties?: Properties;
   public service: Service<any>;
-  private adapter: Adapter;
-  private converter?: Converter<T>;
+  public properties: Properties;
   private eventEmitter = new EventEmitter();
-  private isNotifying = false;
+  private converter?: C;
 
-  public static fromNoble<T>(
-    service: Service<any>,
-    noble: NobleCharacteristic,
-    converter?: Converter<T>
-  ): Characteristic<T> {
-    const properties = Object.assign({}, defaultProperties);
-    for (const name of noble.properties) properties[name] = true;
-    return new Characteristic(service, noble.uuid, converter, properties);
-  }
-
-  constructor(
-    service: Service<any>,
-    uuid: CUUID,
-    converter?: Converter<T>,
-    properties?: Properties
-  ) {
-    this.service = service;
+  constructor(uuid: CUUID, service: Service<any>, options: Options<C> = {}) {
     this.uuid = uuid;
-    this.converter = converter;
-    this.properties = properties;
-    this.adapter = service.adapter;
+    this.service = service;
+    this.properties = options.properties || {};
+    this.converter = options.converter;
   }
 
-  public async read(): Promise<T> {
-    const buffer = await this.dispatchRead();
+  public async read(): Promise<Value<C>> {
+    const [puuid, suuid, uuid] = this.getUuids();
+    const buffer = await this.getAdapter().read(puuid, suuid, uuid);
     return await this.decode(buffer);
   }
 
-  public async write(value: T): Promise<void> {
+  public async write(
+    value: Value<C>,
+    withoutResponse?: boolean
+  ): Promise<void> {
+    const [puuid, suuid, uuid] = this.getUuids();
     const buffer = await this.encode(value);
-    await this.dispatchWrite(buffer);
+    await this.getAdapter().write(puuid, suuid, uuid, buffer, withoutResponse);
   }
 
-  public async on(
-    event: "notify",
-    listener: (value: T) => Promise<void> | void
-  ): Promise<void> {
+  public async on(event: "notify", listener: Listener<C>): Promise<void> {
     this.eventEmitter.on(event, listener);
-    if (!this.isNotifying) await this.startNotifing();
+    const isFirstListener = this.eventEmitter.listenerCount("notify") === 1;
+    if (isFirstListener) await this.startNotifing();
   }
 
-  public async off(
-    event: "notify",
-    listener: (value: T) => Promise<void> | void
-  ): Promise<void> {
-    if (this.eventEmitter.listenerCount("notify") <= 1)
-      await this.stopNotifing();
+  public async off(event: "notify", listener: Listener<C>): Promise<void> {
     this.eventEmitter.off(event, listener);
+    const wasLastListener = this.eventEmitter.listenerCount("notify") === 0;
+    if (wasLastListener) await this.stopNotifing();
   }
 
-  private async decode(buffer: Buffer): Promise<T> {
-    if (!this.converter || !this.converter.decode) return buffer as any;
+  private async decode(buffer: Buffer): Promise<Value<C>> {
+    const error = "Cannot read using a converter without a decode method";
+    if (!this.converter) return buffer as Value<C>;
+    if (!this.converter.decode) throw new Error(error);
     return await this.converter.decode(buffer);
   }
 
-  private async encode(value: T): Promise<Buffer> {
-    if (!this.converter || !this.converter.encode) return value as any;
+  private async encode(value: Value<C>): Promise<Buffer> {
+    const error = "Cannot write using a converter without an encode method";
+    if (!this.converter) return value;
+    if (!this.converter.encode) throw new Error(error);
     return await this.converter.encode(value);
   }
 
   private async startNotifing(): Promise<void> {
-    if (this.isNotifying) return;
-    this.adapter.on("read", this.onNotify.bind(this));
-    this.isNotifying = await this.notify(true);
+    const [puuid, suuid, uuid] = this.getUuids();
+    const error = `Failed to turn on notifications for ${uuid}`;
+    const adapter = this.getAdapter();
+    adapter.on("read", this.onNotify.bind(this));
+    const notify = await adapter.notify(puuid, suuid, uuid, true);
+    if (notify !== true) throw new Error(error);
   }
 
   private async stopNotifing(): Promise<void> {
-    if (!this.isNotifying) return;
-    this.adapter.off("read", this.onNotify.bind(this));
-    this.isNotifying = await this.notify(false);
+    const [puuid, suuid, uuid] = this.getUuids();
+    const error = `Failed to turn off notifications for ${uuid}`;
+    const adapter = this.getAdapter();
+    adapter.off("read", this.onNotify.bind(this));
+    const notify = await adapter.notify(puuid, suuid, uuid, false);
+    if (notify !== false) throw new Error(error);
   }
 
   private async onNotify(...params: Params<"read">): Promise<void> {
-    const [pUuid, sUuid, cUuid, data, isNfy] = params;
-    if (!isNfy || !this.isThis(pUuid, sUuid, cUuid)) return;
+    const [puuid, suuid, cuuid, data, isNotification] = params;
+    if (!isNotification || !this.isThis(puuid, suuid, cuuid)) return;
     this.eventEmitter.emit("notify", await this.decode(data));
   }
 
-  private isThis(pUuid: string, sUuid: SUUID, cUuid: CUUID): boolean {
-    return this.getUuids().every((v, i) => v === [pUuid, sUuid, cUuid][i]);
+  private getAdapter(): Adapter {
+    return this.service.peripheral.adapter;
   }
 
-  private getUuids(): [string, SUUID, CUUID] {
+  private getUuids(): [PUUID, SUUID, CUUID] {
     return [this.service.peripheral.uuid, this.service.uuid, this.uuid];
   }
 
-  private async dispatchRead(): Promise<Buffer> {
-    const [pUuid, sUuid, uuid] = this.getUuids();
-    return await this.adapter.run<"read", Buffer>(
-      () => this.adapter.read(pUuid, sUuid, uuid),
-      () => this.adapter.when("read", (p, s, c) => this.isThis(p, s, c)),
-      ([, , , buffer]) => buffer
-    );
-  }
-
-  // todo withoutResponse = false seems important, cannot publish without this param
-  // todo withoutResponse = false seems important, cannot publish without this param
-  // todo withoutResponse = false seems important, cannot publish without this param
-  // todo withoutResponse = false seems important, cannot publish without this param
-  // todo withoutResponse = false seems important, cannot publish without this param
-  // todo withoutResponse = false seems important, cannot publish without this param
-  // todo withoutResponse = false seems important, cannot publish without this param
-  // todo withoutResponse = false seems important, cannot publish without this param
-  // todo withoutResponse = false seems important, cannot publish without this param
-  // todo withoutResponse = false seems important, cannot publish without this param
-  private async dispatchWrite(value: Buffer): Promise<void> {
-    const [pUuid, sUuid, uuid] = this.getUuids();
-    await this.adapter.run<"write">(
-      () => this.adapter.write(pUuid, sUuid, uuid, value, false),
-      () => this.adapter.when("write", (p, s, c) => this.isThis(p, s, c))
-    );
-  }
-
-  private async notify(notify: boolean): Promise<boolean> {
-    const [pUuid, sUuid, uuid] = this.getUuids();
-    return await this.adapter.run<"notify", boolean>(
-      () => this.adapter.notify(pUuid, sUuid, uuid, notify),
-      () => this.adapter.when("notify", (p, s, c) => this.isThis(p, s, c)),
-      ([, , , state]) => state // todo this should not be an array??
-    );
+  private isThis(puuid: PUUID, suuid: SUUID, cuuid: CUUID): boolean {
+    return this.getUuids().every((v, i) => v === [puuid, suuid, cuuid][i]);
   }
 }

@@ -1,6 +1,6 @@
 {
-  "name": "sblendid",
-  "version": "1.0.0",
+  "name": "@sblendid/sblendid",
+  "version": "0.2.0",
   "main": "lib/index.cjs.js",
   "module": "lib/index.es.js",
   "types": "lib/src",
@@ -8,15 +8,18 @@
   "author": "Lukas Bombach <lukas.bombach@googlemail.com>",
   "license": "MIT",
   "scripts": {
-    "build": "rollup -c",
-    "dev": "rollup -w -c",
+    "build": "rollup -c rollup.config.ts",
+    "test": "jest -c jest.config.json",
     "example": "ts-node --project tsconfig.json"
   },
   "devDependencies": {
+    "@sblendid/adapter-node": "0.2.0",
+    "@types/jest": "24.0.18",
     "@types/noble": "0.0.39",
     "@types/node": "12.6.8",
     "@types/web-bluetooth": "0.0.4",
     "chalk": "2.4.2",
+    "jest": "24.9.0",
     "p-timeout": "3.1.0",
     "rollup": "1.17.0",
     "rollup-plugin-auto-external": "2.0.0",
@@ -25,8 +28,11 @@
     "rollup-plugin-node-resolve": "5.2.0",
     "rollup-plugin-terser": "5.1.1",
     "rollup-plugin-typescript2": "0.22.0",
+    "ts-jest": "24.0.2",
     "ts-node": "8.3.0",
     "typescript": "3.5.3"
   },
-  "dependencies": {}
+  "peerDependencies": {
+    "@sblendid/adapter-node": ">=0.2.0"
+  }
 }

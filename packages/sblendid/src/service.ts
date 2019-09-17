@@ -1,117 +1,112 @@
-import Adapter from "./adapter";
+import { CharacteristicData } from "@sblendid/adapter-node";
+import Characteristic, { Converter, Value } from "./characteristic";
 import Peripheral from "./peripheral";
-import Characteristic, { Converter } from "./characteristic";
-import { NobleCharacteristic as NBC } from "./bindings";
 
-export type Value<C, N extends keyof C> = C[N] extends Converter<infer R>
-  ? R
-  : never;
-export type Listener<C, N extends keyof C> = (
-  value: Value<C, N>
-) => Promise<void> | void;
+export type Converters = Record<string, Converter<any>>;
+export type MaybeConverters = Converters | undefined;
 
-export default class Service<C> {
-  public adapter: Adapter;
-  public peripheral: Peripheral;
+export type Names<C extends MaybeConverters> = C extends Converters
+  ? keyof C
+  : CUUID;
+
+export type PickConverter<
+  C extends MaybeConverters,
+  N extends Names<C>
+> = C extends Converters ? (N extends keyof C ? C[N] : undefined) : undefined;
+
+export type PickValue<C extends MaybeConverters, N extends Names<C>> = Value<
+  PickConverter<C, N>
+>;
+
+export type Listener<C extends MaybeConverters, N extends Names<C>> = (
+  value: PickValue<C, N>
+) => Promish<void>;
+
+export interface Options<C extends MaybeConverters> {
+  converters?: C;
+}
+
+export default class Service<C extends MaybeConverters = undefined> {
   public uuid: SUUID;
-  private converters?: C;
-  private characteristics?: Record<string, Characteristic>;
+  public peripheral: Peripheral;
+  private converters?: Converters;
+  private characteristics?: Characteristic<any>[];
 
-  constructor(peripheral: Peripheral, uuid: SUUID, converters?: C) {
-    this.peripheral = peripheral;
-    this.adapter = peripheral.adapter;
-    this.converters = this.validateConverters(converters);
+  constructor(uuid: SUUID, peripheral: Peripheral, options: Options<C> = {}) {
     this.uuid = uuid;
+    this.peripheral = peripheral;
+    this.converters = options.converters;
   }
 
-  public async read(name: keyof C): Promise<any> {
+  public async read<N extends Names<C>>(name: N): Promise<PickValue<C, N>> {
     const characteristic = await this.getCharacteristic(name);
     return await characteristic.read();
   }
 
-  public async write<N extends keyof C>(
+  public async write<N extends Names<C>>(
     name: N,
-    value: Value<C, N>
+    value: PickValue<C, N>,
+    withoutResponse?: boolean
   ): Promise<void> {
     const characteristic = await this.getCharacteristic(name);
-    await characteristic.write(value);
+    await characteristic.write(value, withoutResponse);
   }
 
-  public async on<N extends keyof C>(name: N, listener: Listener<C, N>) {
+  public async on<N extends Names<C>>(
+    name: N,
+    listener: Listener<C, N>
+  ): Promise<void> {
     const characteristic = await this.getCharacteristic(name);
     await characteristic.on("notify", listener);
   }
 
-  public async off<N extends keyof C>(name: N, listener: Listener<C, N>) {
+  public async off<N extends Names<C>>(
+    name: N,
+    listener: Listener<C, N>
+  ): Promise<void> {
     const characteristic = await this.getCharacteristic(name);
     await characteristic.off("notify", listener);
   }
 
-  private async getCharacteristic<N extends keyof C>(
+  public async getCharacteristic<N extends Names<C>>(
     name: N
-  ): Promise<Characteristic<Value<C, N>>> {
+  ): Promise<Characteristic<PickConverter<C, N>>> {
+    const uuid = this.getCUUID(name);
     const characteristics = await this.getCharacteristics();
-    const converter = this.getConverter(name);
-    if (!converter) throw new Error(`Cannot find converter for ${name}`);
-    const characteristic = characteristics[converter.uuid];
-    if (!characteristic)
-      throw new Error(`Cannot find characteristic for ${name}`);
-    return characteristic as any;
+    const characteristic = characteristics.find(c => c.uuid === uuid);
+    const errorMessage = `Cannot find Characteristic for "${name}"`;
+    if (!characteristic) throw new Error(errorMessage);
+    return characteristic;
   }
 
-  public async getCharacteristics(): Promise<Record<string, Characteristic>> {
+  public async getCharacteristics(): Promise<Characteristic<any>[]> {
     if (this.characteristics) return this.characteristics;
-    const nobles = await this.fetchCharacteristics();
-    const characteristics = nobles.map(nbc => this.getCFromN(nbc));
-    this.characteristics = this.uuidMap<Characteristic>(characteristics);
+    const { adapter, uuid: puuid } = this.peripheral;
+    const data = await adapter.getCharacteristics(puuid, this.uuid);
+    this.characteristics = this.mapDataToCharacterstics(data);
     return this.characteristics;
   }
 
-  private validateConverters(converters?: C): C | undefined {
-    if (typeof converters === "undefined") return undefined;
-    const uuids = Object.values(converters).map(c => c.uuid);
-    const hasDuplicates = new Set(uuids).size !== uuids.length;
-    if (hasDuplicates) throw new Error("Duplicate UUIDs"); // todo better error message
-    return converters;
+  private mapDataToCharacterstics(
+    data: CharacteristicData[]
+  ): Characteristic<any>[] {
+    return data.map(data => this.getCharactersticForData(data));
   }
 
-  private getIds(): [string, SUUID] {
-    return [this.peripheral.uuid, this.uuid];
+  private getCharactersticForData(
+    data: CharacteristicData
+  ): Characteristic<any> {
+    const { uuid, properties } = data;
+    const converters = this.converters || {};
+    const converter = Object.values(converters).find(c => c.uuid === uuid);
+    const options = { properties, converter };
+    return new Characteristic<any>(uuid, this, options);
   }
 
-  private isThis(puuid: string, suuid: SUUID): boolean {
-    return puuid === this.peripheral.uuid && suuid === this.uuid;
-  }
-
-  private getConverter<N extends keyof C>(
-    name: N
-  ): Converter<Value<C, N>> | undefined {
-    if (!this.converters) return;
-    if (this.converters[name]) return this.converters[name] as any;
-    return Object.values(this.converters).find(
-      c => c.uuid === (name as string)
-    );
-  }
-
-  private uuidMap<T extends { uuid: CUUID }>(arr: T[]): Record<string, T> {
-    return arr.reduce((o, c) => ({ ...o, [c.uuid]: c }), {});
-  }
-
-  private getCFromN(nbc: NBC): Characteristic {
-    return Characteristic.fromNoble(
-      this,
-      nbc,
-      this.getConverter(nbc.uuid as any)
-    ) as any;
-  }
-
-  private async fetchCharacteristics(): Promise<NBC[]> {
-    const [puuid, uuid] = this.getIds();
-    const isThis = (p: string, s: SUUID) => this.isThis(p, s);
-    return await this.adapter.run<"characteristicsDiscover", NBC[]>(
-      () => this.adapter.discoverCharacteristics(puuid, uuid, []),
-      () => this.adapter.when("characteristicsDiscover", isThis),
-      ([, , characteristics]) => characteristics
-    );
+  private getCUUID(name: Names<C>): CUUID {
+    if (typeof name === "number") return name;
+    if (!this.converters) return name as CUUID;
+    const converter = this.converters[name as string];
+    return converter ? converter.uuid : (name as CUUID);
   }
 }

@@ -1,24 +1,26 @@
-export type EventName = keyof Events;
-export type EventListener<E extends EventName> = (
-  ...params: Parameters<Events[E]>
-) => Promise<void | boolean> | void | boolean;
-export type EventParameters<E extends EventName> = Parameters<Events[E]>;
-export type EventReturnType<E extends EventName> = ReturnType<Events[E]>;
-export type Event = EventName;
-export type Listener<E extends EventName> = EventListener<E>;
-export type Params<E extends EventName> = EventParameters<E>;
-export type Return<E extends EventName> = EventReturnType<E>;
+export type Event = keyof Events;
+export type Params<E extends Event> = Parameters<Events[E]>;
+export type Value<E extends Event> = ReturnType<Events[E]>;
+export type Listener<E extends Event> = (
+  ...params: Params<E>
+) => Promish<void | boolean>;
+
 export type State = "poweredOn";
 export type AddressType = "public" | "random" | "unknown";
 export type NotifyState = boolean;
 export type NobleCharacteristicProperty = "read" | "write" | "notify";
+
+export interface ServiceData {
+  uuid: string;
+  data: Buffer;
+}
 
 export interface Advertisement {
   localName?: string;
   txPowerLevel?: number;
   serviceUuids?: BluetoothServiceUUID[];
   manufacturerData?: Buffer;
-  serviceData?: Buffer;
+  serviceData?: ServiceData[];
 }
 
 export interface NobleCharacteristic {
@@ -215,19 +217,19 @@ declare class Bindings {
     withoutResponse: boolean
   ): void;
 
-  on<E extends EventName>(
+  on<E extends Event>(
     event: E,
-    listener: EventListener<E>
+    listener: Listener<E>
   ): Promise<void | boolean> | void | boolean;
 
-  off<E extends EventName>(
+  off<E extends Event>(
     event: E,
-    listener: EventListener<E>
+    listener: Listener<E>
   ): Promise<void | boolean> | void | boolean;
 
-  once<E extends EventName>(
+  once<E extends Event>(
     event: E,
-    listener: EventListener<E>
+    listener: Listener<E>
   ): Promise<void | boolean> | void | boolean;
 }
 

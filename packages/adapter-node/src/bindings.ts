@@ -1,23 +1,18 @@
-import Bindings, { Event, Listener, Params } from "./bindings";
+import Bindings, { Event, Listener, Params } from "./types/bindings";
+import NativeBindings from "./native";
 import Queue from "../src/queue";
-import Peripheral from "./peripheral";
 
 export type Action = () => Promish<void>;
 export type When<E extends Event> = () => Promise<Params<E>>;
 export type Post<E extends Event, ReturnValue = Params<E>> = (
   params: Params<E>
 ) => Promish<ReturnValue | void>;
-
-export type PeripheralListener = (
-  peripheral: Peripheral
-) => Promish<void | boolean>;
+export type WhenCondition<E extends Event> = (
+  ...params: Params<E>
+) => Promish<boolean>;
 
 export default class Adapter {
-  private bindings: Bindings;
-
-  constructor(bindings: Bindings) {
-    this.bindings = bindings;
-  }
+  private bindings: Bindings = new NativeBindings();
 
   init(): void {
     this.bindings.init();
@@ -184,24 +179,15 @@ export default class Adapter {
     this.bindings.writeHandle(peripheralUuid, handle, data, withoutResponse);
   }
 
-  on<E extends Event>(
-    event: E,
-    listener: Listener<E>
-  ): Promise<void | boolean> | void | boolean {
+  on<E extends Event>(event: E, listener: Listener<E>): void {
     this.bindings.on(event, listener);
   }
 
-  off<E extends Event>(
-    event: E,
-    listener: Listener<E>
-  ): Promise<void | boolean> | void | boolean {
+  off<E extends Event>(event: E, listener: Listener<E>): void {
     this.bindings.off(event, listener);
   }
 
-  once<E extends Event>(
-    event: E,
-    listener: Listener<E>
-  ): Promise<void | boolean> | void | boolean {
+  once<E extends Event>(event: E, listener: Listener<E>): void {
     this.bindings.once(event, listener);
   }
 
@@ -222,9 +208,9 @@ export default class Adapter {
 
   public when<E extends Event>(
     event: E,
-    condition: Listener<E>
+    condition: WhenCondition<E>
   ): Promise<Params<E>> {
-    return new Promise<Params<E>>((resolve, reject) => {
+    return new Promise<Params<E>>(resolve => {
       const queue = new Queue();
       const listener = async (...params: Params<E>) => {
         const conditionIsMet = await queue.add(() => condition(...params));
@@ -233,10 +219,5 @@ export default class Adapter {
       };
       this.on(event, listener);
     });
-  }
-
-  public asPeripheral(listener: PeripheralListener): Listener<"discover"> {
-    return (...args: Params<"discover">) =>
-      listener(Peripheral.fromDiscover(this, args));
   }
 }
