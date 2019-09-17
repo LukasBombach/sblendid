@@ -81,6 +81,18 @@ describe("Characteristic", () => {
     expect(value.toString()).toMatch(/.+/);
   });
 
+  it("throws an error when reading using a converter without a decode fn", async () => {
+    const { uuid, encode } = manufacturer;
+    const converter = { uuid, encode };
+    const characteristic = new Characteristic(manufacturer.uuid, deviceInfo, {
+      converter
+    });
+    const error = new Error(
+      "Cannot read using a converter without a decode method"
+    );
+    await expect(characteristic.read()).rejects.toEqual(error);
+  });
+
   it("can write using a UUID", async () => {
     const characteristic = new Characteristic(manufacturer.uuid, deviceInfo);
     await expect(characteristic.write(Buffer.from("message"))).resolves.toBe(
@@ -220,9 +232,19 @@ describe("Characteristic", () => {
   it("throws when listening for notifications on a non-notifiable characteristic", async () => {
     const characteristic = new Characteristic(manufacturer.uuid, deviceInfo);
     const listener = jest.fn();
-    const error = new Error(
-      `Failed to turn on notifications for ${manufacturer.uuid}`
-    );
+    const message = `Failed to turn on notifications for ${manufacturer.uuid}`;
+    const error = new Error(message);
     await expect(characteristic.on("notify", listener)).rejects.toEqual(error);
+  });
+
+  it("throws when stopping to listen for notifications on a non-notifiable characteristic", async () => {
+    const characteristic = new Characteristic(manufacturer.uuid, deviceInfo);
+    jest
+      .spyOn(characteristic.service.peripheral.adapter, "notify")
+      .mockImplementationOnce(() => Promise.resolve(true));
+    const listener = jest.fn();
+    const message = `Failed to turn off notifications for ${manufacturer.uuid}`;
+    const error = new Error(message);
+    await expect(characteristic.off("notify", listener)).rejects.toEqual(error);
   });
 });
