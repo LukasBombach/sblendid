@@ -1,5 +1,7 @@
+import Joi from "@hapi/joi";
 import NodeAdapter, { Params } from "../src/index";
 import { first, count } from "./utils/events";
+import { ArrayOfBluetoothServiceUUIDs } from "./utils/types";
 import { isConnectable, hasName } from "./utils/peripheral";
 import "./matchers/schema";
 import "./matchers/events";
@@ -60,7 +62,7 @@ describe("SblendidNodeAdapter", () => {
 
   it("reads service puuids from a peripheral", async () => {
     const services = await adapter.getServices(puuid);
-    expect(services.sort()).toMatchSnapshot();
+    expect(services).toMatchSchema(ArrayOfBluetoothServiceUUIDs);
   });
 
   it("reads a peripherals RSSI", async () => {

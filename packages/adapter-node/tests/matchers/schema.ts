@@ -3,7 +3,7 @@ import { AnySchema, ValidationOptions } from "@hapi/joi";
 declare global {
   namespace jest {
     interface Matchers<R> {
-      toBeEvent(schema: AnySchema, options?: ValidationOptions): R;
+      toMatchSchema(schema: AnySchema, options?: ValidationOptions): R;
     }
   }
 }
