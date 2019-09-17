@@ -93,7 +93,6 @@ export default class Characteristic<C extends MaybeConverter = undefined> {
     const adapter = this.getAdapter();
     adapter.off("read", this.onNotify.bind(this));
     const notify = await adapter.notify(puuid, suuid, uuid, false);
-    console.log(notify)
     if (notify !== false) throw new Error(error);
   }
 

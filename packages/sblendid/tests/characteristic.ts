@@ -240,7 +240,7 @@ describe("Characteristic", () => {
     expect(spy).toHaveBeenCalledTimes(1);
   });
 
-  it("throws when listening for notifications on a non-notifiable characteristic", async () => {
+  it.skip("throws when listening for notifications on a non-notifiable characteristic", async () => {
     const characteristic = new Characteristic(manufacturer.uuid, deviceInfo);
     const listener = jest.fn();
     const message = `Failed to turn on notifications for ${manufacturer.uuid}`;
@@ -248,7 +248,7 @@ describe("Characteristic", () => {
     await expect(characteristic.on("notify", listener)).rejects.toEqual(error);
   });
 
-  it("throws when stopping to listen for notifications on a non-notifiable characteristic", async () => {
+  it.skip("throws when stopping to listen for notifications on a non-notifiable characteristic", async () => {
     const characteristic = new Characteristic(manufacturer.uuid, deviceInfo);
     jest
       .spyOn(characteristic.service.peripheral.adapter, "notify")
