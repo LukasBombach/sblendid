@@ -5,18 +5,16 @@ import Service from "../src/service";
 describe("Peripheral", () => {
   const name = "Find Me";
   const serviceUUID = "180a";
-  const converters = [
-    {
+  const converters = {
+    manufacturer: {
       uuid: "2a29",
-      name: "manufacturer",
       decode: (buffer: Buffer) => buffer.toString()
     },
-    {
+    model: {
       uuid: "2a24",
-      name: "model",
       decode: (buffer: Buffer) => buffer.toString()
     }
-  ];
+  };
   let connnectSpy: jest.SpyInstance<Promise<void>, [string]>;
   let disconnnectSpy: jest.SpyInstance<Promise<void>, [string]>;
   let peripheral: Peripheral;

@@ -53,9 +53,10 @@ export default class Peripheral {
 
   public async getService<C extends MaybeConverters>(
     uuid: SUUID,
-    converters: C
+    converters?: C
   ): Promise<Service<C> | undefined> {
-    const services = await this.getServices({ [uuid]: converters });
+    const serviceConverters = converters ? { [uuid]: converters } : undefined;
+    const services = await this.getServices(serviceConverters);
     return services.find(s => s.uuid === uuid);
   }
 
