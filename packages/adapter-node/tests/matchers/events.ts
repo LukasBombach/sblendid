@@ -12,7 +12,7 @@ declare global {
 
 const bluetoothServiceUUID = Joi.alternatives(
   Joi.string().guid(),
-  Joi.number().positive()
+  Joi.number()
 );
 
 const bluetoothServiceUUIDArray = Joi.array().items(bluetoothServiceUUID);
@@ -55,12 +55,12 @@ expect.extend({
 
     return error
       ? {
-          message: () =>
-            `expected ${received} does not matche the event ${argument}`,
+          message: () => `expected ${received} to match the event ${argument}`,
           pass: false
         }
       : {
-          message: () => `expected ${received} matches the event ${argument}`,
+          message: () =>
+            `expected ${received} not to match the event ${argument}`,
           pass: true
         };
   }

@@ -1,12 +1,19 @@
-import NodeAdapter from "../src/index";
+import NodeAdapter, { Params } from "../src/index";
 import { first, count } from "./utils/events";
+import { isConnectable, hasName } from "./utils/peripheral";
+import "./matchers/schema";
 import "./matchers/events";
 
 describe("SblendidNodeAdapter", () => {
   const adapter = new NodeAdapter();
+  const name = "Find Me";
+  let peripheral: Params<"discover">;
+  let puuid: string;
 
   beforeAll(async () => {
     await adapter.powerOn();
+    peripheral = await adapter.find(hasName(name));
+    puuid = peripheral[0];
   });
 
   it("enables the usage of the BLE adapter", async () => {
@@ -20,37 +27,44 @@ describe("SblendidNodeAdapter", () => {
     await expect(secondAdapter.powerOn()).not.rejects.toThrow();
   });
 
-  it(`can scan for peripherals`, async () => {
+  it(`scans for peripherals`, async () => {
     adapter.startScanning();
     await expect(first(adapter, "discover")).resolves.toBeEvent("discover");
     adapter.stopScanning();
   });
 
-  it("can stop scanning for peripherals", async () => {
+  it("stops scanning for peripherals", async () => {
     adapter.startScanning();
     await first(adapter, "discover");
     adapter.stopScanning();
     await expect(count(adapter, "discover", 400)).resolves.toBe(0);
   });
 
-  it("", async () => {
-    // find(condition: FindCondition): Promise<Params<"discover">>
+  it("finds a peripheral", async () => {
+    let peripheralFound: Params<"discover">;
+    const condition = isConnectable(p => (peripheralFound = p));
+    const peripheral = await adapter.find(condition);
+    expect(peripheral).toBeEvent("discover");
+    expect(peripheral).toBe(peripheralFound!);
   });
 
-  it("", async () => {
-    // connect(pUUID: PUUID): Promise<void>
+  it("connects without throwing an error", async () => {
+    await expect(adapter.connect(puuid)).resolves.toBe(undefined);
+    await adapter.disconnect(puuid);
   });
 
-  it("", async () => {
-    // disconnect(pUUID: PUUID): Promise<void>
+  it("disconnect without throwing an error", async () => {
+    await adapter.connect(puuid);
+    await expect(adapter.disconnect(puuid)).resolves.toBe(undefined);
   });
 
-  it("", async () => {
-    // getServices(pUUID: PUUID): Promise<SUUID[]>
+  it("reads service puuids from a peripheral", async () => {
+    const services = await adapter.getServices(puuid);
+    expect(services.sort()).toMatchSnapshot();
   });
 
-  it("", async () => {
-    // getRssi(pUUID: PUUID): Promise<number>
+  it("reads a peripherals RSSI", async () => {
+    await expect(adapter.getRssi(puuid)).resolves.toBe(expect.any(Number));
   });
 
   it("", async () => {
@@ -65,15 +79,11 @@ describe("SblendidNodeAdapter", () => {
     /* public getCharacteristics(
       pUUID: PUUID,
       sUUID: SUUID
-    ): Promise<CharacteristicData[]> {
-      return this.service.getCharacteristics(pUUID, sUUID);
-    } */
+    ): Promise<CharacteristicData[]>*/
   });
 
   it("", async () => {
-    /* public read(pUUID: PUUID, sUUID: SUUID, cUUID: CUUID): Promise<Buffer> {
-    return this.characteristic.read(pUUID, sUUID, cUUID);
-  } */
+    /* public read(pUUID: PUUID, sUUID: SUUID, cUUID: CUUID): Promise<Buffer>  */
   });
 
   it("", async () => {
@@ -83,15 +93,7 @@ describe("SblendidNodeAdapter", () => {
     cUUID: CUUID,
     value: Buffer,
     withoutResponse = false
-  ): Promise<void> {
-    return this.characteristic.write(
-      pUUID,
-      sUUID,
-      cUUID,
-      value,
-      withoutResponse
-    );
-  } */
+  ): Promise<void>  */
   });
 
   it("", async () => {
@@ -100,8 +102,6 @@ describe("SblendidNodeAdapter", () => {
     sUUID: SUUID,
     cUUID: CUUID,
     notify: boolean
-  ): Promise<boolean> {
-    return this.characteristic.notify(pUUID, sUUID, cUUID, notify);
-  } */
+  ): Promise<boolean> */
   });
 });
