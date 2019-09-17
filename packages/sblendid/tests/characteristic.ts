@@ -12,26 +12,35 @@ type ConstructorPerumtation = [
 ];
 
 describe("Characteristic", () => {
-  const name = "Find Me";
-  const uuid = "2a29";
-  const decode = (buffer: Buffer) => buffer.toString();
-  const encode = (message: string) => Buffer.from(message, "utf8");
-  const converter = { uuid, decode, encode };
+  const peripheralName = "Find Me";
 
   let peripheral: Peripheral;
   let services: Service<any>[];
   let deviceInfo: Service<any>;
+  let timeService: Service<any>;
 
-  function readParams(data: Buffer, notify: boolean): Params<"read"> {
-    return [peripheral.uuid, deviceInfo.uuid, uuid, data, notify];
+  const manufacturer = {
+    uuid: "2a29",
+    decode: (buffer: Buffer) => buffer.toString(),
+    encode: (message: string) => Buffer.from(message, "utf8")
+  };
+
+  const time = {
+    uuid: "2a2b",
+    decode: (buffer: Buffer) => buffer.toString()
+  };
+
+  function readParamsTime(data: Buffer, notify: boolean): Params<"read"> {
+    return [peripheral.uuid, timeService.uuid, time.uuid, data, notify];
   }
 
   beforeAll(async () => {
-    peripheral = await Sblendid.connect(name);
+    peripheral = await Sblendid.connect(peripheralName);
     services = await peripheral.getServices();
     deviceInfo = services.find(s => s.uuid === "180a")!;
-    // todo again, this need to be done before this works, which is not cool
+    timeService = services.find(s => s.uuid === "1805")!;
     await deviceInfo.getCharacteristics();
+    await timeService.getCharacteristics();
   }, 10000);
 
   afterAll(async () => {
@@ -40,10 +49,10 @@ describe("Characteristic", () => {
 
   it("can be instantiated", async () => {
     const permutations: ConstructorPerumtation[] = [
-      [deviceInfo, uuid, undefined, undefined],
-      [deviceInfo, uuid, { read: true }, undefined],
-      [deviceInfo, uuid, undefined, converter],
-      [deviceInfo, uuid, { read: true }, converter]
+      [deviceInfo, manufacturer.uuid, undefined, undefined],
+      [deviceInfo, manufacturer.uuid, { read: true }, undefined],
+      [deviceInfo, manufacturer.uuid, undefined, manufacturer],
+      [deviceInfo, manufacturer.uuid, { read: true }, manufacturer]
     ];
 
     for (const [service, uuid, properties, converter] of permutations) {
@@ -57,34 +66,41 @@ describe("Characteristic", () => {
   });
 
   it("can read using a UUID", async () => {
-    const characteristic = new Characteristic(uuid, deviceInfo);
+    const characteristic = new Characteristic(manufacturer.uuid, deviceInfo);
     const buffer = await characteristic.read();
     expect(buffer).toBeInstanceOf(Buffer);
     expect(buffer.toString()).toMatch(/.+/);
   });
 
   it("can read using a converter", async () => {
-    const characteristic = new Characteristic(uuid, deviceInfo, { converter });
+    const characteristic = new Characteristic(manufacturer.uuid, deviceInfo, {
+      converter: manufacturer
+    });
     const value = await characteristic.read();
     expect(typeof value).toBe("string");
     expect(value.toString()).toMatch(/.+/);
   });
 
   it("can write using a UUID", async () => {
-    const characteristic = new Characteristic(uuid, deviceInfo);
+    const characteristic = new Characteristic(manufacturer.uuid, deviceInfo);
     await expect(characteristic.write(Buffer.from("message"))).resolves.toBe(
       undefined
     );
   });
 
   it("can write using a converter", async () => {
-    const characteristic = new Characteristic(uuid, deviceInfo, { converter });
+    const characteristic = new Characteristic(manufacturer.uuid, deviceInfo, {
+      converter: manufacturer
+    });
     await expect(characteristic.write("message")).resolves.toBe(undefined);
   });
 
   it("throws an error when writing using a converter without an encode fn", async () => {
+    const { uuid, decode } = manufacturer;
     const converter = { uuid, decode };
-    const characteristic = new Characteristic(uuid, deviceInfo, { converter });
+    const characteristic = new Characteristic(manufacturer.uuid, deviceInfo, {
+      converter
+    });
     const error = new Error(
       "Cannot write using a converter without an encode method"
     );
@@ -92,25 +108,27 @@ describe("Characteristic", () => {
   });
 
   it("can notify using a UUID", async () => {
-    const characteristic = new Characteristic(uuid, deviceInfo);
+    const characteristic = new Characteristic(time.uuid, timeService);
     await expect(characteristic.on("notify", () => {})).resolves.toBe(
       undefined
     );
   });
 
   it("can notify using a converter", async () => {
-    const characteristic = new Characteristic(uuid, deviceInfo, { converter });
+    const characteristic = new Characteristic(time.uuid, timeService, {
+      converter: time
+    });
     await expect(characteristic.on("notify", () => {})).resolves.toBe(
       undefined
     );
   });
 
   it("emits a notify event", async () => {
-    const characteristic = new Characteristic(uuid, deviceInfo);
+    const characteristic = new Characteristic(time.uuid, timeService);
     const { bindings } = characteristic.service.peripheral.adapter["bindings"];
     const listener = jest.fn();
     const data = Buffer.from("message", "utf8");
-    const params = readParams(data, true);
+    const params = readParamsTime(data, true);
     characteristic.on("notify", listener);
     bindings.emit("read", ...params);
     await new Promise(setImmediate);
@@ -118,12 +136,14 @@ describe("Characteristic", () => {
   });
 
   it("emits a notify event using a converter", async () => {
-    const characteristic = new Characteristic(uuid, deviceInfo, { converter });
+    const characteristic = new Characteristic(time.uuid, timeService, {
+      converter: time
+    });
     const { bindings } = characteristic.service.peripheral.adapter["bindings"];
     const listener = jest.fn();
     const message = "message";
     const data = Buffer.from(message, "utf8");
-    const params = readParams(data, true);
+    const params = readParamsTime(data, true);
     characteristic.on("notify", listener);
     bindings.emit("read", ...params);
     await new Promise(setImmediate);
@@ -131,11 +151,11 @@ describe("Characteristic", () => {
   });
 
   it("emit ignores non-notify read events", async () => {
-    const characteristic = new Characteristic(uuid, deviceInfo);
+    const characteristic = new Characteristic(time.uuid, timeService);
     const { bindings } = characteristic.service.peripheral.adapter["bindings"];
     const listener = jest.fn();
     const data = Buffer.from("message", "utf8");
-    const params = readParams(data, false);
+    const params = readParamsTime(data, false);
     characteristic.on("notify", listener);
     bindings.emit("read", ...params);
     await new Promise(setImmediate);
@@ -143,11 +163,11 @@ describe("Characteristic", () => {
   });
 
   it("can stop notifying using a UUID", async () => {
-    const characteristic = new Characteristic(uuid, deviceInfo);
+    const characteristic = new Characteristic(time.uuid, timeService);
     const { bindings } = characteristic.service.peripheral.adapter["bindings"];
     const listener = jest.fn();
     const data = Buffer.from("message", "utf8");
-    const params = readParams(data, true);
+    const params = readParamsTime(data, true);
     characteristic.on("notify", listener);
     characteristic.off("notify", listener);
     bindings.emit("read", ...params);
@@ -156,12 +176,14 @@ describe("Characteristic", () => {
   });
 
   it("can stop notifying using a converter", async () => {
-    const characteristic = new Characteristic(uuid, deviceInfo, { converter });
+    const characteristic = new Characteristic(time.uuid, timeService, {
+      converter: manufacturer
+    });
     const { bindings } = characteristic.service.peripheral.adapter["bindings"];
     const listener = jest.fn();
     const message = "message";
     const data = Buffer.from(message, "utf8");
-    const params = readParams(data, true);
+    const params = readParamsTime(data, true);
     characteristic.on("notify", listener);
     characteristic.off("notify", listener);
     bindings.emit("read", ...params);
@@ -170,7 +192,7 @@ describe("Characteristic", () => {
   });
 
   it("starts notifications only once", async () => {
-    const characteristic = new Characteristic(uuid, deviceInfo);
+    const characteristic = new Characteristic(time.uuid, timeService);
     const spy = jest.spyOn(characteristic.service.peripheral.adapter, "notify");
     const listener = jest.fn();
     const listener2 = jest.fn();
@@ -180,7 +202,7 @@ describe("Characteristic", () => {
   });
 
   it("does not stop notifications when there are still active listeners", async () => {
-    const characteristic = new Characteristic(uuid, deviceInfo);
+    const characteristic = new Characteristic(time.uuid, timeService);
     const spy = jest.spyOn(characteristic.service.peripheral.adapter, "notify");
     const listener = jest.fn();
     const listener2 = jest.fn();

@@ -25,9 +25,17 @@ import Sblendid from "../src";
           .map(([p]) => p)
           .join(", ");
         console.log(chalk.redBright(`characteristic ${uuid}`), props);
+
+        if (service.uuid === "1805" && characteristic.uuid === "2a2b") {
+          const notify = await characteristic.on("notify", value => {
+            const buffer = value as Buffer;
+            console.log("got value", value);
+          });
+          console.log("notify", notify);
+        }
       }
     }
-    process.exit();
+    // process.exit();
   } catch (error) {
     console.error(error);
     process.exit();
