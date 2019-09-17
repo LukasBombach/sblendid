@@ -3,12 +3,12 @@ import Joi, { AnySchema } from "@hapi/joi";
 export type Event = "discover";
 
 export const bluetoothCharacteristicUUID = Joi.alternatives(
-  Joi.string().guid(),
+  Joi.string().hex(),
   Joi.number()
 );
 
 export const bluetoothServiceUUID = Joi.alternatives(
-  Joi.string().guid(),
+  Joi.string().hex(),
   Joi.number()
 );
 
@@ -29,19 +29,26 @@ export const ArrayOfBluetoothServiceUUIDs = Joi.array().items(
 
 export const ArrayOfCharacteristicData = Joi.array().items(characteristicData);
 
+export const serviceData = Joi.object({
+  uuid: Joi.string().hex(),
+  data: Joi.binary()
+});
+
+export const ArrayOfServiceData = Joi.array().items(serviceData);
+
 export const advertisement = Joi.object({
   localName: Joi.string().optional(),
   txPowerLevel: Joi.number().optional(),
   serviceUuids: ArrayOfBluetoothServiceUUIDs.optional(),
   manufacturerData: Joi.binary().optional(),
-  serviceData: Joi.binary().optional()
+  serviceData: ArrayOfServiceData.optional()
 });
 
-export const peripheralUuid = Joi.string().guid();
-export const address = Joi.string().guid();
+export const peripheralUuid = Joi.string().hex();
+export const address = Joi.string().allow(""); // todo address pattern
 export const addressType = Joi.string().valid("public", "random", "unknown");
 export const connectable = Joi.boolean();
-export const rssi = Joi.number().positive();
+export const rssi = Joi.number();
 
 export const events: Record<Event, AnySchema> = {
   discover: Joi.array().ordered(

@@ -1,3 +1,4 @@
+import util from "util";
 import { events, Event } from "../utils/types";
 
 declare global {
@@ -7,6 +8,8 @@ declare global {
     }
   }
 }
+
+const i = (data: any) => util.inspect(data, { depth: 10 });
 
 expect.extend({
   toBeEvent(received: any, argument: Event) {
@@ -21,7 +24,10 @@ expect.extend({
 
     return error
       ? {
-          message: () => `expected ${received} to match the event ${argument}`,
+          message: () => `expected ${i(received)} to match the event ${argument}
+          
+          ${error.message}
+          `,
           pass: false
         }
       : {

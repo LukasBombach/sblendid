@@ -10,12 +10,17 @@ export type AddressType = "public" | "random" | "unknown";
 export type NotifyState = boolean;
 export type NobleCharacteristicProperty = "read" | "write" | "notify";
 
+export interface ServiceData {
+  uuid: string;
+  data: Buffer;
+}
+
 export interface Advertisement {
   localName?: string;
   txPowerLevel?: number;
   serviceUuids?: BluetoothServiceUUID[];
   manufacturerData?: Buffer;
-  serviceData?: Buffer;
+  serviceData?: ServiceData[];
 }
 
 export interface NobleCharacteristic {

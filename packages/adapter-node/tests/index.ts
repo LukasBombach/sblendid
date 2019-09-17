@@ -4,7 +4,7 @@ import {
   ArrayOfBluetoothServiceUUIDs,
   ArrayOfCharacteristicData
 } from "./utils/types";
-import { isConnectable, hasName } from "./utils/peripheral";
+import { hasName } from "./utils/peripheral";
 import { findCharacteristic } from "./utils/characteristic";
 import "./matchers/schema";
 import "./matchers/events";
@@ -16,14 +16,10 @@ describe("SblendidNodeAdapter", () => {
   const model = "2a24";
 
   let puuid: string;
-  let writableCUUID: [SUUID, CUUID] | undefined;
-  let notifyableCUUID: [SUUID, CUUID] | undefined;
 
   beforeAll(async () => {
     await adapter.powerOn();
     [puuid] = await adapter.find(hasName(name));
-    writableCUUID = await findCharacteristic(adapter, puuid, "write");
-    notifyableCUUID = await findCharacteristic(adapter, puuid, "notify");
   });
 
   it("enables the usage of the BLE adapter", async () => {
@@ -34,7 +30,7 @@ describe("SblendidNodeAdapter", () => {
   it("doesn't crash when initialized multiple times", async () => {
     const secondAdapter = new NodeAdapter();
     await expect(secondAdapter.powerOn()).resolves.toBe(undefined);
-    await expect(secondAdapter.powerOn()).not.rejects.toThrow();
+    await expect(secondAdapter.powerOn()).resolves.toBe(undefined);
   });
 
   it(`scans for peripherals`, async () => {
@@ -52,10 +48,10 @@ describe("SblendidNodeAdapter", () => {
 
   it("finds a peripheral", async () => {
     let peripheralFound: Params<"discover">;
-    const condition = isConnectable(p => (peripheralFound = p));
+    const condition = hasName(name, p => (peripheralFound = p));
     const peripheral = await adapter.find(condition);
     expect(peripheral).toBeEvent("discover");
-    expect(peripheral).toBe(peripheralFound!);
+    expect(peripheral).toEqual(peripheralFound!);
   });
 
   it("connects without throwing an error", async () => {
@@ -69,12 +65,18 @@ describe("SblendidNodeAdapter", () => {
   });
 
   it("reads service puuids from a peripheral", async () => {
+    await adapter.connect(puuid);
     const services = await adapter.getServices(puuid);
     expect(services).toMatchSchema(ArrayOfBluetoothServiceUUIDs);
   });
 
+  it.todo(
+    "throws an error when a user reads service UUUIDs without being connected"
+  );
+
   it("reads a peripherals RSSI", async () => {
-    await expect(adapter.getRssi(puuid)).resolves.toBe(expect.any(Number));
+    await adapter.connect(puuid);
+    await expect(adapter.getRssi(puuid)).resolves.toEqual(expect.any(Number));
   });
 
   it.todo("listens for events");
@@ -87,12 +89,18 @@ describe("SblendidNodeAdapter", () => {
   });
 
   it("reads data into a buffer", async () => {
+    await adapter.connect(puuid);
+    await adapter.getServices(puuid);
+    await adapter.getCharacteristics(puuid, deviceInfo);
     const buffer = await adapter.read(puuid, deviceInfo, model);
     expect(buffer).toBeInstanceOf(Buffer);
     expect(buffer.toString()).toMatch(/.+/);
-  });
+  }, 5000);
 
   it("writes data to a characteristic", async () => {
+    await adapter.connect(puuid);
+    await adapter.getServices(puuid);
+    const writableCUUID = await findCharacteristic(adapter, puuid, "write");
     const [suuid, cuuid] = writableCUUID!;
     const buffer = Buffer.from("message", "utf8");
     const write = adapter.write(puuid, suuid, cuuid, buffer);
@@ -100,6 +108,9 @@ describe("SblendidNodeAdapter", () => {
   });
 
   it("writes data to a characteristic without response", async () => {
+    await adapter.connect(puuid);
+    await adapter.getServices(puuid);
+    const writableCUUID = await findCharacteristic(adapter, puuid, "write");
     const [suuid, cuuid] = writableCUUID!;
     const buffer = Buffer.from("message", "utf8");
     const write = adapter.write(puuid, suuid, cuuid, buffer, true);
@@ -107,14 +118,20 @@ describe("SblendidNodeAdapter", () => {
   });
 
   it("turns notifications on", async () => {
+    await adapter.connect(puuid);
+    await adapter.getServices(puuid);
+    const notifyableCUUID = await findCharacteristic(adapter, puuid, "notify");
     const [suuid, cuuid] = notifyableCUUID!;
     const notify = adapter.notify(puuid, suuid, cuuid, true);
     await expect(notify).resolves.toBe(true);
   });
 
   it("turns notifications off", async () => {
+    await adapter.connect(puuid);
+    await adapter.getServices(puuid);
+    const notifyableCUUID = await findCharacteristic(adapter, puuid, "notify");
     const [suuid, cuuid] = notifyableCUUID!;
-    const notify = adapter.notify(puuid, suuid, cuuid, true);
+    const notify = adapter.notify(puuid, suuid, cuuid, false);
     await expect(notify).resolves.toBe(false);
   });
 });
