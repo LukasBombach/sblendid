@@ -9,7 +9,7 @@
   "license": "MIT",
   "scripts": {
     "build": "rollup -c rollup.config.ts",
-    "test": "jest -c jest.config.json",
+    "test": "jest -c jest.config.json --runInBand",
     "example": "ts-node --project tsconfig.json"
   },
   "devDependencies": {

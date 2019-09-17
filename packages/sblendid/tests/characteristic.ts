@@ -129,7 +129,7 @@ describe("Characteristic", () => {
     const listener = jest.fn();
     const data = Buffer.from("message", "utf8");
     const params = readParamsTime(data, true);
-    characteristic.on("notify", listener);
+    await characteristic.on("notify", listener);
     bindings.emit("read", ...params);
     await new Promise(setImmediate);
     expect(listener).toHaveBeenCalledWith(data);
@@ -144,11 +144,13 @@ describe("Characteristic", () => {
     const message = "message";
     const data = Buffer.from(message, "utf8");
     const params = readParamsTime(data, true);
-    characteristic.on("notify", listener);
+    await characteristic.on("notify", listener);
     bindings.emit("read", ...params);
     await new Promise(setImmediate);
     expect(listener).toHaveBeenCalledWith(message);
   });
+
+  it.todo("emit ignores non-this-characteristics");
 
   it("emit ignores non-notify read events", async () => {
     const characteristic = new Characteristic(time.uuid, timeService);
@@ -156,7 +158,7 @@ describe("Characteristic", () => {
     const listener = jest.fn();
     const data = Buffer.from("message", "utf8");
     const params = readParamsTime(data, false);
-    characteristic.on("notify", listener);
+    await characteristic.on("notify", listener);
     bindings.emit("read", ...params);
     await new Promise(setImmediate);
     expect(listener).not.toHaveBeenCalledWith(data);
@@ -168,11 +170,12 @@ describe("Characteristic", () => {
     const listener = jest.fn();
     const data = Buffer.from("message", "utf8");
     const params = readParamsTime(data, true);
-    characteristic.on("notify", listener);
-    characteristic.off("notify", listener);
+    await characteristic.on("notify", listener);
+    listener.mockClear();
+    await characteristic.off("notify", listener);
     bindings.emit("read", ...params);
     await new Promise(setImmediate);
-    expect(listener).not.toHaveBeenCalledWith(data);
+    expect(listener).not.toHaveBeenCalled();
   });
 
   it("can stop notifying using a converter", async () => {
@@ -184,8 +187,8 @@ describe("Characteristic", () => {
     const message = "message";
     const data = Buffer.from(message, "utf8");
     const params = readParamsTime(data, true);
-    characteristic.on("notify", listener);
-    characteristic.off("notify", listener);
+    await characteristic.on("notify", listener);
+    await characteristic.off("notify", listener);
     bindings.emit("read", ...params);
     await new Promise(setImmediate);
     expect(listener).not.toHaveBeenCalledWith(message);
@@ -196,8 +199,8 @@ describe("Characteristic", () => {
     const spy = jest.spyOn(characteristic.service.peripheral.adapter, "notify");
     const listener = jest.fn();
     const listener2 = jest.fn();
-    characteristic.on("notify", listener);
-    characteristic.on("notify", listener2);
+    await characteristic.on("notify", listener);
+    await characteristic.on("notify", listener2);
     expect(spy).toHaveBeenCalledTimes(1);
   });
 
@@ -206,11 +209,20 @@ describe("Characteristic", () => {
     const spy = jest.spyOn(characteristic.service.peripheral.adapter, "notify");
     const listener = jest.fn();
     const listener2 = jest.fn();
-    characteristic.on("notify", listener);
-    characteristic.on("notify", listener2);
+    await characteristic.on("notify", listener);
+    await characteristic.on("notify", listener2);
     spy.mockClear();
-    characteristic.off("notify", listener);
-    characteristic.off("notify", listener2);
+    await characteristic.off("notify", listener);
+    await characteristic.off("notify", listener2);
     expect(spy).toHaveBeenCalledTimes(1);
+  });
+
+  it("throws when listening for notifications on a non-notifiable characteristic", async () => {
+    const characteristic = new Characteristic(manufacturer.uuid, deviceInfo);
+    const listener = jest.fn();
+    const error = new Error(
+      `Failed to turn on notifications for ${manufacturer.uuid}`
+    );
+    await expect(characteristic.on("notify", listener)).rejects.toEqual(error);
   });
 });
