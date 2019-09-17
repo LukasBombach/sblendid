@@ -9,17 +9,23 @@
   ],
   "license": "MIT",
   "scripts": {
-    "build": "rollup -c rollup.config.ts"
+    "build": "rollup -c rollup.config.ts",
+    "test": "jest -c jest.config.json"
   },
   "devDependencies": {
+    "@hapi/joi": "16.1.0",
+    "@types/hapi__joi": "15.0.4",
+    "@types/jest": "24.0.18",
     "@types/noble": "0.0.39",
     "@types/web-bluetooth": "0.0.4",
+    "jest": "24.9.0",
     "rollup": "1.20.1",
     "rollup-plugin-auto-external": "2.0.0",
     "rollup-plugin-commonjs": "10.0.2",
     "rollup-plugin-node-resolve": "5.2.0",
     "rollup-plugin-terser": "5.1.1",
     "rollup-plugin-typescript2": "0.23.0",
+    "ts-jest": "24.1.0",
     "typescript": "3.5.3"
   }
 }

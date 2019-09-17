@@ -20,41 +20,6 @@ export default class SblendidNodeAdapter {
   private service = new Service(this.bindings);
   private characteristic = new Characteristic(this.bindings);
 
-  constructor(debug = false) {
-    if (debug) {
-      this.logAllEvents();
-    }
-  }
-
-  private logAllEvents() {
-    const events: Event[] = [
-      "stateChange",
-      "discover",
-      "connect",
-      "disconnect",
-      "rssiUpdate",
-      "servicesDiscover",
-      "includedServicesDiscover",
-      "characteristicsDiscover",
-      "read",
-      "write",
-      "broadcast",
-      "notify",
-      "descriptorsDiscover",
-      "valueRead",
-      "valueWrite",
-      "handleRead",
-      "handleWrite",
-      "handleNotify",
-      "scanStart",
-      "scanStop"
-    ];
-
-    for (const event of events) {
-      this.bindings.on(event, (...args) => console.log("event", event, args));
-    }
-  }
-
   public powerOn(): Promise<void> {
     return this.adapter.powerOn();
   }

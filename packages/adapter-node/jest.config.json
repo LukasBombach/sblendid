@@ -1,0 +1,7 @@
+{
+  "preset": "ts-jest",
+  "testEnvironment": "node",
+  "testMatch": ["**/tests/**/*.[jt]s?(x)"],
+  "collectCoverage": true,
+  "verbose": true
+}
