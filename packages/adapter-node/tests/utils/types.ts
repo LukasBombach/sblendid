@@ -2,14 +2,32 @@ import Joi, { AnySchema } from "@hapi/joi";
 
 export type Event = "discover";
 
+export const bluetoothCharacteristicUUID = Joi.alternatives(
+  Joi.string().guid(),
+  Joi.number()
+);
+
 export const bluetoothServiceUUID = Joi.alternatives(
   Joi.string().guid(),
   Joi.number()
 );
 
+export const properties = {
+  read: Joi.boolean(),
+  write: Joi.boolean(),
+  notify: Joi.boolean()
+};
+
+export const characteristicData = {
+  uuid: bluetoothCharacteristicUUID,
+  properties: properties
+};
+
 export const ArrayOfBluetoothServiceUUIDs = Joi.array().items(
   bluetoothServiceUUID
 );
+
+export const ArrayOfCharacteristicData = Joi.array().items(characteristicData);
 
 export const advertisement = Joi.object({
   localName: Joi.string().optional(),
