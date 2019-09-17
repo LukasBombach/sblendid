@@ -1,4 +1,3 @@
-/// <reference path="./types.d.ts" />
 import Adapter, { AddressType, Advertisement } from "@sblendid/adapter-node";
 import Service, { MaybeConverters } from "./service";
 

@@ -1,4 +1,3 @@
-/// <reference path="./types.d.ts" />
 import Adapter, {
   Params,
   Listener,

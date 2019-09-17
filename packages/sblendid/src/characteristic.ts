@@ -1,4 +1,3 @@
-/// <reference path="./types.d.ts" />
 import { EventEmitter } from "events";
 import Adapter, { Params } from "@sblendid/adapter-node";
 import Service from "./service";
