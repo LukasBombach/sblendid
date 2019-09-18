@@ -19,6 +19,25 @@ In the future, Sblendid should support multiple platforms including React Native
 Hence, there is a separate package for for using Sblendid with Node so you can swap adapters for
 using it on another platform.
 
+### Scan for Peripherals around you
+
+```ts
+import Sblendid from "@sblendid/sblendid";
+
+(async () => {
+  const sblendid = await Sblendid.powerOn();
+
+  sblendid.startScanning(async peripheral => {
+    const { uuid, name, connectable, advertisement } = peripheral;
+    const { txPowerLevel, manufacturerData, serviceUUIDs } = advertisement;
+
+    console.log("Found Peripheral:");
+    console.log(uuid, name, connectable);
+    console.log(txPowerLevel, manufacturerData, serviceUUIDs);
+  });
+})();
+```
+
 ## API
 
 Sblendid has 4 main classes
