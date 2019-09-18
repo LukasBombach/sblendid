@@ -172,7 +172,7 @@ const newAlertUuid = "2a44";
   );
 
   const alertService = await peripheral.getService(alertServiceUuid);
-  await alertService!.write(newAlertUuid, Buffer.from("Message", "utf8));
+  await alertService!.write(newAlertUuid, Buffer.from("Message", "utf8");
 })();
 ```
 
