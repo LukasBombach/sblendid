@@ -96,3 +96,45 @@ const peripheral = await Sblendid.connect(
 > It is important to know that no function in this libary has a timeout. `Sblendid.connect`
 > will scan indefinitely unless you make sure it doesn't. At some point in the future
 > timeouts will be built in but it is not a scope of version 1.0.0
+
+#### `new Sblendid()` (Constructor)
+
+You can instantiate Sblendid like any other class. It has no parameters. You will have to
+turn it on before using it though.
+
+```ts
+import Sblendid from "@sblendid/sblendid";
+
+const sblendid = new Sblendid();
+```
+
+#### `async powerOn(): Promise<void>`
+
+If you instantiate Sblendid in your own, this method lets you turn on your BLE adapter.
+It returns a promise that resolves (with no value) when the adater ist powered on.
+
+Note that you can also use `const sblendid = await Sblendid.powerOn();` to achieve the
+same thing.
+
+```ts
+import Sblendid from "@sblendid/sblendid";
+
+const sblendid = new Sblendid();
+await sblendid.powerOn();
+```
+
+#### `async find(condition: Condition): Promise<Peripheral>`
+
+Will scan for a peripheral and return it once it's found. Unlike `Sblendid.connect`
+`find` will not automatically connect to the peripheral. `find` will accept the same
+parameters as `Sblendid.connect` to find a a peripheral.
+
+Note that this is an instance method, so you will have to instantiate and turn on
+Sblendid first.
+
+```ts
+import Sblendid from "@sblendid/sblendid";
+
+const sblendid = await Sblendid.powerOn();
+const peripheral = await sblendid.find("My Peripheral");
+```
