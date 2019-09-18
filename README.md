@@ -176,6 +176,12 @@ const newAlertUuid = "2a44";
 })();
 ```
 
+### More examples
+
+You can find more examples in the Examples folder:
+
+[👉 /packages/sblendid/examples](https://github.com/LukasBombach/sblendid/tree/master/packages/sblendid/examples)
+
 ## API
 
 Sblendid has 4 main classes
