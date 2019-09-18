@@ -1,5 +1,10 @@
 # S*ble*ndid
 
+- 💯 100％ TypeScript and Native Code (C++ / Objective C)
+- ✅ 100% Test Coverage
+- 💍 Promise-Based API
+- 🦋 Lightweight, no Dependencies
+
 ## Basic Bluetooth knowledge
 
 ## Usage
