@@ -51,7 +51,7 @@ export default class Peripheral {
     this.state = "disconnected";
   }
 
-  public async getService<C extends MaybeConverters>(
+  public async getService<C extends MaybeConverters = undefined>(
     uuid: SUUID,
     converters?: C
   ): Promise<Service<C> | undefined> {
