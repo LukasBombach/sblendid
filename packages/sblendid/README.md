@@ -39,28 +39,6 @@ Static methods
 | `powerOn` |                        | `Promise<Sblendid>`   |
 | `connect` | `condition: Condition` | `Promise<Peripheral>` |
 
-<table width="100%">
-  <thead width="100%">
-    <tr width="100%">
-      <th width="33%">Method</th>
-      <th width="33%">Parameters</th>
-      <th width="33%">Return Value</th>
-    </tr>
-  </thead width="100%">
-    <tbody width="100%">
-        <tr width="100%">
-            <th width="33%"><pre>powerOn</pre></th>
-            <td width="33%"></td>
-            <td width="33%"><pre>Promise<Sblendid></pre></td>
-        </tr>
-        <tr width="100%">
-            <th width="33%"><pre>connect</pre></th>
-            <td width="33%"><pre>condition: Condition</pre></td>
-            <td width="33%"><pre>Promise<Peripheral></pre></td>
-        </tr>
-    </tbody>
-</table>
-
 Instance properties
 
 | Property  | Description                          |
