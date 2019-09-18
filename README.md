@@ -32,6 +32,28 @@ Sblendid has 4 main classes
 
 ### `Sblendid`
 
+Public properties
+
+| Property  | Description                          |
+| --------- | ------------------------------------ |
+| `adapter` | Instance of `@sblendid/adapter-node` |
+
+Static methods
+
+| Method    | Parameters             | Return Value          |
+| --------- | ---------------------- | --------------------- |
+| `powerOn` |                        | `Promise<Sblendid>`   |
+| `connect` | `condition: Condition` | `Promise<Peripheral>` |
+
+Instance Methods
+
+| Method          | Parameters                      | Return Value          |
+| --------------- | ------------------------------- | --------------------- |
+| `powerOn`       |                                 | `Promise<void>`       |
+| `find`          | `condition: Condition`          | `Promise<Peripheral>` |
+| `startScanning` | `listener?: PeripheralListener` | `void`                |
+| `stopScanning`  |                                 | `void`                |
+
 #### `static async powerOn(): Promise<Sblendid>`
 
 Before you can use BLE on your machine you need to turn on
@@ -183,3 +205,5 @@ await new Promise(resolve => setTimeout(resolve, 1000));
 
 sblendid.stopScanning();
 ```
+
+### `Peripheral`
