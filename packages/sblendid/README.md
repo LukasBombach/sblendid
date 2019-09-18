@@ -34,6 +34,12 @@ Sblendid has 4 main classes
 
 Static methods
 
+<style type="text/css">
+  table {
+    width: 100%;
+  }
+</style>
+
 | Method    | Parameters             | Return Value          |
 | --------- | ---------------------- | --------------------- |
 | `powerOn` |                        | `Promise<Sblendid>`   |
@@ -42,21 +48,21 @@ Static methods
 <table width="100%">
   <thead>
     <tr>
-      <th>Method</th>
-      <th>Parameters</th>
-      <th>Return Value</th>
+      <th width="33%">Method</th>
+      <th width="33%">Parameters</th>
+      <th width="33%">Return Value</th>
     </tr>
   </thead>
     <tbody>
         <tr>
-            <th>`powerOn`</th>
-            <td></td>
-            <td>`Promise<Sblendid>`</td>
+            <th width="33%"><pre>powerOn</pre></th>
+            <td width="33%"></td>
+            <td width="33%"><pre>Promise<Sblendid></pre></td>
         </tr>
         <tr>
-            <th>`connect`</th>
-            <td>`condition: Condition`</td>
-            <td>`Promise<Peripheral>`</td>
+            <th width="33%"><pre>connect</pre></th>
+            <td width="33%"><pre>condition: Condition</pre></td>
+            <td width="33%"><pre>Promise<Peripheral></pre></td>
         </tr>
     </tbody>
 </table>
