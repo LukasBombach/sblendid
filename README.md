@@ -23,7 +23,7 @@ With BLE you usually want to connect to a peripheral, get one ore more services
 and read / write / subscribe to values on those services. With Sblendid this works
 as follows:
 
-```ts
+```js
 import Sblendid from "@sblendid/sblendid";
 
 (async () => {
@@ -49,21 +49,21 @@ In the previous example, all values I read, write or get notified for are
 `Buffers` to the values you actually want to work on. For this, Sblendid introduces a
 concept called `converters`.
 
-```ts
+```js
 import Sblendid from "@sblendid/sblendid";
 
 const myServiceConverters: {
   namedValue: {
     uuid: "uuid y",
-    decode: (buffer: Buffer) => buffer.toString(),
-    encode: (message: string) => Buffer.from(message, "utf8")
+    decode: buffer => buffer.toString(),
+    encode: message => Buffer.from(message, "utf8")
   }
 };
 
 const myServiceConverters: {
   namedValue: {
     uuid: "uuid x",
-    decode: (buffer: Buffer) => buffer.toString(),
+    decode: buffer => buffer.toString(),
   }
 };
 
@@ -86,7 +86,7 @@ const myServiceConverters: {
 
 ### Scan for Peripherals around you
 
-```ts
+```js
 import Sblendid from "@sblendid/sblendid";
 
 (async () => {
@@ -108,7 +108,7 @@ import Sblendid from "@sblendid/sblendid";
 > The [DE1+ Coffee machine](https://decentespresso.com/) can be found via Bluetooth
 > with the name "DE1"
 
-```ts
+```js
 import Sblendid from "@sblendid/sblendid";
 
 (async () => {
@@ -119,7 +119,7 @@ import Sblendid from "@sblendid/sblendid";
 
 ### Read a Characteristic
 
-```ts
+```js
 import Sblendid from "@sblendid/sblendid";
 
 const batteryServiceUuid = "180f";
@@ -131,7 +131,7 @@ const batteryLevelUuid = "2a19";
   );
 
   const batteryService = await peripheral.getService(batteryServiceUuid);
-  const batteryLevel = await batteryService!.read(batteryLevelUuid);
+  const batteryLevel = await batteryService.read(batteryLevelUuid);
 
   console.log("Battery Level", batteryLevel.readUInt8(0), "%");
 })();
@@ -139,7 +139,7 @@ const batteryLevelUuid = "2a19";
 
 ### Subscribe to a Characteristic
 
-```ts
+```js
 import Sblendid from "@sblendid/sblendid";
 
 const batteryServiceUuid = "180f";
@@ -152,7 +152,7 @@ const batteryLevelUuid = "2a19";
 
   const batteryService = await peripheral.getService(batteryServiceUuid);
 
-  await batteryService!.on(batteryLevelUuid, batteryLevel => {
+  await batteryService.on(batteryLevelUuid, batteryLevel => {
     console.log("Battery Level", batteryLevel.readUInt8(0), "%");
   });
 })();
@@ -160,7 +160,7 @@ const batteryLevelUuid = "2a19";
 
 ### Write to a Characteristic
 
-```ts
+```js
 import Sblendid from "@sblendid/sblendid";
 
 const alertServiceUuid = "1811";
@@ -172,7 +172,7 @@ const newAlertUuid = "2a44";
   );
 
   const alertService = await peripheral.getService(alertServiceUuid);
-  await alertService!.write(newAlertUuid, Buffer.from("Message", "utf8");
+  await alertService.write(newAlertUuid, Buffer.from("Message", "utf8");
 })();
 ```
 
