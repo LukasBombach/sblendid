@@ -32,27 +32,17 @@ Sblendid has 4 main classes
 
 ### `Sblendid`
 
-Static methods
-
-| Method    | Parameters             | Return Value          |
-| --------- | ---------------------- | --------------------- |
-| `powerOn` |                        | `Promise<Sblendid>`   |
-| `connect` | `condition: Condition` | `Promise<Peripheral>` |
-
-Instance properties
-
-| Property  | Description                          |
-| --------- | ------------------------------------ |
-| `adapter` | Instance of `@sblendid/adapter-node` |
-
-Instance Methods
-
-| Method          | Parameters                      | Return Value          |
-| --------------- | ------------------------------- | --------------------- |
-| `powerOn`       |                                 | `Promise<void>`       |
-| `find`          | `condition: Condition`          | `Promise<Peripheral>` |
-| `startScanning` | `listener?: PeripheralListener` | `void`                |
-| `stopScanning`  |                                 | `void`                |
+```ts
+class Sblendid {
+  public adapter: Adapter = new Adapter();
+  public static async powerOn(): Promise<Sblendid> {}
+  public static async connect(condition: Condition): Promise<Peripheral> {}
+  public async powerOn(): Promise<void> {}
+  public async find(condition: Condition): Promise<Peripheral> {}
+  public startScanning(listener?: PeripheralListener): void {}
+  public stopScanning(): void {}
+}
+```
 
 #### `static async powerOn(): Promise<Sblendid>`
 
