@@ -46,11 +46,22 @@ sblendid.startScanning();
 Often times you have a specific peripheral in mind you want to
 connect to. You would usually
 
-- turn on your BLE adapter
-- start scanning
-- check each peripheral if it is what you are looking for
-- stop scanning
-- connect to the peripheral
+1. turn on your BLE adapter
+1. start scanning
+1. check each peripheral if it is what you are looking for
+1. stop scanning
+1. connect to the peripheral
+
+There is a shortcut for that. You can call `Sblendid.connect` to do all that.
+Pass either a peripheral name, uuid, address or callback function as an argument
+and you will get a connected peripheral as return value once the peripheral has
+been found.
+
+The callback function will receive an instance of a `Peripheral` that represents any
+peripheral found while scanning. The callback function can be sync or async
+(i.e. return a Promise) and must always return aór resolve to a Boolean signaling
+of the given peripheral is the one you were looking for. If true, `Sblendid.connect`
+will stop scanning, connect to that peripheral and return it.
 
 ```ts
 import Sblendid from "@sblendid/sblendid";
