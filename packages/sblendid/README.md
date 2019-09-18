@@ -2,7 +2,7 @@
 
 &nbsp; 🦋 &nbsp;Lightweight, no Dependencies<br>
 &nbsp; 💍 &nbsp;Promise-Based API<br>
-&nbsp; 🥳 &nbsp;100％ TypeScript and Native Code (C++ / Objective C)<br>
+&nbsp; 🥳 &nbsp;100% TypeScript and Native Code (C++ / Objective C)<br>
 &nbsp; 💯 &nbsp;100% Test Coverage<br>
 
 ## Basic Bluetooth knowledge
