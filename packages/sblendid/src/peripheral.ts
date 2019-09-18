@@ -63,9 +63,10 @@ export default class Peripheral {
   public async getServices(
     serviceConverters?: ServiceConverters
   ): Promise<Service<any>[]> {
-    if (this.state === "disconnected") await this.connect();
-    const uuids = await this.getSUUIDs();
-    return uuids.map(uuid => this.getServiceForUUID(uuid, serviceConverters));
+    return this.ensureTempraryConnection(async () => {
+      const uuids = await this.getSUUIDs();
+      return this.mapUUIDsToServices(uuids, serviceConverters);
+    });
   }
 
   public async hasService(uuid: SUUID): Promise<boolean> {
@@ -74,12 +75,28 @@ export default class Peripheral {
   }
 
   public async getRssi(): Promise<number> {
-    if (this.state === "disconnected") await this.connect();
-    return await this.adapter.getRssi(this.uuid);
+    return this.ensureTempraryConnection(() => this.adapter.getRssi(this.uuid));
   }
 
   public isConnected(): boolean {
     return this.state === "connected";
+  }
+
+  private async ensureTempraryConnection<C>(
+    callback: () => Promise<C>
+  ): Promise<C> {
+    if (this.state !== "disconnected") return callback();
+    await this.connect();
+    const returnValue = await callback();
+    await this.disconnect();
+    return returnValue;
+  }
+
+  private mapUUIDsToServices(
+    uuids: SUUID[],
+    serviceConverters?: ServiceConverters
+  ): Service<any>[] {
+    return uuids.map(uuid => this.getServiceForUUID(uuid, serviceConverters));
   }
 
   // todo this can probably be mapped to Service<Converters>
