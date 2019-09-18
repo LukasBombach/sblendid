@@ -1,104 +1,76 @@
 # S*ble*ndid
 
-Complete re-implementation of [Noble](https://github.com/noble/noble) (which is abandoned) and
+## Basic Bluetooth knowledge
 
-- [x] 💪 Completely typed and written in TypeScript
-- [x] 💍 Has Promises!
-- [x] 🎚️ Improved high-level API and full access to low-level API
-- [x] ⚙️ Completely configurable Bluetooth adapters to make it work on all devices and OSs
-- [x] 🥳 Up to date and works with the latest versions (and the old ones) of macOS, Windows, Linux etc
+## Usage
 
-The goal of this library is to make bluetooth easily accessible, with a proper developer experience
-while still giving you full access to all Bluetooth Low Energy functions.
+Install `@sblendid/sblendid` and `@sblendid/adapter-node` with npm or yarn
 
-## Table of contents
-
-1. [Installation](#installation)
-1. [Usage (examples)](#usage-examples)
-1. [Documentation](#documentation)
-
-## Installation
-
-```shell
-npm i --save @sblendid/sblendid @sblendid/adapter-node
+```bash
+npm install @sblendid/sblendid @sblendid/adapter-node
 ```
 
-## Usage (examples)
+In the future, Sblendid should support multiple platforms including React Native and WebBluetooth.
+Hence, there is a separate package for for using Sblendid with Node so you can swap adapters for
+using it on another platform.
 
-### Read from, write to and get notified about a characteristic
+## API
 
-```js
-import Sblendid from "sblendid";
+Sblendid has 4 main classes
 
-// Find a Peripheral called "Bluetooth Dongle" and
-// get the first characteristic from the first service
-const peripheral = Sblendid.connect("Bluetooth Dongle");
-const services = await peripheral.getServices();
-const characteristics = await services[0].getCharacteristics();
+| Class            | Desciption                                                                                                                                                                                                                                                                                                             |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Sblendid`       | Lets you find and connect to peripherals                                                                                                                                                                                                                                                                               |
+| `Peripheral`     | Lets you connect to peripherals and read its services and RSSI                                                                                                                                                                                                                                                         |
+| `Service`        | Lets you read, write and subscribe to updates on values (characteristics) of a service as well as                                                                                                                                                                                                                      | fetching all available characteristics |
+| `Characteristic` | A representation of a single characteristic of a service that lets you read, write and subscribe to updates of a specific value. Usually you will not need to use this class as everything you can do with this on a single characteristic, you can already do with the service class on all available characteristics |
 
-// Read the value from the first characteristic
-const value = await characteristics[0].read();
+### `Sblendid`
 
-// Write a value to the first characteristic
-await characteristics[0].write("0000");
+`static async powerOn(): Promise<Sblendid>`
 
-// Get notified about changes
-characteristics[0].onChange(value => {
-  console.log(value);
-});
+Before you can use BLE on your machine you need to turn on
+your BLE adapter. This static method will turn on the adapter
+and return an instance of sblendid that you can then use to
+find and connect to peripherals
+
+```ts
+import Sblendid from "@sblendid/sblendid";
+
+const sblendid = await Sblendid.powerOn();
+sblendid.startScanning();
 ```
 
-### Scan and show all devices in your proximity for 5 seconds
+`static async connect(condition: Condition): Promise<Peripheral>`
 
-```js
-import Sblendid from "sblendid";
+Often times you have a specific peripheral in mind you want to
+connect to. You would usually
 
-// Initialize your bluetooth device
-const sblendid = new Sblendid();
-await sblendid.powerOn();
+- turn on your BLE adapter
+- start scanning
+- check each peripheral if it is what you are looking for
+- stop scanning
+- connect to the peripheral
 
-// Start scanning and log every peripheral that is found
-sblendid.startScanning(peripheral => {
-  console.log(peripheral);
-});
+```ts
+import Sblendid from "@sblendid/sblendid";
 
-// Stop scanning after 5000ms
-setTimeout(() => sblendid.stopScanning(), 5000);
-```
+// By Name
+const peripheral = await Sblendid.connect("My Peripheral");
 
-### Low-Level API access
+// By UUID
+const peripheral = await Sblendid.connect("3A62F159");
 
-```js
-import Sblendid from "sblendid";
+// By Address
+const peripheral = await Sblendid.connect("00-14-22-01-23-45");
 
-// Initialize your bluetooth device
-const sblendid = new Sblendid();
-await sblendid.powerOn();
-
-// Listen for the discover event that gets called for each device that you can find
-sblendid.adapter.on(
-  "discover",
-  (peripheralUuid, address, addressType, connectable, advertisement, rssi) => {
-    // ...
-  }
+// With a callback
+const peripheral = await Sblendid.connect(periperal =>
+  Boolean(periperal.connectable)
 );
 
-// Start scanning
-sblendid.adapter.startScanning();
-
-// Stop scanning after 5000ms
-setTimeout(() => sblendid.adapter.stopScanning(), 5000);
+// With an async callback
+const peripheral = await Sblendid.connect(
+  async periperal => await isPeripheralIWant(periperal)
+);
 ```
-
-## Documentation
-
-Please refer to the full documentation for an complete description of the API and more examples for common use cases.
-
-- [Full documentation]()
-- [API Description]()
-- [Examples for common use cases]()
-- [Development](https://github.com/LukasBombach/sblendid/blob/master/packages/sblendid/docs/development.md)
-
-## License
-
-MIT
