@@ -21,6 +21,12 @@ using it on another platform.
 
 ## API
 
+<style>
+table {
+    width:100%;
+}
+</style>
+
 Sblendid has 4 main classes
 
 | Class            | Desciption                                                                                                                                                                                                                                                                                                             |
@@ -32,18 +38,18 @@ Sblendid has 4 main classes
 
 ### `Sblendid`
 
-Public properties
-
-| Property  | Description                          |
-| --------- | ------------------------------------ |
-| `adapter` | Instance of `@sblendid/adapter-node` |
-
 Static methods
 
 | Method    | Parameters             | Return Value          |
 | --------- | ---------------------- | --------------------- |
 | `powerOn` |                        | `Promise<Sblendid>`   |
 | `connect` | `condition: Condition` | `Promise<Peripheral>` |
+
+Instance properties
+
+| Property  | Description                          |
+| --------- | ------------------------------------ |
+| `adapter` | Instance of `@sblendid/adapter-node` |
 
 Instance Methods
 
