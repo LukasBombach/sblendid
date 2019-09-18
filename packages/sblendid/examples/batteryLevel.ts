@@ -1,15 +1,7 @@
-import Sblendid, { Peripheral } from "../src";
-
-async function hasBatteryService(peripheral: Peripheral) {
-  if (!peripheral.connectable) return false;
-  await peripheral.connect();
-  const hasDeviceInfoService = await peripheral.hasService("180f");
-  await peripheral.disconnect();
-  return hasDeviceInfoService;
-}
+import Sblendid from "../src";
 
 (async () => {
-  const peripheral = await Sblendid.connect(hasBatteryService);
+  const peripheral = await Sblendid.connect(p => p.hasService("180f"));
 
   const batteryService = await peripheral.getService("180f");
   const batteryLevel = await batteryService!.read("2a19");

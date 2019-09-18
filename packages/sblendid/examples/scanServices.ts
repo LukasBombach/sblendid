@@ -8,13 +8,8 @@ import Sblendid from "../src";
 
   sblendid.startScanning(async peripheral => {
     await queue.add(async () => {
-      if (!peripheral.connectable) return;
-
-      await peripheral.connect();
-      const services = await peripheral.getServices();
-      await peripheral.disconnect();
-
       const uuid = chalk.blue(peripheral.uuid);
+      const services = await peripheral.getServices();
       const serviceUUIDs = services.map(s => s.uuid);
 
       console.log(uuid, serviceUUIDs);

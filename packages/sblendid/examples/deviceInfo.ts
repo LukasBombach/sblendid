@@ -1,4 +1,4 @@
-import Sblendid, { Peripheral } from "../src";
+import Sblendid from "../src";
 
 const converters = {
   manufacturer: {
@@ -11,16 +11,8 @@ const converters = {
   }
 };
 
-async function hasDeviceInfoService(peripheral: Peripheral) {
-  if (!peripheral.connectable) return false;
-  await peripheral.connect();
-  const hasDeviceInfoService = await peripheral.hasService("180a");
-  await peripheral.disconnect();
-  return hasDeviceInfoService;
-}
-
 (async () => {
-  const peripheral = await Sblendid.connect(hasDeviceInfoService);
+  const peripheral = await Sblendid.connect(p => p.hasService("180a"));
   const deviceInfo = await peripheral.getService("180a", converters);
 
   const manufacturer = await deviceInfo!.read("manufacturer");

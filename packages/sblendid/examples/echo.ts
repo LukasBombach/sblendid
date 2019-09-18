@@ -1,12 +1,7 @@
-import Sblendid, { Peripheral } from "../src";
-
-function hasEchoService(peripheral: Peripheral) {
-  const { serviceUUIDs } = peripheral.advertisement;
-  return !!serviceUUIDs && serviceUUIDs.includes("ec00");
-}
+import Sblendid from "../src";
 
 (async () => {
-  const peripheral = await Sblendid.connect(hasEchoService);
+  const peripheral = await Sblendid.connect(p => p.hasService("ec00"));
   const echoService = await peripheral.getService("ec00");
   let count = 0;
 
