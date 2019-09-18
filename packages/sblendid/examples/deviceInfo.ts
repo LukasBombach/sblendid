@@ -1,5 +1,4 @@
-import Sblendid from "../src";
-import timeout from "p-timeout";
+import Sblendid, { Peripheral } from "../src";
 
 const converters = {
   manufacturer: {
@@ -12,16 +11,24 @@ const converters = {
   }
 };
 
-(async () => {
-  const peripheral = await Sblendid.connect(p =>
-    timeout(p.hasService("180a"), 2000, () => false)
-  );
+async function hasDeviceInfoService(peripheral: Peripheral) {
+  if (!peripheral.connectable) return false;
+  await peripheral.connect();
+  const hasDeviceInfoService = await peripheral.hasService("180a");
+  await peripheral.disconnect();
+  return hasDeviceInfoService;
+}
 
+(async () => {
+  const peripheral = await Sblendid.connect(hasDeviceInfoService);
   const deviceInfo = await peripheral.getService("180a", converters);
 
-  console.log("Manufacturer:", await deviceInfo!.read("manufacturer"));
-  console.log("Model:", await deviceInfo!.read("model"));
+  const manufacturer = await deviceInfo!.read("manufacturer");
+  const model = await deviceInfo!.read("model");
 
-  peripheral.disconnect();
+  console.log("Manufacturer:", manufacturer);
+  console.log("Model:", model);
+
+  await peripheral.disconnect();
   process.exit();
 })();
