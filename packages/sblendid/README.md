@@ -9,7 +9,7 @@
 
 ## Usage
 
-Install `@sblendid/sblendid` and `@sblendid/adapter-node` with npm or yarn
+Install Sblendid and the adapter for Node with npm or yarn
 
 ```bash
 npm install @sblendid/sblendid @sblendid/adapter-node
