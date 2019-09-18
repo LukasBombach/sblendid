@@ -21,12 +21,6 @@ using it on another platform.
 
 ## API
 
-<style>
-table {
-    width:100%;
-}
-</style>
-
 Sblendid has 4 main classes
 
 | Class            | Desciption                                                                                                                                                                                                                                                                                                             |
@@ -44,6 +38,28 @@ Static methods
 | --------- | ---------------------- | --------------------- |
 | `powerOn` |                        | `Promise<Sblendid>`   |
 | `connect` | `condition: Condition` | `Promise<Peripheral>` |
+
+<table width="100%">
+  <thead>
+    <tr>
+      <th>Method</th>
+      <th>Parameters</th>
+      <th>Return Value</th>
+    </tr>
+  </thead>
+    <tbody>
+        <tr>
+            <th>`powerOn`</th>
+            <td></td>
+            <td>`Promise<Sblendid>`</td>
+        </tr>
+        <tr>
+            <th>`connect`</th>
+            <td>`condition: Condition`</td>
+            <td>`Promise<Peripheral>`</td>
+        </tr>
+    </tbody>
+</table>
 
 Instance properties
 
