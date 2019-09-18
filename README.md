@@ -32,6 +32,11 @@ Sblendid has 4 main classes
 
 ### `Sblendid`
 
+#### API Overview
+
+Here you can see the entire public API of the `Sblendid` for an overview. You can find
+a more detailed description below.
+
 ```ts
 class Sblendid {
   public adapter: Adapter = new Adapter();
