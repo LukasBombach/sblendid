@@ -34,12 +34,13 @@ Sblendid has 4 main classes
 
 #### API Overview
 
-Here you can see the entire public API of the `Sblendid` for an overview. You can find
+Here you can see the entire public API of the `Sblendid` class for an overview. You can find
 a more detailed description below.
 
 ```ts
 class Sblendid {
-  public adapter: Adapter = new Adapter();
+  public adapter: Adapter;
+
   public static async powerOn(): Promise<Sblendid> {}
   public static async connect(condition: Condition): Promise<Peripheral> {}
   public async powerOn(): Promise<void> {}
@@ -202,3 +203,34 @@ sblendid.stopScanning();
 ```
 
 ### `Peripheral`
+
+#### API Overview
+
+Here you can see the entire public API of the `Peripheral` class for an overview. You can find
+a more detailed description below.
+
+```ts
+class Peripheral {
+  public uuid: PUUID;
+  public adapter: Adapter;
+  public name: string;
+  public address: string;
+  public addressType: AddressType;
+  public advertisement: Advertisement;
+  public connectable?: boolean;
+  public state: State;
+
+  public async connect(): Promise<void> {}
+  public async disconnect(): Promise<void> {}
+  public async getService<C extends MaybeConverters>(
+    uuid: SUUID,
+    converters?: C
+  ): Promise<Service<C> | undefined> {}
+  public async getServices(
+    serviceConverters?: ServiceConverters
+  ): Promise<Service<any>[]> {}
+  public async hasService(uuid: SUUID): Promise<boolean> {}
+  public async getRssi(): Promise<number> {}
+  public isConnected(): boolean {}
+}
+```
