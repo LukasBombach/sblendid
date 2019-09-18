@@ -61,8 +61,8 @@ const batteryServiceUuid = "180f";
 const batteryLevelUuid = "2a19";
 
 (async () => {
-  const peripheral = await Sblendid.connect(
-    async peripheral => await peripheral.hasService(batteryServiceUuid)
+  const peripheral = await Sblendid.connect(peripheral =>
+    peripheral.hasService(batteryServiceUuid)
   );
 
   const batteryService = await peripheral.getService(batteryServiceUuid);
@@ -81,8 +81,8 @@ const batteryServiceUuid = "180f";
 const batteryLevelUuid = "2a19";
 
 (async () => {
-  const peripheral = await Sblendid.connect(
-    async peripheral => await peripheral.hasService(batteryServiceUuid)
+  const peripheral = await Sblendid.connect(peripheral =>
+    peripheral.hasService(batteryServiceUuid)
   );
 
   const batteryService = await peripheral.getService(batteryServiceUuid);
