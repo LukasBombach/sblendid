@@ -37,6 +37,7 @@ Sblendid has 4 main classes
 Here you can see the entire public API of the `Sblendid` class for an overview. You can find
 a more detailed description below.
 
+<!-- prettier-ignore -->
 ```ts
 class Sblendid {
   public adapter: Adapter;
@@ -223,10 +224,53 @@ class Peripheral {
 
   public async connect(): Promise<void> {}
   public async disconnect(): Promise<void> {}
-  public async getService<C extends MaybeConverters>(uuid: SUUID, converters?: C): Promise<Service<C> | undefined> {}
+  public async getService(uuid: SUUID, converters?: Converters): Promise<Service<Converters> | undefined> {}
   public async getServices(serviceConverters?: ServiceConverters): Promise<Service<any>[]> {}
   public async hasService(uuid: SUUID): Promise<boolean> {}
   public async getRssi(): Promise<number> {}
   public isConnected(): boolean {}
+}
+```
+
+### `Service`
+
+#### API Overview
+
+Here you can see the entire public API of the `Service` class for an overview. You can find
+a more detailed description below.
+
+<!-- prettier-ignore -->
+```ts
+class Service {
+  public uuid: SUUID;
+  public peripheral: Peripheral;
+
+  public async read(name: Name): Promise<Value> {}
+  public async write( name: Name, value: Value, withoutResponse?: boolean): Promise<void> {}
+  public async on(name: Name, listener: Listener): Promise<void> {}
+  public async off(name: Name, listener: Listener): Promise<void> {}
+  public async getCharacteristic(name: Name): Promise<Characteristic> {}
+  public async getCharacteristics(): Promise<Characteristic[]> {}
+}
+```
+
+### `Characteristic`
+
+#### API Overview
+
+Here you can see the entire public API of the `Characteristic` class for an overview. You can find
+a more detailed description below.
+
+<!-- prettier-ignore -->
+```ts
+class Characteristic {
+  public uuid: CUUID;
+  public service: Service;
+  public properties: Properties;
+
+  public async read(): Promise<Value> {}
+  public async write(value: Value, withoutResponse?: boolean): Promise<void> {}
+  public async on(event: "notify", listener: Listener): Promise<void> {}
+  public async off(event: "notify", listener: Listener): Promise<void> {}
 }
 ```
