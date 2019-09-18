@@ -17,6 +17,13 @@ In the future, Sblendid should support multiple platforms including React Native
 Hence, there is a separate package for for using Sblendid with Node so you can swap adapters for
 using it on another platform.
 
+In this readme, you can find some examples for some common use cases as well as a full API
+description.
+
+For more examples, be sure to checkout the examples directory.
+
+👉 [packages/sblendid/examples](https://github.com/LukasBombach/sblendid/tree/master/packages/sblendid/examples)
+
 ### Basic workflow
 
 With BLE you usually want to connect to a peripheral, get one ore more services
