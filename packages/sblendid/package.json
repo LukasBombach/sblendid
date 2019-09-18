@@ -12,6 +12,9 @@
     "test": "jest -c jest.config.json",
     "example": "ts-node --project tsconfig.json"
   },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/@LukasBombach"
+  },
   "devDependencies": {
     "@sblendid/adapter-node": "0.2.0",
     "@types/jest": "24.0.18",

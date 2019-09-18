@@ -12,6 +12,9 @@
     "build": "rollup -c rollup.config.ts",
     "test": "jest -c jest.config.json --runInBand"
   },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/@LukasBombach"
+  },
   "devDependencies": {
     "@hapi/joi": "16.1.0",
     "@types/hapi__joi": "15.0.4",
