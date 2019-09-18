@@ -158,6 +158,24 @@ const batteryLevelUuid = "2a19";
 })();
 ```
 
+### Write to a Characteristic
+
+```ts
+import Sblendid from "@sblendid/sblendid";
+
+const alertServiceUuid = "1811";
+const newAlertUuid = "2a44";
+
+(async () => {
+  const peripheral = await Sblendid.connect(peripheral =>
+    peripheral.hasService(alertServiceUuid)
+  );
+
+  const alertService = await peripheral.getService(alertServiceUuid);
+  await alertService!.write(newAlertUuid, Buffer.from("Message", "utf8));
+})();
+```
+
 ## API
 
 Sblendid has 4 main classes
