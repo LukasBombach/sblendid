@@ -27,7 +27,7 @@ import Sblendid from "@sblendid/sblendid";
 (async () => {
   const sblendid = await Sblendid.powerOn();
 
-  sblendid.startScanning(async peripheral => {
+  sblendid.startScanning(peripheral => {
     const { uuid, name, connectable, advertisement } = peripheral;
     const { txPowerLevel, manufacturerData, serviceUUIDs } = advertisement;
 
