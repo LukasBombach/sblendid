@@ -57,13 +57,16 @@ import Sblendid from "@sblendid/sblendid";
 ```ts
 import Sblendid from "@sblendid/sblendid";
 
-(async () => {
-  const peripheral = await Sblendid.connect(async peripheral => {
-    return !!peripheral.connectable && (await peripheral.hasService("180f"));
-  });
+const BATTERY_SERVICE_UUID = "180f";
+const BATTERY_LEVEL_UUID = "2a19";
 
-  const batteryService = await peripheral.getService("180f");
-  const batteryLevel = await batteryService!.read("2a19");
+(async () => {
+  const peripheral = await Sblendid.connect(
+    async peripheral => await peripheral.hasService(BATTERY_SERVICE_UUID)
+  );
+
+  const batteryService = await peripheral.getService(BATTERY_SERVICE_UUID);
+  const batteryLevel = await batteryService!.read(BATTERY_LEVEL_UUID);
 
   console.log("Battery Level", batteryLevel.readUInt8(0), "%");
 })();
@@ -74,14 +77,17 @@ import Sblendid from "@sblendid/sblendid";
 ```ts
 import Sblendid from "@sblendid/sblendid";
 
+const BATTERY_SERVICE_UUID = "180f";
+const BATTERY_LEVEL_UUID = "2a19";
+
 (async () => {
-  const peripheral = await Sblendid.connect(async peripheral => {
-    return !!peripheral.connectable && (await peripheral.hasService("180f"));
-  });
+  const peripheral = await Sblendid.connect(
+    async peripheral => await peripheral.hasService(BATTERY_SERVICE_UUID)
+  );
 
-  const batteryService = await peripheral.getService("180f");
+  const batteryService = await peripheral.getService(BATTERY_SERVICE_UUID);
 
-  await batteryService!.on("2a19", batteryLevel => {
+  await batteryService!.on(BATTERY_LEVEL_UUID, batteryLevel => {
     console.log("Battery Level", batteryLevel.readUInt8(0), "%");
   });
 })();
