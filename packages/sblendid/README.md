@@ -27,7 +27,7 @@ Sblendid has 4 main classes
 
 ### `Sblendid`
 
-`static async powerOn(): Promise<Sblendid>`
+#### `static async powerOn(): Promise<Sblendid>`
 
 Before you can use BLE on your machine you need to turn on
 your BLE adapter. This static method will turn on the adapter
@@ -41,7 +41,7 @@ const sblendid = await Sblendid.powerOn();
 sblendid.startScanning();
 ```
 
-`static async connect(condition: Condition): Promise<Peripheral>`
+#### `static async connect(condition: Condition): Promise<Peripheral>`
 
 Often times you have a specific peripheral in mind you want to
 connect to. You would usually
