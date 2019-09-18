@@ -82,6 +82,6 @@ const peripheral = await Sblendid.connect(periperal =>
 
 // With an async callback
 const peripheral = await Sblendid.connect(
-  async periperal => await isPeripheralIWant(periperal)
+  async periperal => await isPeripheralIAmLookingFor(periperal)
 );
 ```
