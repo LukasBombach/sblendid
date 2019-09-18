@@ -1,9 +1,9 @@
 # S*ble*ndid
 
-🦋 Lightweight, no Dependencies<br>
-💍 Promise-Based API<br>
-🥳 100％ TypeScript and Native Code (C++ / Objective C)<br>
-💯 100% Test Coverage<br>
+&nbsp;🦋 Lightweight, no Dependencies<br>
+&nbsp;💍 Promise-Based API<br>
+&nbsp;🥳 100％ TypeScript and Native Code (C++ / Objective C)<br>
+&nbsp;💯 100% Test Coverage<br>
 
 ## Basic Bluetooth knowledge
 
