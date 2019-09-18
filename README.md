@@ -209,6 +209,7 @@ sblendid.stopScanning();
 Here you can see the entire public API of the `Peripheral` class for an overview. You can find
 a more detailed description below.
 
+<!-- prettier-ignore -->
 ```ts
 class Peripheral {
   public uuid: PUUID;
@@ -222,13 +223,8 @@ class Peripheral {
 
   public async connect(): Promise<void> {}
   public async disconnect(): Promise<void> {}
-  public async getService<C extends MaybeConverters>(
-    uuid: SUUID,
-    converters?: C
-  ): Promise<Service<C> | undefined> {}
-  public async getServices(
-    serviceConverters?: ServiceConverters
-  ): Promise<Service<any>[]> {}
+  public async getService<C extends MaybeConverters>(uuid: SUUID, converters?: C): Promise<Service<C> | undefined> {}
+  public async getServices(serviceConverters?: ServiceConverters): Promise<Service<any>[]> {}
   public async hasService(uuid: SUUID): Promise<boolean> {}
   public async getRssi(): Promise<number> {}
   public isConnected(): boolean {}
