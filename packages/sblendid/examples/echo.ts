@@ -5,7 +5,7 @@ import Sblendid from "../src";
   const echoService = await peripheral.getService("ec00");
   let count = 0;
 
-  echoService!.on("ec0e", async (data: Buffer) => {
+  echoService!.on("ec0e", async data => {
     console.log("Got Echo", data.toString());
   });
 
