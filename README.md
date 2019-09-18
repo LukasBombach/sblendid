@@ -5,8 +5,6 @@
 &nbsp; 🥳 &nbsp;100% TypeScript and Native Code (C++ / Objective C)<br>
 &nbsp; 💯 &nbsp;100% Test Coverage<br>
 
-## Basic Bluetooth knowledge
-
 ## Usage
 
 Install Sblendid and the adapter for Node with npm or yarn
@@ -18,6 +16,73 @@ npm install @sblendid/sblendid @sblendid/adapter-node
 In the future, Sblendid should support multiple platforms including React Native and WebBluetooth.
 Hence, there is a separate package for for using Sblendid with Node so you can swap adapters for
 using it on another platform.
+
+### Basic workflow
+
+With BLE you usually want to connect to a peripheral, get one ore more services
+and read / write / subscribe to values on those services. With Sblendid this works
+as follows:
+
+```ts
+import Sblendid from "@sblendid/sblendid";
+
+(async () => {
+  const peripheral = await Sblendid.connect("My Peripheral");
+  const services = await peripheral.getServices();
+
+  const myService = services.find(service => service.uuid === "uuid a");
+  const anotherService = services.find(service => service.uuid === "uuid b");
+
+  const value = await myService.read("uuid y");
+  await myService.write("uuid y", Buffer.from("some value", "utf8"));
+
+  anotherService.on("uuid x", value => {
+    console.log("another value has changed", value.toString());
+  });
+})();
+```
+
+### Converters
+
+In the previous example, all values I read, write or get notified for are
+[`Buffers`](https://nodejs.org/api/buffer.html). It might get weary to constantly convert
+`Buffers` to the values you actually want to work on. For this, Sblendid introduces a
+concept called `converters`.
+
+```ts
+import Sblendid from "@sblendid/sblendid";
+
+const myServiceConverters: {
+  namedValue: {
+    uuid: "uuid y",
+    decode: (buffer: Buffer) => buffer.toString(),
+    encode: (message: string) => Buffer.from(message, "utf8")
+  }
+};
+
+const myServiceConverters: {
+  namedValue: {
+    uuid: "uuid x",
+    decode: (buffer: Buffer) => buffer.toString(),
+  }
+};
+
+(async () => {
+  const peripheral = await Sblendid.connect("My Peripheral");
+
+  const myService = peripheral.getService("uuid a", myServiceConverters);
+  const anotherService = peripheral.getService("uuid b", anotherConverters);
+
+  // value will be a string
+  const value = await myService.read("uuid y");
+  await myService.write("uuid y", "some value");
+
+  // value will also be a string here
+  anotherService.on("uuid x", value => {
+    console.log("another value has changed", value);
+  });
+})();
+```
 
 ### Scan for Peripherals around you
 
