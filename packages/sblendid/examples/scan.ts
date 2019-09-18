@@ -4,16 +4,15 @@ import Sblendid from "../src";
 (async () => {
   const sblendid = await Sblendid.powerOn();
 
-  sblendid.startScanning(async p => {
-    const uuid = chalk.blue(p.uuid);
+  sblendid.startScanning(async peripheral => {
+    const uuid = chalk.blue(peripheral.uuid);
 
-    const connectable = p.connectable
+    const connectable = peripheral.connectable
       ? chalk.green("connectable    ")
       : chalk.red("not connectable");
 
-    const servicesLabel = "Name";
-    const serviceUUIDs = p.advertisement.localName || chalk.dim("Unknown");
+    const name = peripheral.name || chalk.dim("Unknown");
 
-    console.log(uuid, connectable, servicesLabel, serviceUUIDs);
+    console.log(uuid, connectable, name);
   });
 })();
