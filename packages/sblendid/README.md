@@ -34,12 +34,6 @@ Sblendid has 4 main classes
 
 Static methods
 
-<style type="text/css">
-  table {
-    width: 100%;
-  }
-</style>
-
 | Method    | Parameters             | Return Value          |
 | --------- | ---------------------- | --------------------- |
 | `powerOn` |                        | `Promise<Sblendid>`   |
