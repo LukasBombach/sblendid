@@ -180,7 +180,7 @@ const newAlertUuid = "2a44";
 
 You can find more examples in the Examples folder:
 
-[👉 packages/sblendid/examples](https://github.com/LukasBombach/sblendid/tree/master/packages/sblendid/examples)
+👉 [packages/sblendid/examples](https://github.com/LukasBombach/sblendid/tree/master/packages/sblendid/examples)
 
 ## API
 
