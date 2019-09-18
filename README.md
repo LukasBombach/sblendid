@@ -38,6 +38,55 @@ import Sblendid from "@sblendid/sblendid";
 })();
 ```
 
+### Connect to a Peripheral by name and read its services
+
+> The [DE1+ Coffee machine](https://decentespresso.com/) can be found via Bluetooth
+> with the name "DE1"
+
+```ts
+import Sblendid from "@sblendid/sblendid";
+
+(async () => {
+  const peripheral = await Sblendid.connect("DE1");
+  const services = await peripheral.getServices();
+})();
+```
+
+### Read a Characteristic
+
+```ts
+import Sblendid from "@sblendid/sblendid";
+
+(async () => {
+  const peripheral = await Sblendid.connect(async peripheral => {
+    return !!peripheral.connectable && (await peripheral.hasService("180f"));
+  });
+
+  const batteryService = await peripheral.getService("180f");
+  const batteryLevel = await batteryService!.read("2a19");
+
+  console.log("Battery Level", batteryLevel.readUInt8(0), "%");
+})();
+```
+
+### Subscribe to a Characteristic
+
+```ts
+import Sblendid from "@sblendid/sblendid";
+
+(async () => {
+  const peripheral = await Sblendid.connect(async peripheral => {
+    return !!peripheral.connectable && (await peripheral.hasService("180f"));
+  });
+
+  const batteryService = await peripheral.getService("180f");
+
+  await batteryService!.on("2a19", batteryLevel => {
+    console.log("Battery Level", batteryLevel.readUInt8(0), "%");
+  });
+})();
+```
+
 ## API
 
 Sblendid has 4 main classes
