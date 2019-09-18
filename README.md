@@ -138,3 +138,48 @@ import Sblendid from "@sblendid/sblendid";
 const sblendid = await Sblendid.powerOn();
 const peripheral = await sblendid.find("My Peripheral");
 ```
+
+#### `startScanning(listener?: PeripheralListener): void`
+
+Will start scanning for peripherals. Instead of finding a specific peripheral
+and returning it, this method will just scan your surroundings and call a
+callback for every peripheral it finds. It will do so indefinitely until you
+call `sblendid.stopScanning()`. This method has no return value and is not
+asynchronous.
+
+The callback function will receive a single argument which is an instance of
+`Peripheral`.
+
+> Note that when you call `sblendid.startScanning` multiple times with different
+> listeners only the last listener will be used and all others will be discarded.
+
+```ts
+import Sblendid from "@sblendid/sblendid";
+
+function listener(peripheral) {
+  console.log("Found peripheral with uuid", peripheral.uuid);
+}
+
+const sblendid = await Sblendid.powerOn();
+sblendid.startScanning(listener);
+```
+
+#### `stopScanning(): void`
+
+Will tell sblendid to stop scanning. The listener you may have provided in
+`sblendid.startScanning` will be discarded and not be called anymore.
+
+```ts
+import Sblendid from "@sblendid/sblendid";
+
+function listener(peripheral) {
+  console.log("Found peripheral with uuid", peripheral.uuid);
+}
+
+const sblendid = await Sblendid.powerOn();
+sblendid.startScanning(listener);
+
+await new Promise(resolve => setTimeout(resolve, 1000));
+
+sblendid.stopScanning();
+```
