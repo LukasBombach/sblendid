@@ -189,7 +189,7 @@ Sblendid has 4 main classes
 | Class            | Desciption                                                                                                                                                                                                                                                                                                             |
 | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `Sblendid`       | Lets you find and connect to peripherals                                                                                                                                                                                                                                                                               |
-| `Peripheral`     | Lets you connect to peripherals and read its services and RSSI                                                                                                                                                                                                                                                         |
+| `Peripheral`     | Lets you connect to peripherals and read their services and RSSIs                                                                                                                                                                                                                                                      |
 | `Service`        | Lets you read, write and subscribe to updates on values (characteristics) of a service as well as                                                                                                                                                                                                                      | fetching all available characteristics |
 | `Characteristic` | A representation of a single characteristic of a service that lets you read, write and subscribe to updates of a specific value. Usually you will not need to use this class as everything you can do with this on a single characteristic, you can already do with the service class on all available characteristics |
 
@@ -437,3 +437,7 @@ class Characteristic {
   public async off(event: "notify", listener: Listener): Promise<void> {}
 }
 ```
+
+## License
+
+MIT
