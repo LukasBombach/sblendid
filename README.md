@@ -86,8 +86,8 @@ const peripheral = await Sblendid.connect(
 );
 ```
 
-##### Timeouts
-
-It is important to know that no function in this libary has a timeout. `Sblendid.connect`
-will scan indefinitely unless you make sure it doesn't. At some point in the future
-timeouts will be built in but it is not a scope of version 1.0.0
+> ##### Timeouts
+>
+> It is important to know that no function in this libary has a timeout. `Sblendid.connect`
+> will scan indefinitely unless you make sure it doesn't. At some point in the future
+> timeouts will be built in but it is not a scope of version 1.0.0
