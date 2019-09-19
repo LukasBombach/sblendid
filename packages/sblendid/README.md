@@ -24,6 +24,18 @@ For more examples, be sure to checkout the examples directory.
 
 👉 [packages/sblendid/examples](https://github.com/LukasBombach/sblendid/tree/master/packages/sblendid/examples)
 
+> ##### Running Examples
+>
+> You can run any of these examples by cloning this repository, building the library and calling `yarn example`:
+>
+> ```bash
+> git clone git@github.com:LukasBombach/sblendid.git
+> cd sblendid
+> yarn && yarn build
+> cd packages/sblendid
+> yarn example examples/<filename>
+> ```
+
 ### Basic workflow
 
 With BLE you usually want to connect to a peripheral, get one ore more services
@@ -231,6 +243,18 @@ const newAlertUuid = "2a44";
 You can find more examples in the Examples folder:
 
 👉 [packages/sblendid/examples](https://github.com/LukasBombach/sblendid/tree/master/packages/sblendid/examples)
+
+> ##### Running Examples
+>
+> You can run any of these examples by cloning this repository, building the library and calling `yarn example`:
+>
+> ```bash
+> git clone git@github.com:LukasBombach/sblendid.git
+> cd sblendid
+> yarn && yarn build
+> cd packages/sblendid
+> yarn example examples/<filename>
+> ```
 
 ## API
 
