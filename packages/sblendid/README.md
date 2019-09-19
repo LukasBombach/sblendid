@@ -1,4 +1,4 @@
-# Sblendid - Bluetooth Low Energy Library for Node.js
+# Sblendid - Bluetooth Low Energy for JavaScript
 
 Talk to Bluetooth Low Energy Library (BLE) Peripherals with Node.js
 
