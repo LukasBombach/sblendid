@@ -1,6 +1,6 @@
 # S*ble*ndid
 
-**S*ble*ndid** is a Bluetooth Low Energy Library (BLE) for Node.js that lets you talk to BLE devices.
+> #### **S*ble*ndid** is a Bluetooth Low Energy Library (BLE) for Node.js that lets you talk to BLE devices.
 
 &nbsp; 🦋 &nbsp;Lightweight, no Dependencies<br>
 &nbsp; 💍 &nbsp;Promise-Based API<br>
