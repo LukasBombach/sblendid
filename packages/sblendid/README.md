@@ -35,17 +35,11 @@ import Sblendid from "@sblendid/sblendid";
 
 (async () => {
   const peripheral = await Sblendid.connect("My Peripheral");
-  const services = await peripheral.getServices();
+  const service = await peripheral.getService("uuid");
 
-  const myService = services.find(service => service.uuid === "uuid a");
-  const anotherService = services.find(service => service.uuid === "uuid b");
-
-  const value = await myService.read("uuid y");
-  await myService.write("uuid y", Buffer.from("some value", "utf8"));
-
-  anotherService.on("uuid x", value => {
-    console.log("another value has changed", value.toString());
-  });
+  const value = await service.read("uuid");
+  await service.write("uuid", Buffer.from("value", "utf8"));
+  service.on("uuid", value => console.log(value));
 })();
 ```
 
@@ -59,35 +53,29 @@ concept called `converters`.
 ```js
 import Sblendid from "@sblendid/sblendid";
 
-const myServiceConverters: {
+// Converts buffer to string and back. Instead of a string, you
+// can also work with numbers, objects, classes or anything
+// as long as you write appropriate decode and encode functions
+const converters: {
   namedValue: {
-    uuid: "uuid y",
+    uuid: "uuid",
     decode: buffer => buffer.toString(),
     encode: message => Buffer.from(message, "utf8")
   }
 };
 
-const myServiceConverters: {
-  namedValue: {
-    uuid: "uuid x",
-    decode: buffer => buffer.toString(),
-  }
-};
-
 (async () => {
   const peripheral = await Sblendid.connect("My Peripheral");
-
-  const myService = peripheral.getService("uuid a", myServiceConverters);
-  const anotherService = peripheral.getService("uuid b", anotherConverters);
+  const service = await peripheral.getService("uuid", converters);
 
   // value will be a string
-  const value = await myService.read("uuid y");
-  await myService.write("uuid y", "some value");
+  const value = await service.read("uuid");
+
+  // you can pass a string
+  await service.write("uuid", "value");
 
   // value will also be a string here
-  anotherService.on("uuid x", value => {
-    console.log("another value has changed", value);
-  });
+  service.on("uuid", value => console.log(value));
 })();
 ```
 
@@ -110,7 +98,7 @@ import Sblendid from "@sblendid/sblendid";
 })();
 ```
 
-### Connect to a Peripheral by name and read its services
+### Connect to a Peripheral by name
 
 > The [DE1+ Coffee machine](https://decentespresso.com/) can be found via Bluetooth
 > with the name "DE1"
@@ -120,7 +108,30 @@ import Sblendid from "@sblendid/sblendid";
 
 (async () => {
   const peripheral = await Sblendid.connect("DE1");
+  const service = await peripheral.getService("a000");
+})();
+```
+
+### Get all Services from a Peripheral
+
+```js
+import Sblendid from "@sblendid/sblendid";
+
+(async () => {
+  const peripheral = await Sblendid.connect("DE1");
   const services = await peripheral.getServices();
+})();
+```
+
+### Get all Characteristics from a Service
+
+```js
+import Sblendid from "@sblendid/sblendid";
+
+(async () => {
+  const peripheral = await Sblendid.connect("DE1");
+  const service = await peripheral.getService("a000");
+  const characteristics = await service.getCharacteristics();
 })();
 ```
 
