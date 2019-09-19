@@ -1,5 +1,7 @@
 # Sblendid - Bluetooth Low Energy for JavaScript
 
+![](https://raw.githubusercontent.com/LukasBombach/sblendid/master/packages/sblendid/docs/images/sblendid-logo.svg)
+
 Talk to Bluetooth Low Energy Library (BLE) Peripherals with Node.js
 
 - [Usage](#usage) - How to install Sblendid and interact with Peripherals
