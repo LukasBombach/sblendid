@@ -20,9 +20,9 @@ using it on another platform.
 In this readme, you can find some examples for some common use cases as well as a full API
 description.
 
-For more examples, be sure to checkout the examples directory. [Learn how to run these examples here](#more-examples).
+There is also an examples directory in [packages/sblendid/examples](https://github.com/LukasBombach/sblendid/tree/master/packages/sblendid/examples).
 
-👉 [packages/sblendid/examples](https://github.com/LukasBombach/sblendid/tree/master/packages/sblendid/examples)
+👉 [Read about it here](#more-examples).
 
 ### Basic workflow
 
