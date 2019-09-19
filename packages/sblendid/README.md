@@ -20,21 +20,9 @@ using it on another platform.
 In this readme, you can find some examples for some common use cases as well as a full API
 description.
 
-For more examples, be sure to checkout the examples directory.
+For more examples, be sure to checkout the examples directory. [Read how to run these examples here](#more-examples).
 
 👉 [packages/sblendid/examples](https://github.com/LukasBombach/sblendid/tree/master/packages/sblendid/examples)
-
-> ##### Running Examples
->
-> You can run any of these examples by cloning this repository, building the library and calling `yarn example`:
->
-> ```bash
-> git clone git@github.com:LukasBombach/sblendid.git
-> cd sblendid
-> yarn && yarn build
-> cd packages/sblendid
-> yarn example examples/<filename>
-> ```
 
 ### Basic workflow
 
