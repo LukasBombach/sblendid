@@ -53,14 +53,18 @@ concept called `converters`.
 ```js
 import Sblendid from "@sblendid/sblendid";
 
-// Converts buffer to string and back. Instead of a string, you
-// can also work with numbers, objects, classes or anything
-// as long as you write appropriate decode and encode functions
+// Converts buffers to another value and back. You can
+// work with numbers, objects, classes or anything as
+// long as you write appropriate decode and encode functions
 const converters: {
-  namedValue: {
+  myValue: {
     uuid: "uuid",
     decode: buffer => buffer.toString(),
     encode: message => Buffer.from(message, "utf8")
+  },
+  otherValue: {
+    uuid: "anotherUuid",
+    decode: buffer => buffer.readUInt8(0)
   }
 };
 
@@ -69,13 +73,18 @@ const converters: {
   const service = await peripheral.getService("uuid", converters);
 
   // value will be a string
-  const value = await service.read("uuid");
+  const value = await service.read("myValue");
 
   // you can pass a string
-  await service.write("uuid", "value");
+  await service.write("myValue", "value");
 
-  // value will also be a string here
-  service.on("uuid", value => console.log(value));
+  // value will also be a string / number here
+  service.on("myValue", value => console.log(value));
+
+  // value2 will be a number
+  const value2 = await service.read("otherValue");
+  await service.write("otherValue", 22);
+
 })();
 ```
 
