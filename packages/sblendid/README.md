@@ -1,8 +1,15 @@
-# Sblendid - Bluetooth Low Energy for JavaScript
-
-![](https://github.com/LukasBombach/sblendid/blob/master/packages/sblendid/docs/images/sblendid-logo.svg)
-
-Talk to Bluetooth Low Energy Library (BLE) Peripherals with Node.js
+<p align="center">
+  &nbsp; <!-- booo hack, remove me -->
+</p>
+<p align="center">
+  <img alt="Sblendid" src="https://github.com/LukasBombach/sblendid/blob/master/packages/sblendid/docs/images/sblendid-logo.svg">
+</p>
+<p align="center">
+  <strong>Bluetooth Low Energy for JavaScript</strong><br>
+</p>
+<p align="center">
+  <img alt="separator" src="https://raw.githubusercontent.com/LukasBombach/new-type-js/master/demo/images/separator.png" height="59">
+</p>
 
 - [Usage](#usage) - How to install Sblendid and interact with Peripherals
 - [API](#api) - Full API description of all functions of this library
@@ -13,7 +20,8 @@ Sblendid is written entirely in TypeScript and native code (thanks to
 Promise-based API and I try to keep a high test coverage of about > 98%.
 
 Sblendid works on macOS and Windows.<br>
-It is not released yet, for `v1.0.0` Linux will be supported too.<br>
+It is not released yet, for `v1.0.0` Linux will be supported too.
+
 If something doesn’t work, please [file an issue](https://github.com/LukasBombach/sblendid/issues/new).<br>
 As this is in an early stage, your feedback is very welcome, please don't hesitate to file issues.
 
