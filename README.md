@@ -64,7 +64,8 @@ const converters: {
   },
   otherValue: {
     uuid: "anotherUuid",
-    decode: buffer => buffer.readUInt8(0)
+    decode: buffer => buffer.readUInt8(0),
+    encode: num => Buffer.from([num])
   }
 };
 
@@ -78,13 +79,13 @@ const converters: {
   // you can pass a string
   await service.write("myValue", "value");
 
-  // value will also be a string / number here
+  // value will also be a string
   service.on("myValue", value => console.log(value));
 
-  // value2 will be a number
+  // values for "otherValue" will be numbers
   const value2 = await service.read("otherValue");
   await service.write("otherValue", 22);
-
+  service.on("otherValue", value => console.log(value));
 })();
 ```
 
