@@ -122,10 +122,10 @@ import Sblendid from "@sblendid/sblendid";
 There are several ways to find and connect to a peripheral.
 You can use `Sblendid.connect` and pass either a
 
-- Peripheral Name
-- Peripheral UUID
-- Peripheral Adress
-- A function returning a boolean, or a Promise resolving to a boolean
+- Peripheral `Name`
+- Peripheral `UUID`
+- Peripheral `Address`
+- A `callback function` returning a boolean, or a Promise resolving to a boolean
 
 to it to tell Sblendid which peripheral you want to connect to.
 `Sblendid.connect` will use your criteria to scan your surroundings
