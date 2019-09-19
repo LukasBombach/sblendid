@@ -1,17 +1,15 @@
-# S*ble*ndid
+# Sblendid
 
-> #### **S*ble*ndid** is a Bluetooth Low Energy Library (BLE) for Node.js that lets you talk to BLE devices.
+Talk to Bluetooth Low Energy Library (BLE) Peripherals with Node.js
 
-&nbsp; 🦋 &nbsp;Lightweight, no Dependencies<br>
-&nbsp; 💍 &nbsp;Promise-Based API<br>
-&nbsp; 🥳 &nbsp;100% TypeScript and Native Code (C++ / Objective C)<br>
-&nbsp; 💯 &nbsp;100% Test Coverage<br>
+- [Usage](#usage) - How to install Sblendid and interact with Peripherals
+- [API](#api) - Full API description of all functions of this library
+- [Examples](#more-examples) - Further examples
 
-In this readme, you will learn how to use this library for common use cases and can find a full API
-description further down the document.
+Sblendid is written entirely in TypeScript and native code (C++ / Objective C)\*.
+It has a Promise-based API and I try to keep a high test coverage of about > 98%.
 
-There is also an examples directory in [packages/sblendid/examples](https://github.com/LukasBombach/sblendid/tree/master/packages/sblendid/examples).
-You can read about how to run these examples [in the More Examples section](#more-examples).
+\* Thanks to [Timeular](https://github.com/Timeular) for the native modules
 
 ## Usage
 
