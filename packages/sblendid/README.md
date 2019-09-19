@@ -5,6 +5,13 @@
 &nbsp; 🥳 &nbsp;100% TypeScript and Native Code (C++ / Objective C)<br>
 &nbsp; 💯 &nbsp;100% Test Coverage<br>
 
+In this readme, you can find some examples for some common use cases as well as a full API
+description.
+
+There is also an examples directory in [packages/sblendid/examples](https://github.com/LukasBombach/sblendid/tree/master/packages/sblendid/examples).
+
+👉 [Read about it here](#more-examples).
+
 ## Usage
 
 Install Sblendid and the adapter for Node with npm or yarn
@@ -13,16 +20,9 @@ Install Sblendid and the adapter for Node with npm or yarn
 npm install @sblendid/sblendid @sblendid/adapter-node
 ```
 
-In the future, Sblendid should support multiple platforms including React Native and WebBluetooth.
-Hence, there is a separate package for for using Sblendid with Node so you can swap adapters for
-using it on another platform.
-
-In this readme, you can find some examples for some common use cases as well as a full API
-description.
-
-There is also an examples directory in [packages/sblendid/examples](https://github.com/LukasBombach/sblendid/tree/master/packages/sblendid/examples).
-
-👉 [Read about it here](#more-examples).
+> In the future, Sblendid should support multiple platforms including React Native and WebBluetooth.
+> Hence, there is a separate package for for using Sblendid with Node so you can swap adapters for
+> using it on another platform.
 
 ### Basic workflow
 
