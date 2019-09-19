@@ -43,6 +43,12 @@ import Sblendid from "@sblendid/sblendid";
 })();
 ```
 
+> ##### Timeouts
+>
+> It is important to know that no function in this libary has a timeout. `Sblendid.connect`
+> will scan indefinitely unless you make sure it doesn't. At some point in the future
+> timeouts will be built in but it is not a scope of version 1.0.0
+
 ### Converters
 
 In the previous example, all values I read, write or get notified for are
@@ -108,17 +114,33 @@ import Sblendid from "@sblendid/sblendid";
 })();
 ```
 
-### Connect to a Peripheral by name
+### Connect to a Peripheral
 
-> The [DE1+ Coffee machine](https://decentespresso.com/) can be found via Bluetooth
-> with the name "DE1"
+There are several ways to find and connect to a peripheral.
+You can use `Sblendid.connect` and pass either a
+
+- Peripheral Name
+- Peripheral UUID
+- Peripheral Adress
+- A function returning a boolean, or a Promise resolving to a boolean
+
+to it to tell Sblendid which peripheral you want to connect to.
+`Sblendid.connect` will use your criteria to scan your surroundings
+and connect to and return the peripheral once it's found.
 
 ```js
 import Sblendid from "@sblendid/sblendid";
 
 (async () => {
-  const peripheral = await Sblendid.connect("DE1");
-  const service = await peripheral.getService("a000");
+  const peripheral = await Sblendid.connect("My Peripheral");
+  const peripheral = await Sblendid.connect("3A62F159");
+  const peripheral = await Sblendid.connect("00-14-22-01-23-45");
+  const peripheral = await Sblendid.connect(peripheral =>
+    peripheral.name.startsWith("My")
+  );
+  const peripheral = await Sblendid.connect(
+    async peripheral => await checkSomething(peripheral)
+  );
 })();
 ```
 
@@ -128,7 +150,7 @@ import Sblendid from "@sblendid/sblendid";
 import Sblendid from "@sblendid/sblendid";
 
 (async () => {
-  const peripheral = await Sblendid.connect("DE1");
+  const peripheral = await Sblendid.connect("My Peripheral");
   const services = await peripheral.getServices();
 })();
 ```
@@ -139,7 +161,7 @@ import Sblendid from "@sblendid/sblendid";
 import Sblendid from "@sblendid/sblendid";
 
 (async () => {
-  const peripheral = await Sblendid.connect("DE1");
+  const peripheral = await Sblendid.connect("My Peripheral");
   const service = await peripheral.getService("a000");
   const characteristics = await service.getCharacteristics();
 })();
@@ -300,12 +322,6 @@ const peripheral = await Sblendid.connect(
   async periperal => await isPeripheralIAmLookingFor(periperal)
 );
 ```
-
-> ##### Timeouts
->
-> It is important to know that no function in this libary has a timeout. `Sblendid.connect`
-> will scan indefinitely unless you make sure it doesn't. At some point in the future
-> timeouts will be built in but it is not a scope of version 1.0.0
 
 #### `new Sblendid()` (Constructor)
 
