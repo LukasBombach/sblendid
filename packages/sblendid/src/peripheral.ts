@@ -66,7 +66,7 @@ export default class Peripheral {
     return this.ensureTempraryConnection(async () => {
       const uuids = await this.getSUUIDs();
       return this.mapUUIDsToServices(uuids, serviceConverters);
-    });
+    }, []);
   }
 
   public async hasService(uuid: SUUID): Promise<boolean> {
@@ -74,8 +74,11 @@ export default class Peripheral {
     return services.some(s => s.uuid === uuid);
   }
 
-  public async getRssi(): Promise<number> {
-    return this.ensureTempraryConnection(() => this.adapter.getRssi(this.uuid));
+  public async getRssi(): Promise<number | undefined> {
+    return this.ensureTempraryConnection(
+      () => this.adapter.getRssi(this.uuid),
+      undefined
+    );
   }
 
   public isConnected(): boolean {
@@ -83,9 +86,11 @@ export default class Peripheral {
   }
 
   private async ensureTempraryConnection<C>(
-    callback: () => Promise<C>
+    callback: () => Promise<C>,
+    fallback: C
   ): Promise<C> {
     if (this.state !== "disconnected") return callback();
+    if (!this.connectable) return fallback;
     await this.connect();
     const returnValue = await callback();
     await this.disconnect();

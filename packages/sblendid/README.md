@@ -476,6 +476,15 @@ class Peripheral {
 }
 ```
 
+#### `async connect(): Promise<void>`
+
+```ts
+import Sblendid from "@sblendid/sblendid";
+
+const sblendid = await Sblendid.powerOn();
+sblendid.startScanning();
+```
+
 ### `Service`
 
 #### API Overview
