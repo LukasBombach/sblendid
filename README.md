@@ -182,6 +182,10 @@ import Sblendid from "@sblendid/sblendid";
 
 ### Read a Characteristic
 
+> ##### Read Values
+>
+> Unless you use `converters`, values read will be Buffers
+
 ```js
 import Sblendid from "@sblendid/sblendid";
 
@@ -201,6 +205,10 @@ const batteryLevelUuid = "2a19";
 ```
 
 ### Subscribe to a Characteristic
+
+> ##### Subscribe Values
+>
+> Unless you use `converters`, values you get from a subscription will be Buffers
 
 ```js
 import Sblendid from "@sblendid/sblendid";
@@ -222,6 +230,10 @@ const batteryLevelUuid = "2a19";
 ```
 
 ### Write to a Characteristic
+
+> ##### Subscribe Values
+>
+> Unless you use `converters`, values you pass to a write optation must be Buffers
 
 ```js
 import Sblendid from "@sblendid/sblendid";
