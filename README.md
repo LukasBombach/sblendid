@@ -233,7 +233,7 @@ const batteryLevelUuid = "2a19";
 
 > ##### Write Values
 >
-> Unless you use `converters`, values you pass to a write optation must be Buffers
+> Unless you use `converters`, values you pass to a write operation must be Buffers
 
 ```js
 import Sblendid from "@sblendid/sblendid";
