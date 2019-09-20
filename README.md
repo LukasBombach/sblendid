@@ -231,7 +231,7 @@ const batteryLevelUuid = "2a19";
 
 ### Write to a Characteristic
 
-> ##### Subscribe Values
+> ##### Write Values
 >
 > Unless you use `converters`, values you pass to a write optation must be Buffers
 
