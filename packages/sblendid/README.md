@@ -545,6 +545,11 @@ const peripheral = new Sblendid().find();
 new Sblendid().startScanning(peripheral => {});
 ```
 
+> To bring this API documentation close to how most people
+> would use this library I will receive my `Periperal`
+> instance from the `Sblendid` class instead of the constructor
+> in the following examples
+
 ### `Service`
 
 #### API Overview
