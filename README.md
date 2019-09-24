@@ -127,6 +127,12 @@ import Sblendid from "@sblendid/sblendid";
 })();
 ```
 
+The callback in `startScanning` will receive an instance of `Peripheral`. See
+
+- [Sblendid.powerOn](#static-async-poweron-promisesblendid)
+- [sblendid.startScanning](#startscanninglistener-peripherallistener-void)
+- [Peripheral](#peripheral)
+
 ### Connect to a Peripheral
 
 There are several ways to find and connect to a peripheral.
@@ -157,6 +163,11 @@ import Sblendid from "@sblendid/sblendid";
 })();
 ```
 
+The return type of `connect` will be an instance of `Peripheral`. See
+
+- [Sblendid.connect](#static-async-connectcondition-condition-promiseperipheral)
+- [Peripheral](#peripheral)
+
 ### Get all Services from a Peripheral
 
 ```js
@@ -167,6 +178,11 @@ import Sblendid from "@sblendid/sblendid";
   const services = await peripheral.getServices();
 })();
 ```
+
+The return type of `getServices` will be an array of instances of `Peripheral`. See
+
+- [peripheral.getServices]
+- [Service](#service)
 
 ### Get all Characteristics from a Service
 
