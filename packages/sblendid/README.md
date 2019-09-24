@@ -541,7 +541,7 @@ or `startScanning`
 import Sblendid from "@sblendid/sblendid";
 
 const peripheral = Sblendid.connect();
-const peripheral = Sblendid.find();
+const peripheral = new Sblendid().find();
 new Sblendid().startScanning(peripheral => {});
 ```
 
