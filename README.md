@@ -292,6 +292,7 @@ a more detailed description below.
 class Sblendid {
   public adapter: Adapter;
 
+  constructor() {}
   public static async powerOn(): Promise<Sblendid> {}
   public static async connect(condition: Condition): Promise<Peripheral> {}
   public async powerOn(): Promise<void> {}
@@ -300,6 +301,12 @@ class Sblendid {
   public stopScanning(): void {}
 }
 ```
+
+#### Properties
+
+- `adapter` - An instance of the low-level Bluetooth adapter
+  that Sblendid uses, right now this will be an instance of
+  `@sblendid/adapter-node`. See [packages/adapter-node](https://github.com/LukasBombach/sblendid/tree/master/packages/adapter-node)
 
 #### `static async powerOn(): Promise<Sblendid>`
 
@@ -466,6 +473,7 @@ class Peripheral {
   public connectable?: boolean;
   public state: State;
 
+  constructor(uuid: PUUID, adapter: Adapter, options: Options) {}
   public async connect(): Promise<void> {}
   public async disconnect(): Promise<void> {}
   public async getService(uuid: SUUID, converters?: Converters): Promise<Service<Converters> | undefined> {}
@@ -476,13 +484,65 @@ class Peripheral {
 }
 ```
 
-#### `async connect(): Promise<void>`
+#### Properties
+
+- `uuid` - The UUID of the peripheral
+- `adapter` - An instance of the low-level Bluetooth adapter
+  that Sblendid uses, right now this will be an instance of
+  `@sblendid/adapter-node`. See [packages/adapter-node](https://github.com/LukasBombach/sblendid/tree/master/packages/adapter-node)
+- `name` - The `localName` of the peripheral. This
+  is the same as `peripheral.advertisement.localName` and will
+  be an empty string if localName on the advertisement is
+  not available
+- `address` - The address of the peripheral
+- `addressType` - The address type of the peripheral, can
+  either be `public`, `random` or `unknown`
+- `advertisement` - An object with the advertisement information of a peripheral. See [packages/adapter-node/src/peripheral.ts](https://github.com/LukasBombach/sblendid/blob/2c4de5914cb3372aca6eb80d686c903e3d1c27bc/packages/adapter-node/src/peripheral.ts#L10-L16)
+- `connectable` - Whether or not the peripheral can be connected to. _Important_ This is
+  an info the peripheral advertises itself with. Sometimes, even thought it says it's not
+  connectable, it actually is.
+- `state` - The connection state of the peripheral, can either be `connecting`, `connected`, `disconnecting` or `disconnected`
+
+#### `new Peripheral(uuid: PUUID, adapter: Adapter, options: Options)` (Constructor)
+
+Creates a new Peripheral instance
+
+```ts
+import { Peripheral } from "@sblendid/sblendid";
+import Adapter from "@sblendid/adapter-node";
+
+const options = {
+  address: "00-14-22-01-23-45",
+  addressType: "public",
+  advertisement: {
+    localName: "My Peripheral",
+    txPowerLevel: 10,
+    serviceUUIDs: ["f055e3", "143cba", "e72a1e"],
+    manufacturerData: Buffer.from([]),
+    serviceData: [
+      {
+        uuid: "43f9d8",
+        data: Buffer.from([])
+      }
+    ]
+  },
+  connectable: true
+};
+
+const adapter = new Adapter();
+const peripheral = new Peripheral("3A62F159", adapter, options);
+```
+
+_However_, you would usually create a Peripheral instance by
+getting it from the `Sblendid` class using `connect`, `find`
+or `startScanning`
 
 ```ts
 import Sblendid from "@sblendid/sblendid";
 
-const sblendid = await Sblendid.powerOn();
-sblendid.startScanning();
+const peripheral = Sblendid.connect();
+const peripheral = Sblendid.find();
+new Sblendid().startScanning(peripheral => {});
 ```
 
 ### `Service`
