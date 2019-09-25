@@ -1,7 +1,7 @@
-export const actual = jest.requireActual("@sblendid/adapter-node") as any;
-export const AdapterMock = jest.fn(() => adapterMockInstance);
+export const Adapter = jest.requireActual("@sblendid/adapter-node") as any;
+export const AdapterMockConstructor = jest.fn(() => adapterMock);
 
-export const adapterMockInstance = {
+export const adapterMock = {
   powerOn: jest.fn(),
   startScanning: jest.fn(),
   stopScanning: jest.fn(),
@@ -18,4 +18,4 @@ export const adapterMockInstance = {
   notify: jest.fn()
 };
 
-export default process.env.USE_BLE ? actual : AdapterMock;
+export default process.env.USE_BLE ? Adapter : AdapterMockConstructor;
