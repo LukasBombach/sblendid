@@ -3,6 +3,8 @@ import Peripheral from "../src/peripheral";
 import Service from "../src/service";
 import Characteristic, { Converter } from "../src/characteristic";
 
+// jest.mock("@sblendid/adapter-node");
+
 describe("Service", () => {
   const name = "Find Me";
   const deviceInfoUUID = "180a";

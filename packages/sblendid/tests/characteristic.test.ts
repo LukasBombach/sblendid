@@ -4,6 +4,8 @@ import Peripheral from "../src/peripheral";
 import Service from "../src/service";
 import Characteristic, { Properties, Converter } from "../src/characteristic";
 
+// jest.mock("@sblendid/adapter-node");
+
 type ConstructorPerumtation = [
   Service<any>,
   string,

@@ -1,11 +1,13 @@
 import Sblendid from "../src/sblendid";
 import Peripheral from "../src/peripheral";
+import { adapterMockInstance } from "./__mocks__/@sblendid/adapter-node";
 
 describe("Sblendid", () => {
   const name = "Find Me";
   const max = 5;
 
   it("can power on the adapter using its static method", async () => {
+    adapterMockInstance.powerOn.mockRejectedValueOnce("your mom");
     await expect(Sblendid.powerOn()).resolves.toBeInstanceOf(Sblendid);
   }, 10000);
 
