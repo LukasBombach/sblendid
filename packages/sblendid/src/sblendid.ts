@@ -30,6 +30,7 @@ export default class Sblendid {
     await this.adapter.powerOn();
   }
 
+  // todo maybe this should be static
   public async find(condition: Condition): Promise<Peripheral> {
     const adapterCondition = this.getAdapterCondition(condition);
     const discoverParams = await this.adapter.find(adapterCondition);
@@ -37,6 +38,7 @@ export default class Sblendid {
     return new Peripheral(uuid, this.adapter, options);
   }
 
+  // todo maybe this should be static
   public startScanning(listener?: PeripheralListener): void {
     this.adapter.off("discover", this.scanListener);
     this.scanListener = this.getDiscoverListener(listener);
@@ -44,6 +46,7 @@ export default class Sblendid {
     this.adapter.startScanning();
   }
 
+  // todo maybe this should be static
   public stopScanning(): void {
     this.adapter.off("discover", this.scanListener);
     this.scanListener = () => {};
