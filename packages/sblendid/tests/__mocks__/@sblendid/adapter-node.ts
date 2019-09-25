@@ -1,8 +1,11 @@
+import Sblendid from "../../../src";
+
 export const Adapter = jest.requireActual("@sblendid/adapter-node") as any;
 export const AdapterMockConstructor = jest.fn(() => adapterMock);
+export const isMock = Boolean(process.env.USE_BLE);
 
 export const adapterMock = {
-  powerOn: jest.fn(),
+  powerOn: jest.fn(() => Promise.resolve(new Sblendid())),
   startScanning: jest.fn(),
   stopScanning: jest.fn(),
   find: jest.fn(),
@@ -18,4 +21,4 @@ export const adapterMock = {
   notify: jest.fn()
 };
 
-export default process.env.USE_BLE ? Adapter : AdapterMockConstructor;
+export default isMock ? Adapter : AdapterMockConstructor;
