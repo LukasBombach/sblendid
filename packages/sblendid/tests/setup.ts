@@ -48,11 +48,13 @@ export default class Setup {
   }
 
   private async findPeripheral(): Promise<Peripheral> {
+    console.warn(`Just called findPeripheral`);
     const sblendid = await Sblendid.powerOn();
     return await sblendid.find(this.peripheralName);
   }
 
   private async findService(type: keyof Services): Promise<Service> {
+    console.warn(`Just called findService with ${type}`);
     const characteristic = await this.getCharacteristic(type);
     return characteristic.service;
   }
@@ -60,11 +62,12 @@ export default class Setup {
   private async findCharacteristic(
     type: keyof Services
   ): Promise<Characteristic> {
+    console.warn(`Just called findCharacteristic with ${type}`);
     const peripheral = await this.getPeripheral();
     const services = await peripheral.getServices();
     for (const service of services) {
       const characteristics = await service.getCharacteristics();
-      const characteristic = characteristics.find(c => !!c.properties[type]);
+      const characteristic = characteristics.find(c => c.properties[type]);
       if (characteristic) return characteristic;
     }
     const msg = `Could not find characteristic that has allows a ${type} operation`;
