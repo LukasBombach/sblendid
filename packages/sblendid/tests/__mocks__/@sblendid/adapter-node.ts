@@ -26,20 +26,20 @@ export const readBuffer = Buffer.from("read", "utf8");
 export const notify = true;
 
 Object.assign(AdapterMock.prototype, {
-  powerOn: jest.fn().mockResolvedValue(undefined), // powerOn(): Promise<void>;
-  startScanning: jest.fn(), // startScanning(): void;
-  stopScanning: jest.fn(), // stopScanning(): void;
-  find: jest.fn().mockResolvedValue(discoverParams), // find(condition: FindCondition): Promise<Params<"discover">>;
-  connect: jest.fn().mockResolvedValue(undefined), // connect(pUUID: PUUID): Promise<void>;
-  disconnect: jest.fn().mockResolvedValue(undefined), // disconnect(pUUID: PUUID): Promise<void>;
-  getServices: jest.fn().mockResolvedValue(suuids), // getServices(pUUID: PUUID): Promise<SUUID[]>;
-  getRssi: jest.fn().mockResolvedValue(rssi), // getRssi(pUUID: PUUID): Promise<number>;
-  on: jest.fn(), // on<E extends Event>(event: E, listener: Listener<E>): void;
-  off: jest.fn(), // off<E extends Event>(event: E, listener: Listener<E>): void;
-  getCharacteristics: jest.fn().mockResolvedValue(characteristicDatas), // getCharacteristics(pUUID: PUUID, sUUID: SUUID): Promise<CharacteristicData[]>;
-  read: jest.fn().mockResolvedValue(readBuffer), // read(pUUID: PUUID, sUUID: SUUID, cUUID: CUUID): Promise<Buffer>;
-  write: jest.fn().mockResolvedValue(undefined), // write(pUUID: PUUID, sUUID: SUUID, cUUID: CUUID, value: Buffer, withoutResponse?: boolean): Promise<void>;
-  notify: jest.fn().mockResolvedValue(notify) // notify(pUUID: PUUID, sUUID: SUUID, cUUID: CUUID, notify: boolean): Promise<boolean>;
+  powerOn: jest.fn().mockResolvedValue(undefined),
+  startScanning: jest.fn(),
+  stopScanning: jest.fn(),
+  find: jest.fn().mockResolvedValue(discoverParams),
+  connect: jest.fn().mockResolvedValue(undefined),
+  disconnect: jest.fn().mockResolvedValue(undefined),
+  getServices: jest.fn().mockResolvedValue(suuids),
+  getRssi: jest.fn().mockResolvedValue(rssi),
+  on: jest.fn(),
+  off: jest.fn(),
+  getCharacteristics: jest.fn().mockResolvedValue(characteristicDatas),
+  read: jest.fn().mockResolvedValue(readBuffer),
+  write: jest.fn().mockResolvedValue(undefined),
+  notify: jest.fn().mockResolvedValue(notify)
 });
 
 export default isMock ? Adapter : AdapterMock;
