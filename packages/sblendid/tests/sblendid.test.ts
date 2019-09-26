@@ -6,8 +6,6 @@ describe("Sblendid", () => {
   const name = "Find Me";
   const max = 5;
 
-  console.log("Adapter", Adapter);
-
   it.only("can power on the adapter using its static method", async () => {
     const spy = jest.spyOn(Adapter.prototype, "powerOn");
     const sblendid = await Sblendid.powerOn();
@@ -16,7 +14,7 @@ describe("Sblendid", () => {
     spy.mockRestore();
   }, 10000);
 
-  it("can connect to a peripheral using a condition", async () => {
+  it.only("can connect to a peripheral using a condition", async () => {
     const spy = jest.spyOn(Adapter.prototype, "find");
     const peripheral = await Sblendid.connect(p => Boolean(p.connectable));
     expect(peripheral).toBeInstanceOf(Peripheral);
