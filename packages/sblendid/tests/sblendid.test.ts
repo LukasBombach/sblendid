@@ -1,20 +1,28 @@
+import Adapter from "@sblendid/adapter-node";
 import Sblendid from "../src/sblendid";
 import Peripheral from "../src/peripheral";
-import { adapterMock, isMock } from "./__mocks__/@sblendid/adapter-node";
 
 describe("Sblendid", () => {
   const name = "Find Me";
   const max = 5;
 
-  it("can power on the adapter using its static method", async () => {
-    await expect(Sblendid.powerOn()).resolves.toBeInstanceOf(Sblendid);
+  console.log("Adapter", Adapter);
+
+  it.only("can power on the adapter using its static method", async () => {
+    const spy = jest.spyOn(Adapter.prototype, "powerOn");
+    const sblendid = await Sblendid.powerOn();
+    expect(sblendid).toBeInstanceOf(Sblendid);
+    expect(spy).toHaveBeenCalledWith();
+    spy.mockRestore();
   }, 10000);
 
   it("can connect to a peripheral using a condition", async () => {
+    const spy = jest.spyOn(Adapter.prototype, "find");
     const peripheral = await Sblendid.connect(p => Boolean(p.connectable));
     expect(peripheral).toBeInstanceOf(Peripheral);
     expect(peripheral.isConnected()).toBe(true);
     await peripheral.disconnect();
+    spy.mockRestore();
   }, 10000);
 
   it("can connect to a peripheral by name", async () => {
