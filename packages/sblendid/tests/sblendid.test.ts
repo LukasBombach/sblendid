@@ -6,12 +6,11 @@ describe("Sblendid", () => {
   const name = "Find Me";
   const max = 5;
 
-  it.skip("can power on the adapter using its static method", async () => {
+  it("can power on the adapter using its static method", async () => {
     const spy = jest.spyOn(Adapter.prototype, "powerOn");
     const sblendid = await Sblendid.powerOn();
     expect(sblendid).toBeInstanceOf(Sblendid);
     expect(spy).toHaveBeenCalledWith();
-    spy.mockRestore();
   }, 10000);
 
   it("waits for the adapter to have been powered on", async () => {
@@ -24,7 +23,7 @@ describe("Sblendid", () => {
     spy.mockRestore();
   }, 10000);
 
-  it.skip("can connect to a peripheral using a condition", async () => {
+  it("can connect to a peripheral using a condition", async () => {
     const spy = jest.spyOn(Adapter.prototype, "find");
     const peripheral = await Sblendid.connect(p => Boolean(p.connectable));
     const findCondition = spy.mock.calls[0][0];
@@ -33,10 +32,9 @@ describe("Sblendid", () => {
     expect(spy).toHaveBeenCalledWith(expect.any(Function));
     expect(findCondition("uuid", "address", "public", true, {}, 1)).toBe(true);
     await peripheral.disconnect();
-    spy.mockRestore();
   }, 10000);
 
-  it.skip("can connect to a peripheral by name", async () => {
+  it("can connect to a peripheral by name", async () => {
     const peripheral = await Sblendid.connect(name);
     expect(peripheral).toBeInstanceOf(Peripheral);
     expect(peripheral.isConnected()).toBe(true);
