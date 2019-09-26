@@ -1,18 +1,10 @@
-import util from "util";
+import { inspect } from "util";
 import Adapter from "@sblendid/adapter-node";
 import Sblendid, { Peripheral } from "../src";
 
 describe("Sblendid", () => {
   const name = "Find Me";
   const max = 5;
-
-  function promiseState(p: Promise<any>) {
-    const t = Promise.resolve("pending");
-    return Promise.race([p, t]).then(
-      v => (v === "pending" ? "pending" : "fulfilled"),
-      () => "rejected"
-    );
-  }
 
   it.skip("can power on the adapter using its static method", async () => {
     const spy = jest.spyOn(Adapter.prototype, "powerOn");
@@ -23,18 +15,12 @@ describe("Sblendid", () => {
   }, 10000);
 
   it("waits for the adapter to have been powered on", async () => {
-    const powerOn = { resolved: false };
-    const spy = jest.spyOn(Adapter.prototype, "powerOn").mockImplementation(
-      () =>
-        new Promise<void>(res => {
-          setTimeout(() => {
-            powerOn.resolved = true;
-            res();
-          }, 300);
-        })
-    );
+    const spy = jest
+      .spyOn(Adapter.prototype, "powerOn")
+      .mockImplementation(() => new Promise<void>(res => setTimeout(res, 0)));
     await Sblendid.powerOn();
-    expect(powerOn.resolved).toBe(true);
+    const spyPromise = spy.mock.results[0].value;
+    expect(inspect(spyPromise)).toBe("Promise { undefined }");
     spy.mockRestore();
   }, 10000);
 
