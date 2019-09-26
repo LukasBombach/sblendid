@@ -6,7 +6,7 @@ describe("Sblendid", () => {
   const name = "Find Me";
   const max = 5;
 
-  it.only("can power on the adapter using its static method", async () => {
+  it("can power on the adapter using its static method", async () => {
     const spy = jest.spyOn(Adapter.prototype, "powerOn");
     const sblendid = await Sblendid.powerOn();
     expect(sblendid).toBeInstanceOf(Sblendid);
@@ -14,7 +14,7 @@ describe("Sblendid", () => {
     spy.mockRestore();
   }, 10000);
 
-  it.only("can connect to a peripheral using a condition", async () => {
+  it("can connect to a peripheral using a condition", async () => {
     const spy = jest.spyOn(Adapter.prototype, "find");
     const peripheral = await Sblendid.connect(p => Boolean(p.connectable));
     expect(peripheral).toBeInstanceOf(Peripheral);
@@ -23,14 +23,14 @@ describe("Sblendid", () => {
     spy.mockRestore();
   }, 10000);
 
-  it("can connect to a peripheral by name", async () => {
+  it.skip("can connect to a peripheral by name", async () => {
     const peripheral = await Sblendid.connect(name);
     expect(peripheral).toBeInstanceOf(Peripheral);
     expect(peripheral.isConnected()).toBe(true);
     await peripheral.disconnect();
   }, 10000);
 
-  it("can connect to a peripheral using an async condition", async () => {
+  it.skip("can connect to a peripheral using an async condition", async () => {
     const peripheral = await Sblendid.connect(
       p => new Promise(res => (p.connectable ? res(true) : res(false)))
     );
@@ -39,24 +39,24 @@ describe("Sblendid", () => {
     await peripheral.disconnect();
   }, 10000);
 
-  it("can power on the adapter using its instance method", async () => {
+  it.skip("can power on the adapter using its instance method", async () => {
     const sblendid = new Sblendid();
     await expect(sblendid.powerOn()).resolves.toBe(undefined);
   }, 10000);
 
-  it("can find the first connectable peripheral", async () => {
+  it.skip("can find the first connectable peripheral", async () => {
     const sblendid = await Sblendid.powerOn();
     const peripheral = await sblendid.find(p => Boolean(p.connectable));
     expect(peripheral).toBeInstanceOf(Peripheral);
   }, 10000);
 
-  it("can find a peripheral by name", async () => {
+  it.skip("can find a peripheral by name", async () => {
     const sblendid = await Sblendid.powerOn();
     const peripheral = await sblendid.find(name);
     expect(peripheral).toBeInstanceOf(Peripheral);
   }, 10000);
 
-  it("can find a peripheral with an async find function", async () => {
+  it.skip("can find a peripheral with an async find function", async () => {
     const sblendid = await Sblendid.powerOn();
     const peripheral = await sblendid.find(
       p => new Promise(res => (p.connectable ? res(true) : res(false)))
@@ -64,13 +64,13 @@ describe("Sblendid", () => {
     expect(peripheral).toBeInstanceOf(Peripheral);
   }, 10000);
 
-  it("can start scanning without a callback", async () => {
+  it.skip("can start scanning without a callback", async () => {
     const sblendid = await Sblendid.powerOn();
     expect(() => sblendid.startScanning()).not.toThrow();
     sblendid.stopScanning();
   }, 10000);
 
-  it(`can scan for ${max} peripherals`, async () => {
+  it.skip(`can scan for ${max} peripherals`, async () => {
     expect.assertions(1);
     let numFound = 0;
     const sblendid = await Sblendid.powerOn();
@@ -80,7 +80,7 @@ describe("Sblendid", () => {
     sblendid.stopScanning();
   }, 10000);
 
-  it("stops scaning for peripherals", async () => {
+  it.skip("stops scaning for peripherals", async () => {
     expect.assertions(2);
     let numFound = 0;
     const sblendid = await Sblendid.powerOn();
