@@ -20,7 +20,9 @@ export const readBuffer = Buffer.from("read", "utf8");
 export const notify = true;
 
 Object.assign(AdapterMock.prototype, {
-  powerOn: jest.fn().mockResolvedValue(undefined),
+  powerOn: jest
+    .fn()
+    .mockReturnValue(new Promise<void>(res => setTimeout(res, 0))),
   startScanning: jest.fn(),
   stopScanning: jest.fn(),
   find: jest.fn().mockResolvedValue(discoverParams),

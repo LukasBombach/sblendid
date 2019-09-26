@@ -14,13 +14,10 @@ describe("Sblendid", () => {
   }, 10000);
 
   it("waits for the adapter to have been powered on", async () => {
-    const spy = jest
-      .spyOn(Adapter.prototype, "powerOn")
-      .mockImplementation(() => new Promise<void>(res => setTimeout(res, 0)));
+    const spy = jest.spyOn(Adapter.prototype, "powerOn");
     await Sblendid.powerOn();
     const spyPromise = spy.mock.results[0].value;
     expect(inspect(spyPromise)).toBe("Promise { undefined }");
-    spy.mockRestore();
   }, 10000);
 
   it("can connect to a peripheral using a condition", async () => {
@@ -34,7 +31,7 @@ describe("Sblendid", () => {
     await peripheral.disconnect();
   }, 10000);
 
-  it("can connect to a peripheral by name", async () => {
+  it.skip("can connect to a peripheral by name", async () => {
     const peripheral = await Sblendid.connect(name);
     expect(peripheral).toBeInstanceOf(Peripheral);
     expect(peripheral.isConnected()).toBe(true);
