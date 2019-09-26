@@ -1,12 +1,20 @@
+import util from "util";
 import Adapter from "@sblendid/adapter-node";
-import Sblendid from "../src/sblendid";
-import Peripheral from "../src/peripheral";
+import Sblendid, { Peripheral } from "../src";
 
 describe("Sblendid", () => {
   const name = "Find Me";
   const max = 5;
 
-  it("can power on the adapter using its static method", async () => {
+  function promiseState(p: Promise<any>) {
+    const t = Promise.resolve("pending");
+    return Promise.race([p, t]).then(
+      v => (v === "pending" ? "pending" : "fulfilled"),
+      () => "rejected"
+    );
+  }
+
+  it.skip("can power on the adapter using its static method", async () => {
     const spy = jest.spyOn(Adapter.prototype, "powerOn");
     const sblendid = await Sblendid.powerOn();
     expect(sblendid).toBeInstanceOf(Sblendid);
@@ -14,11 +22,30 @@ describe("Sblendid", () => {
     spy.mockRestore();
   }, 10000);
 
-  it("can connect to a peripheral using a condition", async () => {
+  it("waits for the adapter to have been powered on", async () => {
+    const powerOn = { resolved: false };
+    const spy = jest.spyOn(Adapter.prototype, "powerOn").mockImplementation(
+      () =>
+        new Promise<void>(res => {
+          setTimeout(() => {
+            powerOn.resolved = true;
+            res();
+          }, 300);
+        })
+    );
+    await Sblendid.powerOn();
+    expect(powerOn.resolved).toBe(true);
+    spy.mockRestore();
+  }, 10000);
+
+  it.skip("can connect to a peripheral using a condition", async () => {
     const spy = jest.spyOn(Adapter.prototype, "find");
     const peripheral = await Sblendid.connect(p => Boolean(p.connectable));
+    const findCondition = spy.mock.calls[0][0];
     expect(peripheral).toBeInstanceOf(Peripheral);
     expect(peripheral.isConnected()).toBe(true);
+    expect(spy).toHaveBeenCalledWith(expect.any(Function));
+    expect(findCondition("uuid", "address", "public", true, {}, 1)).toBe(true);
     await peripheral.disconnect();
     spy.mockRestore();
   }, 10000);
