@@ -1,10 +1,15 @@
 import { inspect } from "util";
 import Adapter from "@sblendid/adapter-node";
-import Sblendid, { Peripheral, FindFunction } from "../src";
+import Sblendid, { Peripheral, Condition } from "../src";
 
 describe("Sblendid", () => {
   const name = "Find Me";
   const max = 5;
+  const findConditions: Condition[] = [
+    name,
+    p => !!p.connectable,
+    p => new Promise(res => res(!!p.connectable))
+  ];
 
   it("can power on the adapter using its static method", async () => {
     const spy = jest.spyOn(Adapter.prototype, "powerOn");
@@ -20,11 +25,7 @@ describe("Sblendid", () => {
     expect(inspect(spyReturn)).toBe("Promise { undefined }");
   }, 10000);
 
-  it.each([
-    name,
-    p => !!p.connectable,
-    p => new Promise(res => res(!!p.connectable))
-  ] as FindFunction[])(
+  it.each(findConditions)(
     "can connect to a peripheral using different types of conditions",
     async condition => {
       const spy = jest.spyOn(Adapter.prototype, "find");
