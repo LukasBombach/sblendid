@@ -22,13 +22,13 @@ describe("Sblendid", () => {
 
   it.each([
     name,
-    (p: Peripheral) => !!p.connectable,
-    (p: Peripheral) => new Promise(res => res(!!p.connectable))
-  ])(
+    p => !!p.connectable,
+    p => new Promise(res => res(!!p.connectable))
+  ] as FindFunction[])(
     "can connect to a peripheral using different types of conditions",
     async condition => {
       const spy = jest.spyOn(Adapter.prototype, "find");
-      const peripheral = await Sblendid.connect(condition as FindFunction);
+      const peripheral = await Sblendid.connect(condition);
       const findCondition = spy.mock.calls[0][spy.mock.calls[0].length - 1];
       const adv = { localName: "Find Me" };
       const result = findCondition("uuid", "address", "public", true, adv, 1);
