@@ -25,7 +25,7 @@ describe("Sblendid", () => {
     (p: Peripheral) => !!p.connectable,
     (p: Peripheral) => new Promise(res => res(!!p.connectable))
   ])(
-    "can connect to a peripheral using different types of find conditions",
+    "can connect to a peripheral using different types of conditions",
     async condition => {
       const spy = jest.spyOn(Adapter.prototype, "find");
       const peripheral = await Sblendid.connect(condition as FindFunction);
