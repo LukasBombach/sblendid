@@ -1,6 +1,6 @@
 import { inspect } from "util";
 import Adapter from "@sblendid/adapter-node";
-import Sblendid, { Peripheral } from "../src";
+import Sblendid, { Peripheral, FindFunction } from "../src";
 
 describe("Sblendid", () => {
   const name = "Find Me";
@@ -20,16 +20,15 @@ describe("Sblendid", () => {
     expect(inspect(spyReturn)).toBe("Promise { undefined }");
   }, 10000);
 
-  it.each`
-    how                           | condition
-    ${"by name"}                  | ${name}
-    ${"using a condition"}        | ${(p: Peripheral) => !!p.connectable}
-    ${"using an async condition"} | ${(p: Peripheral) => new Promise(res => res(!!p.connectable))}
-  `(
-    "can connect to a peripheral $how",
-    async ({ condition }) => {
+  it.each([
+    name,
+    (p: Peripheral) => !!p.connectable,
+    (p: Peripheral) => new Promise(res => res(!!p.connectable))
+  ])(
+    "can connect to a peripheral using different types of find conditions",
+    async condition => {
       const spy = jest.spyOn(Adapter.prototype, "find");
-      const peripheral = await Sblendid.connect(condition);
+      const peripheral = await Sblendid.connect(condition as FindFunction);
       const findCondition = spy.mock.calls[0][spy.mock.calls[0].length - 1];
       const adv = { localName: "Find Me" };
       const result = findCondition("uuid", "address", "public", true, adv, 1);
