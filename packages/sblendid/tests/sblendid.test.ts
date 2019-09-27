@@ -5,10 +5,10 @@ import Sblendid, { Peripheral, Condition } from "../src";
 describe("Sblendid", () => {
   const name = "Find Me";
   const max = 5;
-  const findConditions: Condition[] = [
-    name,
-    p => !!p.connectable,
-    p => new Promise(res => res(!!p.connectable))
+  const findConditions: [string, Condition][] = [
+    ["by name", name],
+    ["using a callback", p => !!p.connectable],
+    ["using an async callback", p => new Promise(res => res(!!p.connectable))]
   ];
 
   it("can power on the adapter using its static method", async () => {
@@ -26,8 +26,8 @@ describe("Sblendid", () => {
   }, 10000);
 
   it.each(findConditions)(
-    "can connect to a peripheral using different types of conditions",
-    async condition => {
+    "can connect to a peripheral %s",
+    async (_, condition) => {
       const spy = jest.spyOn(Adapter.prototype, "find");
       const peripheral = await Sblendid.connect(condition);
       const findCondition = spy.mock.calls[0][spy.mock.calls[0].length - 1];
