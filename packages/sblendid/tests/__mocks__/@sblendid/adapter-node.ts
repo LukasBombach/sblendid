@@ -6,7 +6,9 @@ import Adapter, {
 
 export const isMock = Boolean(process.env.USE_BLE);
 export class AdapterMock {}
-export const advertisement: Advertisement = {};
+export const advertisement: Advertisement = {
+  localName: "Find Me"
+};
 // prettier-ignore
 export const discoverParams: Params<"discover"> = ["peripheralUuid", "address", "public", true, advertisement, 1];
 export const suuids = ["suuid-1", "suuid-2", "suuid-3"];
