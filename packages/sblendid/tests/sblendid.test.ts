@@ -11,10 +11,6 @@ describe("Sblendid", () => {
     ["using an async callback", p => new Promise(res => res(!!p.connectable))]
   ];
 
-  function maxCalls(fn: Function, max: number, start = 0): Promise<number> {
-    return new Promise(resolve => fn(() => ++start >= max && resolve()));
-  }
-
   it("powers on the adapter using its static method", async () => {
     const spy = jest.spyOn(Adapter.prototype, "powerOn");
     const sblendid = await Sblendid.powerOn();
@@ -76,17 +72,23 @@ describe("Sblendid", () => {
 
   it(`scans for ${max} peripherals`, async () => {
     const sblendid = await Sblendid.powerOn();
-    await expect(maxCalls(sblendid.startScanning, max)).resolves.toBe(max);
+    const maxCalls = (start = 0) =>
+      new Promise(res =>
+        sblendid.startScanning(() => {
+          ++start >= max && res(start);
+        })
+      );
+    await expect(maxCalls()).resolves.toBe(max);
   });
 
   it(`stops scanning for peripherals`, async () => {
     const sblendid = await Sblendid.powerOn();
     const callback = jest.fn();
     sblendid.startScanning(callback);
-    await new Promise(resolve => setTimeout(resolve, 300));
+    await new Promise(resolve => setTimeout(resolve, 200));
     sblendid.stopScanning();
     const numCallsWhenStopped = callback.mock.calls.length;
-    await new Promise(resolve => setTimeout(resolve, 300));
+    await new Promise(resolve => setTimeout(resolve, 200));
     expect(callback.mock.calls.length).toBe(numCallsWhenStopped);
   });
 });
