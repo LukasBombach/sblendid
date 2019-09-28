@@ -39,9 +39,16 @@ describe("Sblendid", () => {
   });
 
   it.each(conditions)("finds a peripheral %s", async (_, condition) => {
+    const spy = jest.spyOn(Adapter.prototype, "find");
     const sblendid = await Sblendid.powerOn();
     const peripheral = await sblendid.find(condition);
+    const findCondition = spy.mock.calls[0][spy.mock.calls[0].length - 1];
+    const adv = { localName: "Find Me" };
+    const result = findCondition("uuid", "address", "public", true, adv, 1);
     expect(peripheral).toBeInstanceOf(Peripheral);
+    expect(peripheral.isConnected()).toBe(false);
+    expect(spy).toHaveBeenCalledWith(expect.any(Function));
+    expect(result).toBe(true);
   });
 
   it.skip("starts scanning without a callback", async () => {
