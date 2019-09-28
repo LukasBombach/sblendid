@@ -11,7 +11,7 @@ describe("Sblendid", () => {
     ["using an async callback", p => new Promise(res => res(!!p.connectable))]
   ];
 
-  function numCalls(fn: Function, max: number, start = 0): Promise<number> {
+  function maxCalls(fn: Function, max: number, start = 0): Promise<number> {
     return new Promise(resolve => fn(() => ++start >= max && resolve()));
   }
 
@@ -65,22 +65,28 @@ describe("Sblendid", () => {
     sblendid.stopScanning();
   });
 
-  it(`scans for ${max} peripherals`, async () => {
+  it("will receive a peripheral in the scan callback", async () => {
     const sblendid = await Sblendid.powerOn();
-    await expect(numCalls(sblendid.startScanning, max)).resolves.toBe(max);
+    const spy = jest.fn();
+    sblendid.startScanning(spy);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    sblendid.stopScanning();
+    expect(spy).toHaveBeenLastCalledWith(expect.any(Peripheral));
   });
 
-  it.todo("will receive a peripheral in the scan callback");
-
-  it.skip("stops scaning for peripherals", async () => {
-    expect.assertions(2);
-    let numFound = 0;
+  it(`scans for ${max} peripherals`, async () => {
     const sblendid = await Sblendid.powerOn();
-    const helper = (resolve: Function) => () => ++numFound >= max && resolve();
-    await new Promise(resolve => sblendid.startScanning(helper(resolve)));
-    expect(numFound).toBe(max);
-    sblendid.stopScanning();
+    await expect(maxCalls(sblendid.startScanning, max)).resolves.toBe(max);
+  });
+
+  it(`stops scanning for peripherals`, async () => {
+    const sblendid = await Sblendid.powerOn();
+    const callback = jest.fn();
+    sblendid.startScanning(callback);
     await new Promise(resolve => setTimeout(resolve, 300));
-    expect(numFound).toBe(max);
+    sblendid.stopScanning();
+    const numCallsWhenStopped = callback.mock.calls.length;
+    await new Promise(resolve => setTimeout(resolve, 300));
+    expect(callback.mock.calls.length).toBe(numCallsWhenStopped);
   });
 });
