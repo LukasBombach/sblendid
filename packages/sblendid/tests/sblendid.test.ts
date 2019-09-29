@@ -51,7 +51,14 @@ describe("Sblendid", () => {
     expect(result).toBe(true);
   });
 
-  it.todo("inspect the findFunctions passed used with connect and find");
+  it("will receive a peripheral in the connect / find conditions", async () => {
+    const sblendid = await Sblendid.powerOn();
+    const condition = jest.fn();
+    await sblendid.find(condition);
+    await Sblendid.connect(condition);
+    expect(condition).nthCalledWith(1, expect.any(Peripheral));
+    expect(condition).nthCalledWith(2, expect.any(Peripheral));
+  });
 
   it("starts scanning without a callback", async () => {
     const spy = jest.spyOn(Adapter.prototype, "on");
@@ -72,12 +79,10 @@ describe("Sblendid", () => {
 
   it(`scans for ${max} peripherals`, async () => {
     const sblendid = await Sblendid.powerOn();
-    const maxCalls = (start = 0) =>
-      new Promise(res =>
-        sblendid.startScanning(() => {
-          ++start >= max && res(start);
-        })
-      );
+    const maxCalls = (start = 0) => {
+      const cb = (res: Function) => () => ++start >= max && res(start);
+      return new Promise(res => sblendid.startScanning(cb(res)));
+    };
     await expect(maxCalls()).resolves.toBe(max);
   });
 

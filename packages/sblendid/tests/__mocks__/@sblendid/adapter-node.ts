@@ -39,7 +39,10 @@ Object.assign(AdapterMock.prototype, {
     .mockReturnValue(new Promise<void>(res => setTimeout(res, 0))),
   startScanning: jest.fn(),
   stopScanning: jest.fn(),
-  find: jest.fn().mockResolvedValue(discoverParams),
+  find: jest.fn(async (listener: Listener) => {
+    listener(...discoverParams);
+    return discoverParams;
+  }),
   connect: jest.fn().mockResolvedValue(undefined),
   disconnect: jest.fn().mockResolvedValue(undefined),
   getServices: jest.fn().mockResolvedValue(suuids),
