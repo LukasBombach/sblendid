@@ -4,7 +4,7 @@ import Sblendid, { Peripheral, Condition } from "../src";
 
 describe("Sblendid", () => {
   const name = "Find Me";
-  const scanTimeout = 150;
+  const scanTimeout = 300;
   const conditions: [string, Condition][] = [
     ["by name", name],
     ["using a callback", p => !!p.connectable],
@@ -53,11 +53,12 @@ describe("Sblendid", () => {
 
   it("will receive a peripheral in the connect / find conditions", async () => {
     const sblendid = await Sblendid.powerOn();
-    const condition = jest.fn();
+    const condition = jest.fn((p: Peripheral) => p.name === name);
     await sblendid.find(condition);
-    await Sblendid.connect(condition);
+    const peripheral = await Sblendid.connect(condition);
     expect(condition).nthCalledWith(1, expect.any(Peripheral));
     expect(condition).nthCalledWith(2, expect.any(Peripheral));
+    await peripheral.disconnect();
   });
 
   it("starts scanning without a callback", async () => {
