@@ -4,6 +4,7 @@ import Sblendid, { Peripheral, Condition } from "../src";
 
 describe("Sblendid", () => {
   const name = "Find Me";
+  const scanTimeout = 150;
   const conditions: [string, Condition][] = [
     ["by name", name],
     ["using a callback", p => !!p.connectable],
@@ -71,29 +72,29 @@ describe("Sblendid", () => {
     const sblendid = await Sblendid.powerOn();
     const spy = jest.fn();
     sblendid.startScanning(spy);
-    await new Promise(resolve => setTimeout(resolve, 300));
+    await new Promise(resolve => setTimeout(resolve, scanTimeout));
     sblendid.stopScanning();
     expect(spy).toHaveBeenLastCalledWith(expect.any(Peripheral));
   });
 
-  it(`scans for peripherals`, async () => {
+  it(`scans for 3 peripherals`, async () => {
     const sblendid = await Sblendid.powerOn();
     const maxCalls = (start = 0) => {
-      const cb = (res: Function) => () => ++start >= 5 && res(start);
+      const cb = (res: Function) => () => ++start >= 3 && res(start);
       return new Promise(res => sblendid.startScanning(cb(res)));
     };
-    await expect(maxCalls()).resolves.toBe(5);
+    await expect(maxCalls()).resolves.toBe(3);
   });
 
   it(`stops scanning for peripherals`, async () => {
     const sblendid = await Sblendid.powerOn();
     const spy = jest.fn();
     sblendid.startScanning(spy);
-    await new Promise(res => setTimeout(res, 300));
+    await new Promise(res => setTimeout(res, scanTimeout));
     sblendid.stopScanning();
     expect(spy).toHaveBeenCalled();
     spy.mockReset();
-    await new Promise(res => setTimeout(res, 300));
+    await new Promise(res => setTimeout(res, scanTimeout));
     expect(spy).not.toHaveBeenCalled();
   });
 });
