@@ -1,11 +1,9 @@
 import { inspect } from "util";
 import Adapter from "@sblendid/adapter-node";
 import Sblendid, { Peripheral, Condition } from "../src";
-import AdapterMock from "./__mocks__/AdapterForScanning";
 
 describe("Sblendid", () => {
   const name = "Find Me";
-  const max = 5;
   const conditions: [string, Condition][] = [
     ["by name", name],
     ["using a callback", p => !!p.connectable],
@@ -78,25 +76,24 @@ describe("Sblendid", () => {
     expect(spy).toHaveBeenLastCalledWith(expect.any(Peripheral));
   });
 
-  it(`scans for ${max} peripherals`, async () => {
+  it(`scans for peripherals`, async () => {
     const sblendid = await Sblendid.powerOn();
     const maxCalls = (start = 0) => {
-      const cb = (res: Function) => () => ++start >= max && res(start);
+      const cb = (res: Function) => () => ++start >= 5 && res(start);
       return new Promise(res => sblendid.startScanning(cb(res)));
     };
-    await expect(maxCalls()).resolves.toBe(max);
+    await expect(maxCalls()).resolves.toBe(5);
   });
 
   it(`stops scanning for peripherals`, async () => {
     const sblendid = await Sblendid.powerOn();
-    const adapterMock = (new AdapterMock() as any) as AdapterMock & Adapter;
-    const callback = jest.fn();
-    const disoverEvent = ["uuid", "address", "public", true, {}, 1];
-    sblendid.adapter = adapterMock;
-    sblendid.startScanning(callback);
-    adapterMock.emitter.emit("discover", ...disoverEvent);
+    const spy = jest.fn();
+    sblendid.startScanning(spy);
+    await new Promise(res => setTimeout(res, 300));
     sblendid.stopScanning();
-    adapterMock.emitter.emit("discover", ...disoverEvent);
-    expect(callback).toBeCalledTimes(1);
+    expect(spy).toHaveBeenCalled();
+    spy.mockReset();
+    await new Promise(res => setTimeout(res, 300));
+    expect(spy).not.toHaveBeenCalled();
   });
 });
