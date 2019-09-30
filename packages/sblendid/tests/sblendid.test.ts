@@ -1,6 +1,7 @@
 import { inspect } from "util";
 import Adapter from "@sblendid/adapter-node";
 import Sblendid, { Peripheral, Condition } from "../src";
+import AdapterMock from "./__mocks__/AdapterForScanning";
 
 describe("Sblendid", () => {
   const name = "Find Me";
@@ -88,14 +89,14 @@ describe("Sblendid", () => {
 
   it(`stops scanning for peripherals`, async () => {
     const sblendid = await Sblendid.powerOn();
+    const adapterMock = (new AdapterMock() as any) as AdapterMock & Adapter;
     const callback = jest.fn();
-    const spy = jest.spyOn(sblendid.adapter, "on");
+    const disoverEvent = ["uuid", "address", "public", true, {}, 1];
+    sblendid.adapter = adapterMock;
     sblendid.startScanning(callback);
-    spy.mock.calls[0][1]("uuid", "address", "public", true, {}, 1);
+    adapterMock.emitter.emit("discover", ...disoverEvent);
     sblendid.stopScanning();
-    expect(callback).toHaveBeenCalled();
-    callback.mockReset();
-    spy.mock.calls[0][1]("uuid", "address", "public", true, {}, 1);
-    expect(callback).not.toHaveBeenCalled();
+    adapterMock.emitter.emit("discover", ...disoverEvent);
+    expect(callback).toBeCalledTimes(1);
   });
 });

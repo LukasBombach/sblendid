@@ -11,7 +11,6 @@ const emitter = new EventEmitter();
 setInterval(() => emitter.emit("discover", ...discoverParams), 10);
 
 export const isMock = Boolean(process.env.USE_BLE);
-export class AdapterMock {}
 export const advertisement: Advertisement = {
   localName: "Find Me"
 };
@@ -33,6 +32,7 @@ export const characteristicDatas: CharacteristicData[] = [
 export const readBuffer = Buffer.from("read", "utf8");
 export const notify = true;
 
+export class AdapterMock {}
 Object.assign(AdapterMock.prototype, {
   powerOn: jest
     .fn()
