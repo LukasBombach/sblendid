@@ -89,11 +89,13 @@ describe("Sblendid", () => {
   it(`stops scanning for peripherals`, async () => {
     const sblendid = await Sblendid.powerOn();
     const callback = jest.fn();
+    const spy = jest.spyOn(sblendid.adapter, "on");
     sblendid.startScanning(callback);
-    await new Promise(resolve => setTimeout(resolve, 200));
+    spy.mock.calls[0][1]("uuid", "address", "public", true, {}, 1);
     sblendid.stopScanning();
-    const numCallsWhenStopped = callback.mock.calls.length;
-    await new Promise(resolve => setTimeout(resolve, 200));
-    expect(callback.mock.calls.length).toBe(numCallsWhenStopped);
+    expect(callback).toHaveBeenCalled();
+    callback.mockReset();
+    spy.mock.calls[0][1]("uuid", "address", "public", true, {}, 1);
+    expect(callback).not.toHaveBeenCalled();
   });
 });
