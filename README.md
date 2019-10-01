@@ -29,10 +29,12 @@ Promise-based API and I try to keep a high test coverage of about > 98%.
 Sblendid works on macOS and Windows.<br>
 It is not released yet, for `v1.0.0` Linux will be supported too.
 
+## Issues? Feature requests? Please file an issue!
+
 If something doesn’t work, please [file an issue](https://github.com/LukasBombach/sblendid/issues/new).<br>
 As this is in an early stage, your feedback is very welcome, please don't hesitate to file issues.
 
-### Basic workflow
+## Basic workflow
 
 With BLE you usually want to connect to a peripheral, get one ore more services
 and read / write / subscribe to values on those services. With Sblendid this works
@@ -57,7 +59,7 @@ import Sblendid from "@sblendid/sblendid";
 > will scan indefinitely unless you make sure it doesn't. At some point in the future
 > timeouts will be built in but it is not a scope of version 1.0.0
 
-### Converters
+## Converters
 
 In the previous example, all values I read, write or get notified for are
 [`Buffers`](https://nodejs.org/api/buffer.html). It might get weary to constantly convert
@@ -103,7 +105,7 @@ const converters: {
 })();
 ```
 
-### Scan for Peripherals around you
+## Scan for Peripherals around you
 
 ```js
 import Sblendid from "@sblendid/sblendid";
@@ -128,7 +130,7 @@ The callback in `startScanning` will receive an instance of `Peripheral`. See
 - [sblendid.startScanning](#startscanninglistener-peripherallistener-void)
 - [Peripheral](#peripheral)
 
-### Connect to a Peripheral
+## Connect to a Peripheral
 
 There are several ways to find and connect to a peripheral.
 You can use `Sblendid.connect` and pass either a
@@ -163,7 +165,7 @@ The return type of `connect` will be an instance of `Peripheral`. See
 - [Sblendid.connect](#static-async-connectcondition-condition-promiseperipheral)
 - [Peripheral](#peripheral)
 
-### Get all Services from a Peripheral
+## Get all Services from a Peripheral
 
 ```js
 import Sblendid from "@sblendid/sblendid";
@@ -179,7 +181,7 @@ The return type of `getServices` will be an array of instances of `Peripheral`. 
 - [peripheral.getServices]
 - [Service](#service)
 
-### Get all Characteristics from a Service
+## Get all Characteristics from a Service
 
 ```js
 import Sblendid from "@sblendid/sblendid";
@@ -191,7 +193,7 @@ import Sblendid from "@sblendid/sblendid";
 })();
 ```
 
-### Read a Characteristic
+## Read a Characteristic
 
 > ##### Read Values
 >
@@ -215,7 +217,7 @@ const batteryLevelUuid = "2a19";
 })();
 ```
 
-### Subscribe to a Characteristic
+## Subscribe to a Characteristic
 
 > ##### Subscribe Values
 >
@@ -240,7 +242,7 @@ const batteryLevelUuid = "2a19";
 })();
 ```
 
-### Write to a Characteristic
+## Write to a Characteristic
 
 > ##### Write Values
 >
@@ -262,7 +264,7 @@ const newAlertUuid = "2a44";
 })();
 ```
 
-### More examples
+## More examples
 
 You can find more examples in the Examples folder:
 
