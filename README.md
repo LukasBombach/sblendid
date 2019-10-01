@@ -8,7 +8,7 @@
   <img alt="separator" src="https://raw.githubusercontent.com/LukasBombach/new-type-js/master/demo/images/separator.png" height="59">
 </p>
 
-- [Usage](#basic-workflow) - How to install Sblendid and interact with Peripherals
+- [Usage](#basic-workflow) - How to use Sblendid and interact with Peripherals
 - [API](#api) - Full API description of all functions of this library
 - [Examples](#more-examples) - Further examples
 
