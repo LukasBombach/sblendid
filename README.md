@@ -4,6 +4,9 @@
 <p align="center">
   <strong>Bluetooth Low Energy for JavaScript</strong><br>
 </p>
+<p align="center">
+  <img alt="separator" src="https://raw.githubusercontent.com/LukasBombach/new-type-js/master/demo/images/separator.png" height="59">
+</p>
 
 ```bash
 npm install @sblendid/sblendid @sblendid/adapter-node
