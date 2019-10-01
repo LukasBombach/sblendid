@@ -25,11 +25,8 @@ npm install @sblendid/sblendid @sblendid/adapter-node
 
 Sblendid supports Linux, macOS and Windows. In the future, Sblendid should support other platforms
 including React Native and WebBluetooth. Hence, you have to install the `@sblendid/adapter-node`
-package as a seperate dependency.
-
-Native modules for macOS and Windows are provided by [Timeular](https://github.com/Timeular (thanks!)
-
-### Issues? Feature requests? Please file an issue!
+package as a seperate dependency. Native modules for macOS and Windows are provided by
+[Timeular](https://github.com/Timeular) (thanks!)
 
 - If something doesn’t work, please [file an issue](https://github.com/LukasBombach/sblendid/issues/new).<br>
 - If you have feature request, please [file an issue](https://github.com/LukasBombach/sblendid/issues/new).<br>
