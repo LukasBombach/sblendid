@@ -165,12 +165,13 @@ describe("Service", () => {
     expect(characteristics.map(c => c.uuid).sort()).toMatchSnapshot();
   }, 10000);
 
-  it("caches avalable characteristics", async () => {
+  it("caches available characteristics", async () => {
     const service = new Service(deviceInfoUUID, peripheral);
     const spy = jest.spyOn(service.peripheral.adapter, "getCharacteristics");
+    const calls = spy.mock.calls.length;
     await service.getCharacteristics();
     await service.getCharacteristics();
-    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledTimes(calls + 1);
   }, 10000);
 
   it("gets all avalable characteristics using converers", async () => {
