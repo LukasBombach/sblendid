@@ -129,6 +129,14 @@ describe("Peripheral", () => {
     expect(services).toSatisfyAll(s => s instanceof Service);
   }, 10000);
 
+  it("returns fallbacks if a peripheral is not connectable", async () => {
+    const adapter = new Adapter();
+    const options = { ...minOptions, connectable: false };
+    const peripheral = new Peripheral("uuid", adapter, options);
+    await expect(peripheral.getServices()).resolves.toEqual([]);
+    await expect(peripheral.getRssi()).resolves.toBe(undefined);
+  }, 10000);
+
   it("gets all services from a peripheral (with converters)", async () => {
     const converterMap = { [serviceUUID]: converters };
     const services = await peripheral.getServices(converterMap);
