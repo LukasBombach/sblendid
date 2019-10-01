@@ -1,6 +1,9 @@
-import Sblendid from "../src/sblendid";
-import Peripheral from "../src/peripheral";
-import Service from "../src/service";
+import Adapter from "@sblendid/adapter-node";
+import Sblendid, {
+  Service,
+  Peripheral,
+  PeripheralOptions as Options
+} from "../src";
 
 describe("Peripheral", () => {
   const name = "Find Me";
@@ -15,6 +18,17 @@ describe("Peripheral", () => {
       decode: (buffer: Buffer) => buffer.toString()
     }
   };
+  const minOptions: Options = {
+    address: "address",
+    addressType: "public",
+    advertisement: {}
+  };
+  const options: [string, Options][] = [
+    ["has minimum options", minOptions],
+    ["is connectable", { ...minOptions, connectable: true }],
+    ["is not connectable", { ...minOptions, connectable: false }],
+    ["has as name", { ...minOptions, advertisement: { localName: "name" } }]
+  ];
   let connnectSpy: jest.SpyInstance<Promise<void>, [string]>;
   let disconnnectSpy: jest.SpyInstance<Promise<void>, [string]>;
   let peripheral: Peripheral;
@@ -36,6 +50,19 @@ describe("Peripheral", () => {
     await peripheral.disconnect();
     connnectSpy.mockRestore();
     disconnnectSpy.mockRestore();
+  });
+
+  it.each(options)("creates a new peripheral that %s", async (_, opts) => {
+    const adapter = new Adapter();
+    const peripheral = new Peripheral("uuid", adapter, opts);
+    expect(peripheral.uuid).toBe("uuid");
+    expect(peripheral.adapter).toBe(adapter);
+    expect(peripheral.name).toBe(opts.advertisement.localName || "");
+    expect(peripheral.address).toBe(opts.address);
+    expect(peripheral.addressType).toBe(opts.addressType);
+    expect(peripheral.advertisement).toBe(opts.advertisement);
+    expect(peripheral.connectable).toBe(opts.connectable);
+    expect(peripheral.state).toBe("disconnected");
   });
 
   it("connects to peripheral", async () => {

@@ -22,7 +22,7 @@ export const discoverParams: Params<"discover"> = [
   advertisement,
   1
 ];
-export const suuids = ["suuid-1", "suuid-2", "suuid-3"];
+export const suuids = ["180a", "suuid-1", "suuid-2", "suuid-3"];
 export const rssi = 1;
 export const characteristicDatas: CharacteristicData[] = [
   { uuid: "cuuid-1", properties: { read: true, write: false, notify: false } },
