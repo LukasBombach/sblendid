@@ -22,16 +22,18 @@ npm install @sblendid/sblendid @sblendid/adapter-node
 > Hence, there is a separate package for for using Sblendid with Node so you can swap adapters for
 > using it on another platform.
 
-Sblendid is written entirely in TypeScript and native code (thanks to
-[Timeular](https://github.com/Timeular) for the native modules). It has a
-Promise-based API and I try to keep a high test coverage of about > 98%.
+> Sblendid is written entirely in TypeScript and native code (thanks to
+> [Timeular](https://github.com/Timeular) for the native modules). It has a
+> Promise-based API and I try to keep a high test coverage of about > 98%.
 
-Sblendid works on macOS and Windows.<br>
-It is not released yet, for `v1.0.0` Linux will be supported too.
+> Sblendid works on macOS and Windows.<br>
+> It is not released yet, for `v1.0.0` Linux will be supported too.
 
 ### Issues? Feature requests? Please file an issue!
 
-If something doesn’t work, please [file an issue](https://github.com/LukasBombach/sblendid/issues/new).<br>
+- If something doesn’t work, please [file an issue](https://github.com/LukasBombach/sblendid/issues/new).<br>
+- If you have feature request, please [file an issue](https://github.com/LukasBombach/sblendid/issues/new).<br>
+
 As this is in an early stage, your feedback is very welcome, please don't hesitate to file issues.
 
 ## Basic workflow
