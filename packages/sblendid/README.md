@@ -15,6 +15,10 @@
 - [API](#api) - Full API description of all functions of this library
 - [Examples](#more-examples) - Further examples
 
+```bash
+npm install @sblendid/sblendid @sblendid/adapter-node
+```
+
 Sblendid is written entirely in TypeScript and native code (thanks to
 [Timeular](https://github.com/Timeular) for the native modules). It has a
 Promise-based API and I try to keep a high test coverage of about > 98%.
