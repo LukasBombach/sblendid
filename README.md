@@ -15,6 +15,8 @@
 - [API](#api) - Full API description of all functions of this library
 - [Examples](#more-examples) - Further examples
 
+## Install
+
 ```bash
 npm install @sblendid/sblendid @sblendid/adapter-node
 ```
