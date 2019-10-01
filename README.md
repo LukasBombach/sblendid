@@ -1,6 +1,6 @@
-<h1 align="center">
+<p align="center">
   <img alt="Sblendid" src="https://github.com/LukasBombach/sblendid/blob/master/packages/sblendid/docs/images/sblendid-logo.svg">
-</h1>
+</p>
 <p align="center">
   <strong>Bluetooth Low Energy for JavaScript</strong><br>
 </p>
