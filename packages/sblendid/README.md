@@ -23,16 +23,14 @@ It is written in TypeScript and built on to of native code using the system's na
 npm install @sblendid/sblendid @sblendid/adapter-node
 ```
 
-> In the future, Sblendid should support multiple platforms including React Native and WebBluetooth.
-> Hence, there is a separate package for for using Sblendid with Node so you can swap adapters for
-> using it on another platform.
+#### Platform support
 
-> Sblendid is written entirely in TypeScript and native code (thanks to
-> [Timeular](https://github.com/Timeular) for the native modules). It has a
-> Promise-based API and I try to keep a high test coverage of about > 98%.
+Sblendid supports Linux, macOS and Windows. In the future, Sblendid should support other platforms
+including React Native and WebBluetooth. Hence, you have to install the `@sblendid/adapter-node`
+package as a seperate dependency.
 
-> Sblendid works on macOS and Windows.<br>
-> It is not released yet, for `v1.0.0` Linux will be supported too.
+> Native modules for macOS and Windows are provided by [Timeular](https://github.com/Timeular)
+> (thanks!)
 
 ### Issues? Feature requests? Please file an issue!
 
