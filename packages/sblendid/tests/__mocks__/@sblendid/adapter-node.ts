@@ -7,9 +7,6 @@ import Adapter, {
 
 type Listener = (...args: any[]) => void;
 
-const emitter = new EventEmitter();
-setInterval(() => emitter.emit("discover", ...discoverParams), 10);
-
 export const isMock = Boolean(process.env.USE_BLE);
 export const advertisement: Advertisement = {
   localName: "Find Me"
@@ -31,7 +28,15 @@ export const characteristicDatas: CharacteristicData[] = [
 export const readBuffer = Buffer.from("read", "utf8");
 export const notify = true;
 
-export class AdapterMock {}
+const bindings = new EventEmitter();
+
+export class AdapterMock {
+  private bindings = { bindings };
+
+  constructor() {
+    setInterval(() => bindings.emit("discover", ...discoverParams), 10);
+  }
+}
 Object.assign(AdapterMock.prototype, {
   powerOn: jest
     .fn()
@@ -46,8 +51,8 @@ Object.assign(AdapterMock.prototype, {
   disconnect: jest.fn().mockResolvedValue(undefined),
   getServices: jest.fn().mockResolvedValue(suuids),
   getRssi: jest.fn().mockResolvedValue(rssi),
-  on: jest.fn((e: string, listener: Listener) => emitter.on(e, listener)),
-  off: jest.fn((e: string, listener: Listener) => emitter.off(e, listener)),
+  on: jest.fn((e: string, listener: Listener) => bindings.on(e, listener)),
+  off: jest.fn((e: string, listener: Listener) => bindings.off(e, listener)),
   getCharacteristics: jest.fn().mockResolvedValue(characteristicDatas),
   read: jest.fn().mockResolvedValue(readBuffer),
   write: jest.fn().mockResolvedValue(undefined),

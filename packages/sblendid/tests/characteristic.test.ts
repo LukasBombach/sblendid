@@ -224,9 +224,10 @@ describe("Characteristic", () => {
     const spy = jest.spyOn(characteristic.service.peripheral.adapter, "notify");
     const listener = jest.fn();
     const listener2 = jest.fn();
+    const calls = spy.mock.calls.length;
     await characteristic.on("notify", listener);
     await characteristic.on("notify", listener2);
-    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledTimes(calls + 1);
   });
 
   it("does not stop notifications when there are still active listeners", async () => {
@@ -242,15 +243,18 @@ describe("Characteristic", () => {
     expect(spy).toHaveBeenCalledTimes(1);
   });
 
-  it.skip("throws when listening for notifications on a non-notifiable characteristic", async () => {
+  it("throws when listening for notifications on a non-notifiable characteristic", async () => {
     const characteristic = new Characteristic(manufacturer.uuid, deviceInfo);
     const listener = jest.fn();
     const message = `Failed to turn on notifications for ${manufacturer.uuid}`;
     const error = new Error(message);
+    jest
+      .spyOn(characteristic.service.peripheral.adapter, "notify")
+      .mockImplementationOnce(() => Promise.resolve(false));
     await expect(characteristic.on("notify", listener)).rejects.toEqual(error);
   });
 
-  it.skip("throws when stopping to listen for notifications on a non-notifiable characteristic", async () => {
+  it("throws when stopping to listen for notifications on a non-notifiable characteristic", async () => {
     const characteristic = new Characteristic(manufacturer.uuid, deviceInfo);
     jest
       .spyOn(characteristic.service.peripheral.adapter, "notify")
