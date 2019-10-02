@@ -8,6 +8,8 @@
   <img alt="separator" src="https://raw.githubusercontent.com/LukasBombach/new-type-js/master/demo/images/separator.png" height="59">
 </p>
 
+![](https://github.com/LukasBombach/sblendid/workflows/build/badge.svg)
+
 - [Usage](#basic-workflow) - How to use Sblendid and interact with Peripherals
 - [API](#api) - Full API description of all functions of this library
 - [Examples](#more-examples) - Further examples
