@@ -1,0 +1,40 @@
+name: build
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [macOS-latest, windows-latest]
+        node-version: [12.x]
+
+    steps:
+    - uses: actions/checkout@v1
+      
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: install
+      run: yarn install
+      
+    - name: build adapter-node
+      run: cd packages/adapter-node && yarn build
+      
+    - name: build adapter-node
+      run: cd ../sblendid && yarn build
+      
+    - name: test
+      run: yarn test
+      
+    - name: send coverage to code climate
+      if: matrix.os == 'macOS-latest' && matrix.node-version == '12.x'
+      run: echo This would send the coverage but on macOS and node 12.x only.
+      
+      env:
+        CI: true
