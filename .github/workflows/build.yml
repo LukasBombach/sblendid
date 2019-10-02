@@ -30,9 +30,3 @@ jobs:
         yarn test
       env:
         CI: true
-    - name: Test & publish code coverage
-      uses: paambaati/codeclimate-action@v2.2.1
-      env:
-        CC_TEST_REPORTER_ID: 9fb9d9638d7819e4962c48cc331bef7896abd52d68eb093f30f48783a0d6b49e
-      with:
-        coverageCommand: cd packages/sblendid && yarn test
