@@ -38,8 +38,8 @@ As this is in an early stage, your feedback is very welcome, please don't hesita
 ## Basic workflow
 
 With BLE you usually use the [GATT protocol](https://www.bluetooth.com/specifications/gatt/). This means you
-connect to a `peripheral`, get one ore more `services` and `read` / `write` / `subscribe to` values on these
-services. With Sblendid this works as follows:
+connect to a `peripheral`, get one ore more `services` of that peripheral and `read` / `write` / `subscribe to`
+values on these services. With Sblendid this works as follows:
 
 ```js
 import Sblendid from "@sblendid/sblendid";
