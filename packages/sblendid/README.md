@@ -17,6 +17,7 @@ It is implemented in TypeScript and built on top of native code using the system
 
 ![Build Status](https://github.com/LukasBombach/sblendid/workflows/build/badge.svg)
 ![Code Climate Coverage](https://img.shields.io/codeclimate/coverage/LukasBombach/sblendid)
+![Code Climate Maintainability](https://img.shields.io/codeclimate/maintainability/LukasBombach/sblendid)
 ![MIT License](https://img.shields.io/github/license/LukasBombach/sblendid)
 
 ## Install
@@ -62,7 +63,7 @@ import Sblendid from "@sblendid/sblendid";
 
 ## Converters
 
-In the previous example, all values I read, write or get notified for are
+In the previous example, all values you read, write or get notified for are
 [`Buffers`](https://nodejs.org/api/buffer.html). It might get weary to constantly convert
 `Buffers` to the values you actually want to work on. For this, Sblendid introduces a
 concept called `converters`.
