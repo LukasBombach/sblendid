@@ -13,10 +13,11 @@
 - [Examples](#more-examples) - Further examples
 
 With Sblendid you can find and connect to Bluetooth Low Energy (BLE) devices (called peripherals) and interact with them.
-It is written in TypeScript and built on to of native code using the system's native bluetooth APIs. Sblendid supports the
+It is written in TypeScript and built on top of native code using the system's native bluetooth APIs. Sblendid supports the
 [GATT protocol](https://www.bluetooth.com/specifications/gatt/).
 
-![](https://github.com/LukasBombach/sblendid/workflows/build/badge.svg)
+![Build Status](https://github.com/LukasBombach/sblendid/workflows/build/badge.svg)
+![Code Climate Coverage](https://img.shields.io/codeclimate/coverage/LukasBombach/sblendid)
 
 ## Install
 
