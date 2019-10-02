@@ -20,19 +20,19 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
 
-    - name: install
+    - name: Install
       run: yarn install
       
-    - name: build adapter-node
+    - name: Build adapter-node
       run: cd packages/adapter-node && yarn build
       
-    - name: build adapter-node
-      run: cd ../sblendid && yarn build
+    - name: Build sblendid
+      run: cd packages/sblendid && yarn build
       
-    - name: test
-      run: yarn test
+    - name: Run tests
+      run: cd packages/sblendid && yarn test
       
-    - name: send coverage to code climate
+    - name: Send coverage to code climate
       if: matrix.os == 'macOS-latest' && matrix.node-version == '12.x'
       run: echo This would send the coverage but on macOS and node 12.x only.
       
