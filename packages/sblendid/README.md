@@ -18,7 +18,7 @@ It is implemented in TypeScript and built on top of native code using the system
 ![Build Status](https://github.com/LukasBombach/sblendid/workflows/build/badge.svg)
 ![Code Climate Coverage](https://img.shields.io/codeclimate/coverage/LukasBombach/sblendid)
 ![Code Climate Maintainability](https://img.shields.io/codeclimate/maintainability/LukasBombach/sblendid)
-![MIT License](https://img.shields.io/github/license/LukasBombach/sblendid)
+![MIT License](https://img.shields.io/github/license/LukasBombach/sblendid?color=brightgreen)
 
 ## Install
 
