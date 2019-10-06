@@ -13,8 +13,12 @@
 - [Examples](#more-examples) - Further examples
 
 With Sblendid you can find and connect to Bluetooth Low Energy (BLE) devices (called peripherals) and interact with them.
-It is written in TypeScript and built on to of native code using the system's native bluetooth APIs. Sblendid supports the
-[GATT protocol](https://www.bluetooth.com/specifications/gatt/).
+It is implemented in TypeScript and built on top of native code using the system's bluetooth APIs.
+
+![Build Status](https://github.com/LukasBombach/sblendid/workflows/build/badge.svg)
+![Code Climate Coverage](https://img.shields.io/codeclimate/coverage/LukasBombach/sblendid)
+![Code Climate Maintainability](https://img.shields.io/codeclimate/maintainability/LukasBombach/sblendid)
+![MIT License](https://img.shields.io/github/license/LukasBombach/sblendid?color=brightgreen)
 
 ## Install
 
@@ -34,9 +38,9 @@ As this is in an early stage, your feedback is very welcome, please don't hesita
 
 ## Basic workflow
 
-With BLE you usually want to connect to a peripheral, get one ore more services
-and read / write / subscribe to values on those services. With Sblendid this works
-as follows:
+With BLE you usually use the [GATT protocol](https://www.bluetooth.com/specifications/gatt/). This means you
+connect to a `peripheral`, get one ore more `services` of that peripheral and `read` / `write` / `subscribe to`
+values on these services. With Sblendid this works as follows:
 
 ```js
 import Sblendid from "@sblendid/sblendid";
@@ -59,7 +63,7 @@ import Sblendid from "@sblendid/sblendid";
 
 ## Converters
 
-In the previous example, all values I read, write or get notified for are
+In the previous example, all values you read, write or get notified for are
 [`Buffers`](https://nodejs.org/api/buffer.html). It might get weary to constantly convert
 `Buffers` to the values you actually want to work on. For this, Sblendid introduces a
 concept called `converters`.

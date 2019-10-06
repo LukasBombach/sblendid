@@ -1,0 +1,48 @@
+name: build
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [macOS-latest] #, windows-latest
+        node-version: [12.x]
+
+    steps:
+    - uses: actions/checkout@v1
+      
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Install
+      run: yarn install
+      
+    - name: Build adapter-node
+      run: cd packages/adapter-node && yarn build
+      
+    - name: Build sblendid
+      run: cd packages/sblendid && yarn build
+      
+    - name: Run tests
+      run: cd packages/sblendid && yarn test
+      
+    - name: Send coverage to code climate
+      if: matrix.os == 'macOS-latest' && matrix.node-version == '12.x'
+      run: |
+        cd packages/sblendid
+        export GIT_BRANCH="${GITHUB_REF/refs\/heads\//}"
+        curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-darwin-amd64 > ./cc-test-reporter
+        chmod +x ./cc-test-reporter
+        ./cc-test-reporter format-coverage -t lcov coverage/lcov.info
+        ./cc-test-reporter upload-coverage
+
+      env:
+        CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+        CI: true
+
