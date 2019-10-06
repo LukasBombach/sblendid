@@ -10,13 +10,15 @@
   "license": "MIT",
   "scripts": {
     "build": "rollup -c rollup.config.ts",
-    "test": "jest -c jest.config.json --runInBand"
+    "test": "jest -c jest.config.json --runInBand",
+    "ts": "ts-node --project tsconfig.json"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/@LukasBombach"
   },
   "devDependencies": {
     "@hapi/joi": "16.1.0",
+    "@types/dbus": "1.0.0",
     "@types/hapi__joi": "15.0.4",
     "@types/jest": "24.0.18",
     "@types/noble": "0.0.39",
@@ -29,6 +31,10 @@
     "rollup-plugin-terser": "5.1.1",
     "rollup-plugin-typescript2": "0.23.0",
     "ts-jest": "24.1.0",
+    "ts-node": "8.4.1",
     "typescript": "3.5.3"
+  },
+  "dependencies": {
+    "dbus": "1.0.5"
   }
 }
