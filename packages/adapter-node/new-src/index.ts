@@ -1,10 +1,22 @@
 /// <reference path="./types/global.d.ts" />
+import { Event, Params, Listener } from "./types/nobleAdapter";
 
 export type FindCondition = (
   ...discoverParams: Params<"discover">
 ) => Promish<boolean>;
 
-export default abstract class Sblendiddapter {
+export interface Properties {
+  read: boolean;
+  write: boolean;
+  notify: boolean;
+}
+
+export interface Characteristic {
+  uuid: CUUID;
+  properties: Properties;
+}
+
+export default abstract class SblendidAdapter {
   public abstract init(): Promise<void>;
 
   public abstract startScanning(): Promise<void>;
@@ -17,19 +29,9 @@ export default abstract class Sblendiddapter {
 
   public abstract disconnect(pUUID: PUUID): Promise<void>;
 
-  public abstract getServices(pUUID: PUUID): Promise<SUUID[]>;
-
   public abstract getRssi(pUUID: PUUID): Promise<number>;
 
-  public abstract on<E extends Event>(
-    event: E,
-    listener: Listener<E>
-  ): Promise<void>;
-
-  public abstract off<E extends Event>(
-    event: E,
-    listener: Listener<E>
-  ): Promise<void>;
+  public abstract getServices(pUUID: PUUID): Promise<SUUID[]>;
 
   public abstract getCharacteristics(
     pUUID: PUUID,
@@ -47,7 +49,7 @@ export default abstract class Sblendiddapter {
     sUUID: SUUID,
     cUUID: CUUID,
     value: Buffer,
-    withoutResponse = false
+    withoutResponse: boolean
   ): Promise<void>;
 
   public abstract notify(
@@ -56,4 +58,14 @@ export default abstract class Sblendiddapter {
     cUUID: CUUID,
     notify: boolean
   ): Promise<boolean>;
+
+  public abstract on<E extends Event>(
+    event: E,
+    listener: Listener<E>
+  ): Promise<void>;
+
+  public abstract off<E extends Event>(
+    event: E,
+    listener: Listener<E>
+  ): Promise<void>;
 }
