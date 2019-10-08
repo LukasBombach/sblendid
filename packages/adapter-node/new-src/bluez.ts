@@ -1,40 +1,38 @@
 import { EventEmitter } from "events";
 import { promisify } from "util";
+import { NotInitializedError } from "./errors";
 import DBus from "dbus";
 
 const bus = DBus.getBus("system");
 const getInterface = promisify(bus.getInterface.bind(bus));
 
-export default async function getBluez() {
-  const adapter = await getAdapter();
-  const events = await getEventEmitter();
-  const startDiscovery = promisify(adapter.StartDiscovery.bind(adapter));
-  const stopDiscovery = promisify(adapter.StopDiscovery.bind(adapter));
+export default class Bluez extends EventEmitter {
+  public startDiscovery: () => Promise<unknown> = this.NiN("startDiscovery");
+  public stopDiscovery: () => Promise<unknown> = this.NiN("stopDiscovery");
 
-  return {
-    startDiscovery,
-    stopDiscovery,
-    events
-  };
-}
+  public async init() {
+    const adapter = await this.getAdapter();
+    const objectManager = await this.getObjectManager();
+    this.startDiscovery = promisify(adapter.StartDiscovery.bind(adapter));
+    this.stopDiscovery = promisify(adapter.StopDiscovery.bind(adapter));
+    objectManager.on("InterfacesAdded", (path: any, interfaces: any) => {
+      if ("org.bluez.Device1" in interfaces) {
+        this.emit("discover", interfaces["org.bluez.Device1"]);
+      }
+    });
+  }
 
-function getAdapter(): Promise<DBus.DBusInterface> {
-  return getInterface("org.bluez", "/org/bluez/hci0", "org.bluez.Adapter1");
-}
+  private getAdapter(): Promise<DBus.DBusInterface> {
+    return getInterface("org.bluez", "/org/bluez/hci0", "org.bluez.Adapter1");
+  }
 
-function getObjectManager() {
-  return getInterface("org.bluez", "/", "org.freedesktop.DBus.ObjectManager");
-}
+  private getObjectManager(): Promise<DBus.DBusInterface> {
+    return getInterface("org.bluez", "/", "org.freedesktop.DBus.ObjectManager");
+  }
 
-async function getEventEmitter() {
-  const objectManager = await getObjectManager();
-  const emitter = new EventEmitter();
-
-  objectManager.on("InterfacesAdded", (path: any, interfaces: any) => {
-    if ("org.bluez.Device1" in interfaces) {
-      emitter.emit("discover", interfaces["org.bluez.Device1"]);
-    }
-  });
-
-  return emitter;
+  private NiN(name: string) {
+    return () => {
+      throw new NotInitializedError(name);
+    };
+  }
 }

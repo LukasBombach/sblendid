@@ -31,10 +31,6 @@ export default class DBusAdapter extends Adapter {
     });
   }
 
-  async getEventEmitter() {
-    throw new Error("Not implemented yet");
-  }
-
   public async startScanning(): Promise<void> {
     if (!this.startDiscovery) throw new NotInitializedError("startScanning");
     await this.startDiscovery();
@@ -46,34 +42,34 @@ export default class DBusAdapter extends Adapter {
   }
 
   public async find(condition: FindCondition): Promise<Params<"discover">> {
-    throw new Error("Not implemented yet");
+    throw new Error("Not implemented yet (find)");
   }
 
   public async connect(pUUID: PUUID): Promise<void> {
-    throw new Error("Not implemented yet");
+    throw new Error("Not implemented yet (connect)");
   }
 
   public async disconnect(pUUID: PUUID): Promise<void> {
-    throw new Error("Not implemented yet");
+    throw new Error("Not implemented yet (disconnect)");
   }
 
   public async getRssi(pUUID: PUUID): Promise<number> {
-    throw new Error("Not implemented yet");
+    throw new Error("Not implemented yet (getRssi)");
   }
 
   public async getServices(pUUID: PUUID): Promise<SUUID[]> {
-    throw new Error("Not implemented yet");
+    throw new Error("Not implemented yet (getServices)");
   }
 
   public async getCharacteristics(
     pUUID: PUUID,
     sUUID: SUUID
   ): Promise<Characteristic[]> {
-    throw new Error("Not implemented yet");
+    throw new Error("Not implemented yet (getCharacteristics)");
   }
 
   public async read(pUUID: PUUID, sUUID: SUUID, cUUID: CUUID): Promise<Buffer> {
-    throw new Error("Not implemented yet");
+    throw new Error("Not implemented yet (read)");
   }
 
   public async write(
@@ -83,7 +79,7 @@ export default class DBusAdapter extends Adapter {
     value: Buffer,
     withoutResponse: boolean
   ): Promise<void> {
-    throw new Error("Not implemented yet");
+    throw new Error("Not implemented yet (write)");
   }
 
   public async notify(
@@ -92,21 +88,23 @@ export default class DBusAdapter extends Adapter {
     cUUID: CUUID,
     notify: boolean
   ): Promise<boolean> {
-    throw new Error("Not implemented yet");
+    throw new Error("Not implemented yet (notify)");
   }
 
   public async on<E extends Event>(
     event: E,
     listener: Listener<E>
   ): Promise<void> {
-    throw new Error("Not implemented yet");
+    if (!this.events) throw new NotInitializedError("on");
+    this.events.on(event, listener);
   }
 
   public async off<E extends Event>(
     event: E,
     listener: Listener<E>
   ): Promise<void> {
-    throw new Error("Not implemented yet");
+    if (!this.events) throw new NotInitializedError("off");
+    this.events.off(event, listener);
   }
 
   private async getAdapter(): Promise<BlueZAdapter> {
