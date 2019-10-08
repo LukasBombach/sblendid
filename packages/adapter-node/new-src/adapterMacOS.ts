@@ -2,28 +2,48 @@ import Adapter, { FindCondition, Characteristic } from "./adapter";
 import { Event, Params, Listener } from "./types/nobleAdapter";
 
 export default class MacOSAdapter extends Adapter {
-  public init(): Promise<void> {}
+  public init(): Promise<void> {
+    throw new Error("Not implemented yet");
+  }
 
-  public startScanning(): Promise<void> {}
+  public startScanning(): Promise<void> {
+    throw new Error("Not implemented yet");
+  }
 
-  public stopScanning(): Promise<void> {}
+  public stopScanning(): Promise<void> {
+    throw new Error("Not implemented yet");
+  }
 
-  public find(condition: FindCondition): Promise<Params<"discover">> {}
+  public find(condition: FindCondition): Promise<Params<"discover">> {
+    throw new Error("Not implemented yet");
+  }
 
-  public connect(pUUID: PUUID): Promise<void> {}
+  public connect(pUUID: PUUID): Promise<void> {
+    throw new Error("Not implemented yet");
+  }
 
-  public disconnect(pUUID: PUUID): Promise<void> {}
+  public disconnect(pUUID: PUUID): Promise<void> {
+    throw new Error("Not implemented yet");
+  }
 
-  public getRssi(pUUID: PUUID): Promise<number> {}
+  public getRssi(pUUID: PUUID): Promise<number> {
+    throw new Error("Not implemented yet");
+  }
 
-  public getServices(pUUID: PUUID): Promise<SUUID[]> {}
+  public getServices(pUUID: PUUID): Promise<SUUID[]> {
+    throw new Error("Not implemented yet");
+  }
 
   public getCharacteristics(
     pUUID: PUUID,
     sUUID: SUUID
-  ): Promise<Characteristic[]> {}
+  ): Promise<Characteristic[]> {
+    throw new Error("Not implemented yet");
+  }
 
-  public read(pUUID: PUUID, sUUID: SUUID, cUUID: CUUID): Promise<Buffer> {}
+  public read(pUUID: PUUID, sUUID: SUUID, cUUID: CUUID): Promise<Buffer> {
+    throw new Error("Not implemented yet");
+  }
 
   public write(
     pUUID: PUUID,
@@ -31,16 +51,24 @@ export default class MacOSAdapter extends Adapter {
     cUUID: CUUID,
     value: Buffer,
     withoutResponse: boolean
-  ): Promise<void> {}
+  ): Promise<void> {
+    throw new Error("Not implemented yet");
+  }
 
   public notify(
     pUUID: PUUID,
     sUUID: SUUID,
     cUUID: CUUID,
     notify: boolean
-  ): Promise<boolean> {}
+  ): Promise<boolean> {
+    throw new Error("Not implemented yet");
+  }
 
-  public on<E extends Event>(event: E, listener: Listener<E>): Promise<void> {}
+  public on<E extends Event>(event: E, listener: Listener<E>): Promise<void> {
+    throw new Error("Not implemented yet");
+  }
 
-  public off<E extends Event>(event: E, listener: Listener<E>): Promise<void> {}
+  public off<E extends Event>(event: E, listener: Listener<E>): Promise<void> {
+    throw new Error("Not implemented yet");
+  }
 }
