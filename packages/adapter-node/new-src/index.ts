@@ -3,7 +3,7 @@ import Adapter from "./adapter";
 import MacOSAdapter from "./adapterMacOS";
 import WinRTAdapter from "./adapterWinRT";
 import DBusAdapter from "./adapterDBus";
-import AdapterError from "./error";
+import { AdapterError } from "./errors";
 
 let calledTimes = 0;
 
