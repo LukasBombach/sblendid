@@ -1,71 +1,19 @@
-/// <reference path="./types/global.d.ts" />
-import { Event, Params, Listener } from "./types/nobleAdapter";
+import os from "os";
+import Adapter from "./adapter";
+import MacOSAdapter from "./adapterMacOS";
+import WinRTAdapter from "./adapterWinRT";
+import DBusAdapter from "./adapterDBus";
 
-export type FindCondition = (
-  ...discoverParams: Params<"discover">
-) => Promish<boolean>;
+let calledTimes = 0;
 
-export interface Properties {
-  read: boolean;
-  write: boolean;
-  notify: boolean;
+function getOsSpecificAdapter(): Adapter {
+  const platform = os.platform();
+  const msg = `Unsupported platform "${platform}". Please file an issue at https://github.com/LukasBombach/sblendid/issues`;
+  console.debug(`getOsSpecificAdapter has been called ${++calledTimes} times`);
+  if (platform === "darwin") return new MacOSAdapter();
+  if (platform === "win32") return new WinRTAdapter();
+  if (platform === "linux") return new DBusAdapter();
+  throw new Error(msg);
 }
 
-export interface Characteristic {
-  uuid: CUUID;
-  properties: Properties;
-}
-
-export default abstract class SblendidAdapter {
-  public abstract init(): Promise<void>;
-
-  public abstract startScanning(): Promise<void>;
-
-  public abstract stopScanning(): Promise<void>;
-
-  public abstract find(condition: FindCondition): Promise<Params<"discover">>;
-
-  public abstract connect(pUUID: PUUID): Promise<void>;
-
-  public abstract disconnect(pUUID: PUUID): Promise<void>;
-
-  public abstract getRssi(pUUID: PUUID): Promise<number>;
-
-  public abstract getServices(pUUID: PUUID): Promise<SUUID[]>;
-
-  public abstract getCharacteristics(
-    pUUID: PUUID,
-    sUUID: SUUID
-  ): Promise<Characteristic[]>;
-
-  public abstract read(
-    pUUID: PUUID,
-    sUUID: SUUID,
-    cUUID: CUUID
-  ): Promise<Buffer>;
-
-  public abstract write(
-    pUUID: PUUID,
-    sUUID: SUUID,
-    cUUID: CUUID,
-    value: Buffer,
-    withoutResponse: boolean
-  ): Promise<void>;
-
-  public abstract notify(
-    pUUID: PUUID,
-    sUUID: SUUID,
-    cUUID: CUUID,
-    notify: boolean
-  ): Promise<boolean>;
-
-  public abstract on<E extends Event>(
-    event: E,
-    listener: Listener<E>
-  ): Promise<void>;
-
-  public abstract off<E extends Event>(
-    event: E,
-    listener: Listener<E>
-  ): Promise<void>;
-}
+export default getOsSpecificAdapter();
