@@ -16,14 +16,14 @@ type SubType<Base, Condition> = {
 type NobleMethod = SubType<NobleBindings, Function>;
 
 export default class MacOSAdapter extends Adapter {
-  private nobleMac: NobleBindings = new NobleMac();
+  private bindings: NobleBindings = new NobleMac();
 
   public async init(): Promise<void> {
-    await this.run("init", [], ["poweredOn"]);
+    await this.run("init", [], "stateChange", ["poweredOn"]);
   }
 
   public async startScanning(): Promise<void> {
-    this.nobleMac.startScanning();
+    this.bindings.startScanning();
   }
 
   public stopScanning(): Promise<void> {
@@ -88,9 +88,48 @@ export default class MacOSAdapter extends Adapter {
     throw new Error("Not implemented yet");
   }
 
+  /* async run<E extends Event, ReturnValue = Params<E>>(
+    action: Action,
+    when: When<E>,
+    ...posts: Post<E, ReturnValue>[]
+  ): Promise<ReturnValue> {
+    const [params] = await Promise.all([when(), action()]);
+    const cleanupMethods = posts.slice(0, -1);
+    const returnMethod = posts.slice(-1).pop();
+    for (const post of cleanupMethods) await post(params);
+    const returnMethodValue = returnMethod && (await returnMethod(params));
+    return (typeof returnMethodValue !== "undefined"
+      ? returnMethodValue
+      : params) as ReturnValue;
+  } */
+
   private async run<M extends NobleMethod>(
     method: M,
     params: Parameters<NobleBindings[M]>,
+    event: Event,
     condition: any[]
-  ): Promise<void> {}
+  ): Promise<void> {
+    const listener = (...params: any[]) => this.arraysEqual(params, condition);
+    this.bindings.on(event, listener);
+    const [params] = await Promise.all([when(), action()]);
+  }
+
+  private arraysEqual(a: any[], b: any[]): boolean {
+    return a.every((v, i) => v === b[i]);
+  }
+
+  public when<E extends Event>(
+    event: E,
+    condition: WhenCondition<E>
+  ): Promise<Params<E>> {
+    return new Promise<Params<E>>(resolve => {
+      const queue = new Queue();
+      const listener = async (...params: Params<E>) => {
+        const conditionIsMet = await queue.add(() => condition(...params));
+        if (conditionIsMet) await queue.end(() => resolve(params));
+        if (conditionIsMet) this.off(event, listener);
+      };
+      this.on(event, listener);
+    });
+  }
 }
