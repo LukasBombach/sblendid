@@ -1,18 +1,12 @@
 import os from "os";
 import Adapter from "./adapter";
-import MacOSAdapter from "./adapterMacOS";
-import WinRTAdapter from "./adapterWinRT";
-import DBusAdapter from "./adapterDBus";
 import { AdapterError } from "./errors";
 
-let calledTimes = 0;
-
-function getOsSpecificAdapter(): Adapter {
+function getOsSpecificAdapter(): new () => Adapter {
   const platform = os.platform();
-  console.debug(`getOsSpecificAdapter has been called ${++calledTimes} times`);
-  if (platform === "darwin") return new MacOSAdapter();
-  if (platform === "win32") return new WinRTAdapter();
-  if (platform === "linux") return new DBusAdapter();
+  if (platform === "darwin") return require("./adapterMacOS").default;
+  if (platform === "win32") return require("./adapterWinRT").default;
+  if (platform === "linux") return require("./adapterDBus").default;
   throw new AdapterError(`Unsupported platform "${platform}".`);
 }
 

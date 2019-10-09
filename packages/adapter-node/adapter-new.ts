@@ -1,7 +1,8 @@
-import adapter from "./new-src";
+import Adapter from "./new-src";
 
 (async () => {
   try {
+    const adapter = new Adapter();
     await adapter.init();
     await adapter.on("discover", (...args) => console.log(...args));
     await adapter.startScanning();
