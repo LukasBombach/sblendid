@@ -1,20 +1,44 @@
+import { EventEmitter } from "events";
+import { promisify } from "util";
+import DBus from "dbus";
 import Adapter, { FindCondition, Characteristic } from "./adapter";
 import { Event, Params, Listener } from "./types/nobleAdapter";
-import Bluez from "./bluez";
+import { NotInitializedError } from "./errors";
+
+const bus = DBus.getBus("system");
+const getInterface = promisify(bus.getInterface.bind(bus));
+
+export interface BlueZAdapter {
+  StartDiscovery: (callback: (error: Error) => void) => void;
+  StopDiscovery: (callback: (error: Error) => void) => void;
+}
+export interface ObjectManager {}
 
 export default class DBusAdapter extends Adapter {
-  private bluez = new Bluez();
+  private startDiscovery?: () => Promise<void>;
+  private stopDiscovery?: () => Promise<void>;
+  private events = new EventEmitter();
 
   public async init(): Promise<void> {
-    await this.bluez.init();
+    const bluez = await this.getAdapter();
+    const objectManager = await this.getObjectManager();
+    this.startDiscovery = promisify(bluez.StartDiscovery.bind(bluez));
+    this.stopDiscovery = promisify(bluez.StopDiscovery.bind(bluez));
+    objectManager.on("InterfacesAdded", (path: any, interfaces: any) => {
+      if ("org.bluez.Device1" in interfaces) {
+        this.events.emit("discover", interfaces["org.bluez.Device1"]);
+      }
+    });
   }
 
   public async startScanning(): Promise<void> {
-    await this.bluez.startDiscovery();
+    if (!this.startDiscovery) throw new NotInitializedError("startScanning");
+    await this.startDiscovery();
   }
 
   public async stopScanning(): Promise<void> {
-    await this.bluez.stopDiscovery();
+    if (!this.stopDiscovery) throw new NotInitializedError("stopScanning");
+    await this.stopDiscovery();
   }
 
   public async find(condition: FindCondition): Promise<Params<"discover">> {
@@ -71,13 +95,31 @@ export default class DBusAdapter extends Adapter {
     event: E,
     listener: Listener<E>
   ): Promise<void> {
-    this.bluez.on(event, listener);
+    if (!this.events) throw new NotInitializedError("on");
+    this.events.on(event, listener);
   }
 
   public async off<E extends Event>(
     event: E,
     listener: Listener<E>
   ): Promise<void> {
-    this.bluez.off(event, listener);
+    if (!this.events) throw new NotInitializedError("off");
+    this.events.off(event, listener);
+  }
+
+  private async getAdapter(): Promise<BlueZAdapter> {
+    return (await getInterface(
+      "org.bluez",
+      "/org/bluez/hci0",
+      "org.bluez.Adapter1"
+    )) as any;
+  }
+
+  private async getObjectManager(): Promise<DBus.DBusInterface> {
+    return await getInterface(
+      "org.bluez",
+      "/",
+      "org.freedesktop.DBus.ObjectManager"
+    );
   }
 }
