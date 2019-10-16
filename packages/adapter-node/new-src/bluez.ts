@@ -34,8 +34,8 @@ const bus = DBus.getBus("system");
 const getInterface: GetInterface = promisify(bus.getInterface.bind(bus));
 
 export default class Bluez extends EventEmitter {
-  public startDiscovery: () => Promise<unknown> = this.NiN("startDiscovery");
-  public stopDiscovery: () => Promise<unknown> = this.NiN("stopDiscovery");
+  public startScanning: () => Promise<unknown> = this.NiN("startDiscovery");
+  public stopScanning: () => Promise<unknown> = this.NiN("stopDiscovery");
 
   public static async init(): Promise<Bluez> {
     const bluez = new Bluez();
@@ -45,8 +45,8 @@ export default class Bluez extends EventEmitter {
 
   public async init(): Promise<void> {
     const adapter = await this.getAdapter();
-    this.startDiscovery = promisify(adapter.StartDiscovery.bind(adapter));
-    this.stopDiscovery = promisify(adapter.StopDiscovery.bind(adapter));
+    this.startScanning = promisify(adapter.StartDiscovery.bind(adapter));
+    this.stopScanning = promisify(adapter.StopDiscovery.bind(adapter));
     await this.setupEvents();
   }
 

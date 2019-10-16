@@ -10,11 +10,11 @@ export default class DBusAdapter extends Adapter {
   }
 
   public async startScanning(): Promise<void> {
-    await this.bluez.startDiscovery();
+    await this.bluez.startScanning();
   }
 
   public async stopScanning(): Promise<void> {
-    await this.bluez.stopDiscovery();
+    await this.bluez.stopScanning();
   }
 
   public async find(condition: FindCondition): Promise<Params<"discover">> {
