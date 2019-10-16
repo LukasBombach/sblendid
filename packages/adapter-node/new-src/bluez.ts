@@ -67,13 +67,12 @@ export default class Bluez extends EventEmitter {
         UUIDs,
         RSSI,
         TxPower,
-        ManufacturerData,
-        ServiceData
+        ManufacturerData = {},
+        ServiceData = {}
       } = interfaces[device]!;
-      const nobleManufacturerData =
-        ManufacturerData && Object.values(ManufacturerData).length
-          ? Buffer.from(Object.values(ManufacturerData)[0])
-          : undefined;
+      const nobleManufacturerData = Object.values(ManufacturerData).length
+        ? Buffer.from(Object.values(ManufacturerData)[0])
+        : undefined;
       const nobleServiceData = Object.entries(ServiceData).map(
         ([uuid, bytes]) => ({ uuid, data: Buffer.from(bytes) })
       );
@@ -85,7 +84,7 @@ export default class Bluez extends EventEmitter {
         serviceData: nobleServiceData
       };
       const peripheral: Params<"discover"> = [
-        Address.replace(":", "-"),
+        Address.replace(/:/g, "-"),
         Address,
         AddressType,
         !Blocked,
