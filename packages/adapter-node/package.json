@@ -21,6 +21,7 @@
     "@types/dbus": "1.0.0",
     "@types/hapi__joi": "15.0.4",
     "@types/jest": "24.0.18",
+    "@types/md5": "2.1.33",
     "@types/noble": "0.0.39",
     "@types/web-bluetooth": "0.0.4",
     "jest": "24.9.0",
@@ -35,6 +36,7 @@
     "typescript": "3.5.3"
   },
   "dependencies": {
-    "dbus": "1.0.5"
+    "dbus": "1.0.5",
+    "md5": "2.2.1"
   }
 }

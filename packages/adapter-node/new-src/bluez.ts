@@ -1,6 +1,7 @@
 import { EventEmitter } from "events";
 import { promisify } from "util";
 import DBus, { DBusInterface } from "dbus";
+import md5 from "md5";
 import { NotInitializedError } from "./errors";
 import { Params, Advertisement } from "./types/nobleAdapter";
 
@@ -35,24 +36,14 @@ const bus = DBus.getBus("system");
 const getInterface: GetInterface = promisify(bus.getInterface.bind(bus));
 
 export default class Bluez extends EventEmitter {
-  public startScanning: () => Promise<unknown> = this.NiN("startDiscovery");
-  public stopScanning: () => Promise<unknown> = this.NiN("stopDiscovery");
-
-  public static async init(): Promise<Bluez> {
-    const bluez = new Bluez();
-    await bluez.init();
-    return bluez;
-  }
+  public startScanning: () => Promise<void> = this.NiN("startDiscovery");
+  public stopScanning: () => Promise<void> = this.NiN("stopDiscovery");
 
   public async init(): Promise<void> {
     const adapter = await this.getAdapter();
+    const objectManager = await this.getObjectManager();
     this.startScanning = promisify(adapter.StartDiscovery.bind(adapter));
     this.stopScanning = promisify(adapter.StopDiscovery.bind(adapter));
-    await this.setupEvents();
-  }
-
-  private async setupEvents(): Promise<void> {
-    const objectManager = await this.getObjectManager();
     objectManager.on("InterfacesAdded", this.onInterfacesAdded.bind(this));
   }
 
@@ -84,7 +75,7 @@ export default class Bluez extends EventEmitter {
         serviceData: nobleServiceData
       };
       const peripheral: Params<"discover"> = [
-        Address.replace(/:/g, "-"),
+        this.addressToUuid(Address),
         Address,
         AddressType,
         !Blocked,
@@ -93,6 +84,17 @@ export default class Bluez extends EventEmitter {
       ];
       this.emit("discover", peripheral);
     }
+  }
+
+  private addressToUuid(address: string) {
+    const hash = md5(address);
+    return [
+      hash.substr(0, 8),
+      hash.substr(8, 4),
+      hash.substr(12, 4),
+      hash.substr(16, 4),
+      hash.substr(20, 12)
+    ].join("-");
   }
 
   private getAdapter(): Promise<DBusInterface> {

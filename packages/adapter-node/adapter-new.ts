@@ -6,7 +6,7 @@ import Adapter from "./new-src";
     await adapter.init();
     await adapter.on("discover", (...args) => console.log(...args));
     await adapter.startScanning();
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise(resolve => setTimeout(resolve, 5000));
     await adapter.stopScanning();
     process.exit();
   } catch (error) {
