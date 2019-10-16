@@ -3,37 +3,29 @@ import { promisify } from "util";
 import DBus, { DBusInterface } from "dbus";
 import md5 from "md5";
 import { NotInitializedError } from "./errors";
-import { Params, Advertisement } from "./types/nobleAdapter";
+import { Params, Advertisement, ServiceData } from "./types/nobleAdapter";
 
-type GetInterface = (
-  serviceName: string,
-  objectPath: string,
-  interfaceName: string
-) => Promise<DBusInterface>;
+interface Device1 {
+  Address: string;
+  AddressType: "public" | "random";
+  Alias: string;
+  Blocked: boolean;
+  RSSI: number;
+  TxPower: number;
+  UUIDs: string[];
+  ManufacturerData: Record<string, number[]>;
+  ServiceData: Record<string, number[]>;
+  AdvertisingData: Record<string, number[]>;
+}
 
 interface Interfaces {
-  "org.bluez.Device1"?: {
-    Address: string;
-    AddressType: "public" | "random";
-    Alias: string;
-    Blocked: boolean;
-    RSSI: number;
-    TxPower: number;
-    UUIDs: string[];
-    ManufacturerData: {
-      [key: string]: number[];
-    };
-    ServiceData: {
-      [key: string]: number[];
-    };
-    AdvertisingData: {
-      [key: string]: number[];
-    };
-  };
+  "org.bluez.Device1"?: Device1;
 }
 
 const bus = DBus.getBus("system");
-const getInterface: GetInterface = promisify(bus.getInterface.bind(bus));
+const getInterface = promisify<string, string, string, DBusInterface>(
+  bus.getInterface.bind(bus)
+);
 
 export default class Bluez extends EventEmitter {
   public startScanning: () => Promise<void> = this.NiN("startDiscovery");
@@ -48,42 +40,47 @@ export default class Bluez extends EventEmitter {
   }
 
   private onInterfacesAdded(path: any, interfaces: Interfaces): void {
-    const device = "org.bluez.Device1";
-    if (typeof interfaces[device]) {
-      const {
-        Alias,
-        Address,
-        AddressType,
-        Blocked,
-        UUIDs,
-        RSSI,
-        TxPower,
-        ManufacturerData = {},
-        ServiceData = {}
-      } = interfaces[device]!;
-      const nobleManufacturerData = Object.values(ManufacturerData).length
-        ? Buffer.from(Object.values(ManufacturerData)[0])
-        : undefined;
-      const nobleServiceData = Object.entries(ServiceData).map(
-        ([uuid, bytes]) => ({ uuid, data: Buffer.from(bytes) })
-      );
-      const advertisement: Advertisement = {
-        localName: Alias,
-        txPowerLevel: TxPower,
-        serviceUuids: UUIDs,
-        manufacturerData: nobleManufacturerData,
-        serviceData: nobleServiceData
-      };
-      const peripheral: Params<"discover"> = [
-        this.addressToUuid(Address),
-        Address,
-        AddressType,
-        !Blocked,
-        advertisement,
-        RSSI
-      ];
-      this.emit("discover", peripheral);
-    }
+    if (!interfaces["org.bluez.Device1"]) return;
+    const device = interfaces["org.bluez.Device1"];
+    const noblePeripheral = this.getNoblePeripheral(device);
+    this.emit("discover", noblePeripheral);
+  }
+
+  private getNoblePeripheral(device: Device1): Params<"discover"> {
+    const { Address, AddressType, Blocked, RSSI } = device;
+    const uuid = this.addressToUuid(Address);
+    const advertisement = this.getAdvertisement(device);
+    return [uuid, Address, AddressType, !Blocked, advertisement, RSSI];
+  }
+
+  private getAdvertisement(device: Device1): Advertisement {
+    const { Alias, Address, UUIDs, TxPower } = device;
+    const localName = Alias === Address.replace(/:/g, "-") ? undefined : Alias;
+    const txPowerLevel = TxPower;
+    const serviceUuids = UUIDs;
+    const manufacturerData = this.getNobleManufacturerData(device);
+    const serviceData = this.getNobleServiceData(device);
+    return {
+      localName,
+      txPowerLevel,
+      serviceUuids,
+      manufacturerData,
+      serviceData
+    };
+  }
+
+  private getNobleManufacturerData(device: Device1): Buffer | undefined {
+    const manufacturerValues = Object.values(device.ManufacturerData || {});
+    if (manufacturerValues.length) return Buffer.from(manufacturerValues[0]);
+    return undefined;
+  }
+
+  private getNobleServiceData(device: Device1): ServiceData[] {
+    const serviceEntries = Object.entries(device.ServiceData || {});
+    return serviceEntries.map(([uuid, bytes]) => ({
+      uuid,
+      data: Buffer.from(bytes)
+    }));
   }
 
   private addressToUuid(address: string) {
