@@ -10,7 +10,24 @@ type GetInterface = (
 ) => Promise<DBusInterface>;
 
 interface Interfaces {
-  "org.bluez.Device1"?: any;
+  "org.bluez.Device1"?: {
+    Address: string;
+    AddressType: "public" | "random";
+    Alias: string;
+    Blocked: boolean;
+    RSSI: number;
+    TxPower: number;
+    UUIDs: string[];
+    ManufacturerData: {
+      [key: string]: number[];
+    };
+    ServiceData: {
+      [key: string]: number[];
+    };
+    AdvertisingData: {
+      [key: string]: number[];
+    };
+  };
 }
 
 const bus = DBus.getBus("system");
@@ -40,7 +57,35 @@ export default class Bluez extends EventEmitter {
 
   private onInterfacesAdded(path: any, interfaces: Interfaces): void {
     const device = "org.bluez.Device1";
-    if (interfaces[device]) this.emit("discover", interfaces[device]);
+    if (typeof interfaces[device]) {
+      const {
+        Alias,
+        Address,
+        AddressType,
+        Blocked,
+        UUIDs,
+        RSSI,
+        TxPower,
+        ManufacturerData,
+        ServiceData
+      } = interfaces[device]!;
+      const advertisement = {
+        localName: Alias,
+        txPowerLevel: TxPower,
+        serviceUuids: UUIDs,
+        manufacturerData: ManufacturerData,
+        serviceData: ServiceData
+      };
+      const peripheral = [
+        Address.replace(":", "-"),
+        Address,
+        AddressType,
+        !Blocked,
+        advertisement,
+        RSSI
+      ];
+      this.emit("discover", peripheral);
+    }
   }
 
   private getAdapter(): Promise<DBusInterface> {

@@ -8,6 +8,7 @@ import Adapter from "./new-src";
     await adapter.startScanning();
     await new Promise(resolve => setTimeout(resolve, 500));
     await adapter.stopScanning();
+    process.exit();
   } catch (error) {
     console.error(error);
     process.exit(1);
