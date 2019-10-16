@@ -1,7 +1,8 @@
 import { EventEmitter } from "events";
 import { promisify } from "util";
-import { NotInitializedError } from "./errors";
 import DBus, { DBusInterface } from "dbus";
+import { NotInitializedError } from "./errors";
+import { Params, Advertisement } from "./types/nobleAdapter";
 
 type GetInterface = (
   serviceName: string,
@@ -69,14 +70,21 @@ export default class Bluez extends EventEmitter {
         ManufacturerData,
         ServiceData
       } = interfaces[device]!;
-      const advertisement = {
+      const nobleManufacturerData =
+        ManufacturerData && Object.values(ManufacturerData).length
+          ? Buffer.from(Object.values(ManufacturerData)[0])
+          : undefined;
+      const nobleServiceData = Object.entries(ServiceData).map(
+        ([uuid, bytes]) => ({ uuid, data: Buffer.from(bytes) })
+      );
+      const advertisement: Advertisement = {
         localName: Alias,
         txPowerLevel: TxPower,
         serviceUuids: UUIDs,
-        manufacturerData: ManufacturerData,
-        serviceData: ServiceData
+        manufacturerData: nobleManufacturerData,
+        serviceData: nobleServiceData
       };
-      const peripheral = [
+      const peripheral: Params<"discover"> = [
         Address.replace(":", "-"),
         Address,
         AddressType,
