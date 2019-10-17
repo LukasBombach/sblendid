@@ -43,7 +43,7 @@ export default class Bluez extends EventEmitter {
     if (!interfaces["org.bluez.Device1"]) return;
     const device = interfaces["org.bluez.Device1"];
     const noblePeripheral = this.getNoblePeripheral(device);
-    this.emit("discover", noblePeripheral);
+    this.emit("discover", ...noblePeripheral);
   }
 
   private getNoblePeripheral(device: Device1): Params<"discover"> {
