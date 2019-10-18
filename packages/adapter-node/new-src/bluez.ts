@@ -5,7 +5,7 @@ import md5 from "md5";
 import { NotInitializedError } from "./errors";
 import { Params, Advertisement, ServiceData } from "./types/nobleAdapter";
 
-interface Device1 {
+interface Device {
   Address: string;
   AddressType: "public" | "random";
   Alias: string;
@@ -20,8 +20,11 @@ interface Device1 {
   Disconnect: (callback: (error?: Error) => void) => void;
 }
 
+interface Service {}
+
 interface Interfaces {
-  "org.bluez.Device1"?: Device1;
+  "org.bluez.Device1"?: Device;
+  "org.bluez.GattService1"?: Service;
 }
 
 const bus = DBus.getBus("system");
@@ -32,7 +35,7 @@ const getInterface = promisify<string, string, string, DBusInterface>(
 export default class Bluez extends EventEmitter {
   public startScanning: () => Promise<void> = this.pNiN("startDiscovery");
   public stopScanning: () => Promise<void> = this.pNiN("stopDiscovery");
-  private knownDevices: Record<string, Device1> = {};
+  private knownDevices: Record<string, Device> = {};
 
   public async init(): Promise<void> {
     const adapter = await this.getAdapter();
@@ -55,22 +58,27 @@ export default class Bluez extends EventEmitter {
   }
 
   private onInterfacesAdded(path: any, interfaces: Interfaces): void {
-    if (!interfaces["org.bluez.Device1"]) return;
     const device = interfaces["org.bluez.Device1"];
+    const service = interfaces["org.bluez.GattService1"];
+    if (device) this.emitDiscover(device);
+    console.log("service", service);
+  }
+
+  private emitDiscover(device: Device): void {
     const noblePeripheral = this.getNoblePeripheral(device);
     const [uuid] = noblePeripheral;
     this.knownDevices[uuid] = device;
     this.emit("discover", ...noblePeripheral);
   }
 
-  private getNoblePeripheral(device: Device1): Params<"discover"> {
+  private getNoblePeripheral(device: Device): Params<"discover"> {
     const { Address, AddressType, Blocked, RSSI } = device;
     const uuid = this.addressToUuid(Address);
     const advertisement = this.getAdvertisement(device);
     return [uuid, Address, AddressType, !Blocked, advertisement, RSSI];
   }
 
-  private getAdvertisement(device: Device1): Advertisement {
+  private getAdvertisement(device: Device): Advertisement {
     const { Alias, Address, UUIDs, TxPower } = device;
     const localName = Alias === Address.replace(/:/g, "-") ? undefined : Alias;
     const txPowerLevel = TxPower;
@@ -86,13 +94,13 @@ export default class Bluez extends EventEmitter {
     };
   }
 
-  private getNobleManufacturerData(device: Device1): Buffer | undefined {
+  private getNobleManufacturerData(device: Device): Buffer | undefined {
     const manufacturerValues = Object.values(device.ManufacturerData || {});
     if (manufacturerValues.length) return Buffer.from(manufacturerValues[0]);
     return undefined;
   }
 
-  private getNobleServiceData(device: Device1): ServiceData[] {
+  private getNobleServiceData(device: Device): ServiceData[] {
     const serviceEntries = Object.entries(device.ServiceData || {});
     return serviceEntries.map(([uuid, bytes]) => ({
       uuid,

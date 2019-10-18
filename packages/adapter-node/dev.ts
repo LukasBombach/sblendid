@@ -5,12 +5,16 @@ import Adapter from "./new-src";
     console.log("TS compiled, initializing adapter");
     const adapter = new Adapter();
     await adapter.init();
-    await adapter.on("discover", (...args) => console.log(...args));
+    /* await adapter.on("discover", (...args) => console.log(...args));
     await adapter.startScanning();
     await new Promise(resolve => setTimeout(resolve, 5000));
-    await adapter.stopScanning();
+    await adapter.stopScanning(); */
 
-    let connectables = 0;
+    const peripheral = await adapter.find(() => true);
+    const [pUUID] = peripheral;
+    console.log(peripheral);
+
+    await adapter.connect(pUUID);
 
     /* const peripheral = await adapter.find((...peripheral) => {
       console.log(peripheral);

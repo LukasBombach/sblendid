@@ -26,11 +26,11 @@ export default class DBusAdapter extends Adapter {
   }
 
   public async connect(pUUID: PUUID): Promise<void> {
-    throw new Error("Not implemented yet (connect)");
+    await this.bluez.connect(pUUID);
   }
 
   public async disconnect(pUUID: PUUID): Promise<void> {
-    throw new Error("Not implemented yet (disconnect)");
+    await this.bluez.disconnect(pUUID);
   }
 
   public async getRssi(pUUID: PUUID): Promise<number> {
