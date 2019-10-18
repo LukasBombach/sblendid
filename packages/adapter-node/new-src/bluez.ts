@@ -16,6 +16,8 @@ interface Device1 {
   ManufacturerData: Record<string, number[]>;
   ServiceData: Record<string, number[]>;
   AdvertisingData: Record<string, number[]>;
+  Connect: (callback: (error?: Error) => void) => void;
+  Disconnect: (callback: (error?: Error) => void) => void;
 }
 
 interface Interfaces {
@@ -28,8 +30,9 @@ const getInterface = promisify<string, string, string, DBusInterface>(
 );
 
 export default class Bluez extends EventEmitter {
-  public startScanning: () => Promise<void> = this.NiN("startDiscovery");
-  public stopScanning: () => Promise<void> = this.NiN("stopDiscovery");
+  public startScanning: () => Promise<void> = this.pNiN("startDiscovery");
+  public stopScanning: () => Promise<void> = this.pNiN("stopDiscovery");
+  private knownDevices: Record<string, Device1> = {};
 
   public async init(): Promise<void> {
     const adapter = await this.getAdapter();
@@ -39,10 +42,24 @@ export default class Bluez extends EventEmitter {
     objectManager.on("InterfacesAdded", this.onInterfacesAdded.bind(this));
   }
 
+  public connect(uuid: string): Promise<void> {
+    return new Promise((res, rej) =>
+      this.knownDevices[uuid].Connect(err => (err ? rej(err) : res()))
+    );
+  }
+
+  public disconnect(uuid: string): Promise<void> {
+    return new Promise((res, rej) =>
+      this.knownDevices[uuid].Disconnect(err => (err ? rej(err) : res()))
+    );
+  }
+
   private onInterfacesAdded(path: any, interfaces: Interfaces): void {
     if (!interfaces["org.bluez.Device1"]) return;
     const device = interfaces["org.bluez.Device1"];
     const noblePeripheral = this.getNoblePeripheral(device);
+    const [uuid] = noblePeripheral;
+    this.knownDevices[uuid] = device;
     this.emit("discover", ...noblePeripheral);
   }
 
@@ -102,7 +119,13 @@ export default class Bluez extends EventEmitter {
     return getInterface("org.bluez", "/", "org.freedesktop.DBus.ObjectManager");
   }
 
-  private NiN(name: string): () => Promise<never> {
+  private NiN(name: string): () => never {
+    return () => {
+      throw new NotInitializedError(name);
+    };
+  }
+
+  private pNiN(name: string): () => Promise<never> {
     return () => Promise.reject(new NotInitializedError(name));
   }
 }
