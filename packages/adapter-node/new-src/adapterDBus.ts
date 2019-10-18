@@ -18,7 +18,11 @@ export default class DBusAdapter extends Adapter {
   }
 
   public async find(condition: FindCondition): Promise<Params<"discover">> {
-    throw new Error("Not implemented yet (find)");
+    return await this.run<"discover">(
+      () => this.startScanning(),
+      () => this.when("discover", condition),
+      () => this.stopScanning()
+    );
   }
 
   public async connect(pUUID: PUUID): Promise<void> {
@@ -71,13 +75,13 @@ export default class DBusAdapter extends Adapter {
     event: E,
     listener: Listener<E>
   ): Promise<void> {
-    this.bluez.on(event, listener);
+    this.bluez.on(event, listener as any); // todo any cast
   }
 
   public async off<E extends Event>(
     event: E,
     listener: Listener<E>
   ): Promise<void> {
-    this.bluez.off(event, listener);
+    this.bluez.off(event, listener as any); // todo any cast
   }
 }

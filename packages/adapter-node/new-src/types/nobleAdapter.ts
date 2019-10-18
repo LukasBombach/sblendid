@@ -21,7 +21,7 @@ export type AddressType = "public" | "random" | "unknown";
 export type CharacteristicProperty = "read" | "write" | "notify";
 
 export type Event = keyof EventListeners;
-export type Listener<E extends Event> = EventListeners[E];
+export type Listener<E extends Event> = (...params: Params<E>) => void;
 export type Params<E extends Event> = Parameters<EventListeners[E]>;
 
 declare class NobleAdapter {
