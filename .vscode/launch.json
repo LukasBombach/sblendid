@@ -22,6 +22,17 @@
       "sourceMaps": true,
       "cwd": "${workspaceRoot}",
       "protocol": "inspector"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Adapter Dev Script",
+      "args": ["packages/adapter-node/dev.ts"],
+      "runtimeArgs": ["--nolazy", "-r", "ts-node/register"],
+      "env": { "TS_NODE_PROJECT": "packages/adapter-node/tsconfig.json" },
+      "sourceMaps": true,
+      "cwd": "${workspaceRoot}",
+      "protocol": "inspector"
     }
   ]
 }

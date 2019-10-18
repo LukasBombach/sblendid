@@ -38,7 +38,7 @@ export default class DBusAdapter extends Adapter {
   }
 
   public async getServices(pUUID: PUUID): Promise<SUUID[]> {
-    throw new Error("Not implemented yet (getServices)");
+    return this.bluez.getServices(pUUID);
   }
 
   public async getCharacteristics(

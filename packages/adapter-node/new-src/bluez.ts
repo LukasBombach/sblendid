@@ -20,12 +20,19 @@ interface Device {
   Disconnect: (callback: (error?: Error) => void) => void;
 }
 
-interface Service {}
+interface Service {
+  UUID: string;
+  Device: string;
+  Primary: boolean;
+  Includes: any[];
+}
 
 interface Interfaces {
   "org.bluez.Device1"?: Device;
   "org.bluez.GattService1"?: Service;
 }
+
+type DevicePath = string;
 
 const bus = DBus.getBus("system");
 const getInterface = promisify<string, string, string, DBusInterface>(
@@ -35,7 +42,8 @@ const getInterface = promisify<string, string, string, DBusInterface>(
 export default class Bluez extends EventEmitter {
   public startScanning: () => Promise<void> = this.pNiN("startDiscovery");
   public stopScanning: () => Promise<void> = this.pNiN("stopDiscovery");
-  private knownDevices: Record<string, Device> = {};
+  private devices: Record<PUUID, DevicePath> = {};
+  private services: Record<DevicePath, Set<SUUID>> = {};
 
   public async init(): Promise<void> {
     const adapter = await this.getAdapter();
@@ -45,30 +53,43 @@ export default class Bluez extends EventEmitter {
     objectManager.on("InterfacesAdded", this.onInterfacesAdded.bind(this));
   }
 
-  public connect(uuid: string): Promise<void> {
-    return new Promise((res, rej) =>
-      this.knownDevices[uuid].Connect(err => (err ? rej(err) : res()))
-    );
+  public connect(pUUID: PUUID): Promise<void> {
+    return new Promise(async (res, rej) => {
+      const device = await this.getDevice(this.devices[pUUID]);
+      device.Connect(err => (err ? rej(err) : res()));
+    });
   }
 
-  public disconnect(uuid: string): Promise<void> {
-    return new Promise((res, rej) =>
-      this.knownDevices[uuid].Disconnect(err => (err ? rej(err) : res()))
-    );
+  public disconnect(pUUID: PUUID): Promise<void> {
+    return new Promise(async (res, rej) => {
+      const device = await this.getDevice(this.devices[pUUID]);
+      device.Disconnect(err => (err ? rej(err) : res()));
+    });
   }
 
-  private onInterfacesAdded(path: any, interfaces: Interfaces): void {
+  public async getServices(pUUID: PUUID): Promise<SUUID[]> {
+    const devicePath = this.devices[pUUID];
+    return Array.from(this.services[devicePath]);
+  }
+
+  private onInterfacesAdded(path: string, interfaces: Interfaces): void {
     const device = interfaces["org.bluez.Device1"];
     const service = interfaces["org.bluez.GattService1"];
-    if (device) this.emitDiscover(device);
-    console.log("service", service);
+    if (device) this.handleDevice(device, path);
+    if (service) this.handleService(service);
   }
 
-  private emitDiscover(device: Device): void {
+  private handleDevice(device: Device, path: string): void {
     const noblePeripheral = this.getNoblePeripheral(device);
-    const [uuid] = noblePeripheral;
-    this.knownDevices[uuid] = device;
+    const [pUUID] = noblePeripheral;
+    this.devices[pUUID] = path;
     this.emit("discover", ...noblePeripheral);
+  }
+
+  private handleService(service: Service): void {
+    const { UUID, Device } = service;
+    this.services[Device] = this.services[Device] || new Set();
+    this.services[Device].add(UUID);
   }
 
   private getNoblePeripheral(device: Device): Params<"discover"> {
@@ -125,6 +146,10 @@ export default class Bluez extends EventEmitter {
 
   private getObjectManager(): Promise<DBusInterface> {
     return getInterface("org.bluez", "/", "org.freedesktop.DBus.ObjectManager");
+  }
+
+  private getDevice(path: string): Promise<Device> {
+    return getInterface("org.bluez", path, "org.bluez.Device1") as any; // todo unlawful typecast
   }
 
   private NiN(name: string): () => never {
