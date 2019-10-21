@@ -33,43 +33,46 @@ export interface BluezInterfaces {
   "org.bluez.GattService1"?: Service;
 }
 
+type Event = "InterfacesAdded";
+type Listener = (...params: any[]) => void;
+
+const ifaceParams = {
+  service: "org.bluez",
+  path: "/",
+  name: "org.freedesktop.DBus.ObjectManager"
+};
+
 export default class ObjectManager {
   private systemBus = new SystemBus();
   private objectManager?: DBusObjectManager;
 
-  public getManagedObjects(): Promise<BluezInterfaces> {
-    return new Promise(async (resolve, reject) => {
-      const objectManager = await this.getObjectManager();
+  public async getManagedObjects(): Promise<BluezInterfaces> {
+    const objectManager = await this.getObjectManager();
+    return new Promise((resolve, reject) => {
       objectManager.GetManagedObjects((err, interfaces) =>
         err ? reject(err) : resolve(interfaces)
       );
     });
   }
 
-  public async on(
-    event: "InterfacesAdded",
-    listener: (...params: any[]) => void
-  ): Promise<void> {
+  public async on(event: Event, listener: Listener): Promise<void> {
     const objectManager = await this.getObjectManager();
     objectManager.on(event, listener);
   }
 
-  public async off(
-    event: "InterfacesAdded",
-    listener: (...params: any[]) => void
-  ): Promise<void> {
+  public async off(event: Event, listener: Listener): Promise<void> {
     const objectManager = await this.getObjectManager();
     objectManager.off(event, listener);
   }
 
   private async getObjectManager(): Promise<DBusObjectManager> {
     if (!this.objectManager) {
-      this.objectManager = await this.systemBus.getInterface<DBusObjectManager>(
-        "org.bluez",
-        "/",
-        "org.freedesktop.DBus.ObjectManager"
-      );
+      this.objectManager = await this.fetchObjectManager();
     }
     return this.objectManager;
+  }
+
+  private async fetchObjectManager(): Promise<DBusObjectManager> {
+    return await this.systemBus.getInterface<DBusObjectManager>(ifaceParams);
   }
 }
