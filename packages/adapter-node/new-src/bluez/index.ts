@@ -1,5 +1,6 @@
 import BluezAdapter from "./adapter";
 import ObjectManager from "./objectManager";
+import { Event, Listener } from "../types/nobleAdapter";
 
 export class Bluez {
   private adapter = new BluezAdapter();
@@ -13,5 +14,12 @@ export class Bluez {
 
   public async stopScanning(): Promise<void> {
     await this.adapter.stopDiscovery();
+  }
+
+  public async on<E extends Event>(
+    event: E,
+    listener: Listener<E>
+  ): Promise<void> {
+    this.objectManager.on(event, listener);
   }
 }
