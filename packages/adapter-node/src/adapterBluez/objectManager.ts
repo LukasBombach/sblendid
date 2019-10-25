@@ -44,32 +44,29 @@ const ifaceParams = {
 
 export default class ObjectManager {
   private systemBus = new SystemBus();
-  private objectManager?: DBusObjectManager;
+  private objManager?: DBusObjectManager;
 
   public async getManagedObjects(): Promise<Interfaces> {
-    const objectManager = await this.getObjectManager();
-    return new Promise((resolve, reject) => {
-      objectManager.GetManagedObjects((err, interfaces) =>
-        err ? reject(err) : resolve(interfaces)
-      );
-    });
+    const objManager = await this.getObjectManager();
+    const getManagedObjects = objManager.GetManagedObjects.bind(objManager);
+    return new Promise((res, rej) =>
+      getManagedObjects((err, interfaces) => (err ? rej(err) : res(interfaces)))
+    );
   }
 
   public async on(event: Event, listener: Listener): Promise<void> {
-    const objectManager = await this.getObjectManager();
-    objectManager.on(event, listener);
+    const objManager = await this.getObjectManager();
+    objManager.on(event, listener);
   }
 
   public async off(event: Event, listener: Listener): Promise<void> {
-    const objectManager = await this.getObjectManager();
-    objectManager.off(event, listener);
+    const objManager = await this.getObjectManager();
+    objManager.off(event, listener);
   }
 
   private async getObjectManager(): Promise<DBusObjectManager> {
-    if (!this.objectManager) {
-      this.objectManager = await this.fetchObjectManager();
-    }
-    return this.objectManager;
+    if (!this.objManager) this.objManager = await this.fetchObjectManager();
+    return this.objManager;
   }
 
   private async fetchObjectManager(): Promise<DBusObjectManager> {
