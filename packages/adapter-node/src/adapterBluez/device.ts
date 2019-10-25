@@ -3,9 +3,10 @@ import { Device1 } from "./objectManager";
 import md5 from "md5";
 
 export default class Device {
+  private path: string;
   private device1: Device1;
 
-  constructor(device1: Device1) {
+  constructor(path: string, device1: Device1) {
     this.device1 = device1;
   }
 

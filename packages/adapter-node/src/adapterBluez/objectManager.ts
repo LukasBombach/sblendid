@@ -3,7 +3,7 @@ import SystemBus from "./systemBus";
 
 interface DBusObjectManager extends DBusInterface {
   GetManagedObjects: (
-    callback: (error: DBusError, interfaces: BluezInterfaces) => void
+    callback: (error: DBusError, interfaces: Interfaces) => void
   ) => void;
 }
 
@@ -28,7 +28,7 @@ export interface GattService1 {
   Includes: any[];
 }
 
-export interface BluezInterfaces {
+export interface Interfaces {
   "org.bluez.Device1"?: Device1;
   "org.bluez.GattService1"?: GattService1;
 }
@@ -46,7 +46,7 @@ export default class ObjectManager {
   private systemBus = new SystemBus();
   private objectManager?: DBusObjectManager;
 
-  public async getManagedObjects(): Promise<BluezInterfaces> {
+  public async getManagedObjects(): Promise<Interfaces> {
     const objectManager = await this.getObjectManager();
     return new Promise((resolve, reject) => {
       objectManager.GetManagedObjects((err, interfaces) =>
