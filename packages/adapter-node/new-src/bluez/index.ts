@@ -1,10 +1,12 @@
 import BluezAdapter from "./adapter";
 import ObjectManager from "./objectManager";
+import Events from "./events";
 import { Event, Listener } from "../types/nobleAdapter";
 
 export class Bluez {
   private adapter = new BluezAdapter();
   private objectManager = new ObjectManager();
+  private events = new Events(this.objectManager);
 
   public async init(): Promise<void> {}
 
@@ -20,6 +22,13 @@ export class Bluez {
     event: E,
     listener: Listener<E>
   ): Promise<void> {
-    this.objectManager.on(event, listener);
+    this.events.on(event, listener as any); // todo unlawful any
+  }
+
+  public async off<E extends Event>(
+    event: E,
+    listener: Listener<E>
+  ): Promise<void> {
+    this.events.off(event, listener as any); // todo unlawful any
   }
 }

@@ -1,5 +1,6 @@
 import { EventEmitter } from "events";
-import { Event, Listener } from "../types/nobleAdapter";
+import md5 from "md5";
+import { Params, Advertisement, ServiceData } from "../types/nobleAdapter";
 import ObjectManager, {
   BluezInterfaces,
   Device,
@@ -40,5 +41,53 @@ export default class Events extends EventEmitter {
     const { UUID, Device } = service;
     this.services[Device] = this.services[Device] || new Set();
     this.services[Device].add(UUID);
+  }
+
+  private getNoblePeripheral(device: Device): Params<"discover"> {
+    const { Address, AddressType, Blocked, RSSI } = device;
+    const uuid = this.addressToUuid(Address);
+    const advertisement = this.getAdvertisement(device);
+    return [uuid, Address, AddressType, !Blocked, advertisement, RSSI];
+  }
+
+  private addressToUuid(address: string) {
+    const hash = md5(address);
+    return [
+      hash.substr(0, 8),
+      hash.substr(8, 4),
+      hash.substr(12, 4),
+      hash.substr(16, 4),
+      hash.substr(20, 12)
+    ].join("-");
+  }
+
+  private getAdvertisement(device: Device): Advertisement {
+    const { Alias, Address, UUIDs, TxPower } = device;
+    const localName = Alias === Address.replace(/:/g, "-") ? undefined : Alias;
+    const txPowerLevel = TxPower;
+    const serviceUuids = UUIDs;
+    const manufacturerData = this.getNobleManufacturerData(device);
+    const serviceData = this.getNobleServiceData(device);
+    return {
+      localName,
+      txPowerLevel,
+      serviceUuids,
+      manufacturerData,
+      serviceData
+    };
+  }
+
+  private getNobleManufacturerData(device: Device): Buffer | undefined {
+    const manufacturerValues = Object.values(device.ManufacturerData || {});
+    if (manufacturerValues.length) return Buffer.from(manufacturerValues[0]);
+    return undefined;
+  }
+
+  private getNobleServiceData(device: Device): ServiceData[] {
+    const serviceEntries = Object.entries(device.ServiceData || {});
+    return serviceEntries.map(([uuid, bytes]) => ({
+      uuid,
+      data: Buffer.from(bytes)
+    }));
   }
 }
