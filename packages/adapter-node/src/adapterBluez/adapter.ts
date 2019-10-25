@@ -6,6 +6,12 @@ interface Adapter1 extends DBusInterface {
   StopDiscovery: () => Promise<void>;
 }
 
+const adapterParams = {
+  service: "org.bluez",
+  path: "/org/bluez/hci0",
+  name: "org.bluez.Adapter1"
+};
+
 export default class BluezAdapter {
   private systemBus = new SystemBus();
   private adapter1?: Adapter1;
@@ -21,13 +27,11 @@ export default class BluezAdapter {
   }
 
   private async getAdapter1(): Promise<Adapter1> {
-    if (!this.adapter1) {
-      this.adapter1 = await this.systemBus.getInterface<Adapter1>(
-        "org.bluez",
-        "/org/bluez/hci0",
-        "org.bluez.Adapter1"
-      );
-    }
+    if (!this.adapter1) this.adapter1 = await this.fetchAdapter1();
     return this.adapter1;
+  }
+
+  private async fetchAdapter1(): Promise<Adapter1> {
+    return await this.systemBus.getInterface<Adapter1>(adapterParams);
   }
 }

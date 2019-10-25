@@ -1,12 +1,11 @@
 import BluezAdapter from "./adapter";
 import ObjectManager from "./objectManager";
 import Events from "./events";
-import { Event, Listener } from "../types/nobleAdapter";
+import { Event, Listener } from "../types/noble";
 
 export class Bluez {
   private adapter = new BluezAdapter();
-  private objectManager = new ObjectManager();
-  private events = new Events(this.objectManager);
+  private events = new Events();
 
   public async init(): Promise<void> {}
 

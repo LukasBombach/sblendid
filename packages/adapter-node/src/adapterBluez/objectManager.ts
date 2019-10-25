@@ -7,7 +7,7 @@ interface DBusObjectManager extends DBusInterface {
   ) => void;
 }
 
-export interface Device {
+export interface Device1 {
   Address: string;
   AddressType: "public" | "random";
   Alias: string;
@@ -21,7 +21,7 @@ export interface Device {
   AdvertisingData: Record<string, number[]>;
 }
 
-export interface Service {
+export interface GattService1 {
   UUID: string;
   Device: string;
   Primary: boolean;
@@ -29,8 +29,8 @@ export interface Service {
 }
 
 export interface BluezInterfaces {
-  "org.bluez.Device1"?: Device;
-  "org.bluez.GattService1"?: Service;
+  "org.bluez.Device1"?: Device1;
+  "org.bluez.GattService1"?: GattService1;
 }
 
 type Event = "InterfacesAdded";
