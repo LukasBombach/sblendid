@@ -7,17 +7,22 @@ export default class Device {
   private device1: Device1;
 
   constructor(path: string, device1: Device1) {
+    this.path = path;
     this.device1 = device1;
   }
 
   public getNobleParams(): Params<"discover"> {
     const { Address, AddressType, Blocked, RSSI } = this.device1;
-    const uuid = this.addressToUuid(Address);
+    const uuid = this.getPUUID(Address);
     const advertisement = this.getAdvertisement();
     return [uuid, Address, AddressType, !Blocked, advertisement, RSSI];
   }
 
-  private addressToUuid(address: string) {
+  public getPath(): string {
+    return this.path;
+  }
+
+  private getPUUID(address: string): PUUID {
     const hash = md5(address);
     return [
       hash.substr(0, 8),
@@ -45,9 +50,8 @@ export default class Device {
   }
 
   private getNobleManufacturerData(): Buffer | undefined {
-    const manufacturerValues = Object.values(
-      this.device1.ManufacturerData || {}
-    );
+    const manufacturerData = this.device1.ManufacturerData || {};
+    const manufacturerValues = Object.values(manufacturerData);
     if (manufacturerValues.length) return Buffer.from(manufacturerValues[0]);
     return undefined;
   }

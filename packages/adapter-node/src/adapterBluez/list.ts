@@ -1,6 +1,7 @@
 export default class List<T> {
   private set = new Set<T>();
 
+  // todo this will pobably allow duplicate devices and services as they are different objects / pointers
   public add(device: T): void {
     this.set.add(device);
   }

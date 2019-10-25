@@ -1,5 +1,4 @@
 import BluezAdapter from "./adapter";
-import ObjectManager from "./objectManager";
 import Events from "./events";
 import { Event, Listener } from "../types/noble";
 
