@@ -1,8 +1,10 @@
+/// <reference path="../types/global.d.ts" />
+
 import BluezAdapter from "./adapter";
 import Events from "./events";
 import { Event, Listener } from "../types/noble";
 
-export class Bluez {
+export default class Bluez {
   private adapter = new BluezAdapter();
   private events = new Events();
 

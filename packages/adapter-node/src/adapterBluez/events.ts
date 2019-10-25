@@ -22,6 +22,7 @@ export default class Events extends EventEmitter {
   private async emitManagedObjects(): Promise<void> {
     const managedObjects = await this.objectManager.getManagedObjects();
     const entries = Object.entries(managedObjects);
+    console.log("Got managedObjects", managedObjects);
     entries.forEach(([path, iface]) => this.onInterfacesAdded(path, iface));
   }
 

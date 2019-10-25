@@ -13,6 +13,7 @@ export default class SystemBus {
   public getInterface<T = DBusInterface>(params: InterfaceParams): Promise<T> {
     const { service, path, name } = params;
     return new Promise((resolve, reject) => {
+      console.log("getInterface", service, path, name);
       this.bus.getInterface(service, path, name, (err, iface) =>
         err ? reject(err) : resolve(iface as any)
       );
