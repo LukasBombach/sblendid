@@ -4,35 +4,16 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Current TS File",
-      "args": ["${relativeFile}"],
-      "runtimeArgs": ["--nolazy", "-r", "ts-node/register"],
-      "env": { "TS_NODE_PROJECT": "packages/sblendid/tsconfig.json" },
-      "sourceMaps": true,
-      "cwd": "${workspaceRoot}",
-      "protocol": "inspector"
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Example deviceInfo",
-      "args": ["packages/sblendid/examples/deviceInfo.ts"],
-      "runtimeArgs": ["--nolazy", "-r", "ts-node/register"],
-      "env": { "TS_NODE_PROJECT": "packages/sblendid/tsconfig.json" },
-      "sourceMaps": true,
-      "cwd": "${workspaceRoot}",
-      "protocol": "inspector"
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Adapter Dev Script",
-      "args": ["packages/adapter-node/dev.ts"],
-      "runtimeArgs": ["--nolazy", "-r", "ts-node/register"],
-      "env": { "TS_NODE_PROJECT": "packages/adapter-node/tsconfig.json" },
-      "sourceMaps": true,
-      "cwd": "${workspaceRoot}",
-      "protocol": "inspector"
+      "name": "Dev Script",
+      "runtimeArgs": ["-r", "ts-node/register"],
+      "args": ["dev.ts"],
+      "cwd": "${workspaceRoot}/packages/adapter-node/",
+      "env": {
+        "TS_NODE_PROJECT": "${workspaceFolder}/packages/adapter-node/tsconfig.json",
+        "TS_NODE_IGNORE": "false"
+      },
+      "protocol": "inspector",
+      "internalConsoleOptions": "openOnSessionStart"
     }
   ]
 }

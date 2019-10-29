@@ -6,7 +6,7 @@ import { Event, Listener } from "../types/noble";
 
 export default class Bluez {
   private adapter = new BluezAdapter();
-  private events = new Events();
+  // private events = new Events();
 
   public async init(): Promise<void> {}
 
@@ -22,13 +22,13 @@ export default class Bluez {
     event: E,
     listener: Listener<E>
   ): Promise<void> {
-    this.events.on(event, listener as any); // todo unlawful any
+    // this.events.on(event, listener as any); // todo unlawful any
   }
 
   public async off<E extends Event>(
     event: E,
     listener: Listener<E>
   ): Promise<void> {
-    this.events.off(event, listener as any); // todo unlawful any
+    // this.events.off(event, listener as any); // todo unlawful any
   }
 }

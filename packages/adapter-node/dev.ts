@@ -1,36 +1,39 @@
 import Bluez from "./src/adapterBluez";
+import BluezAdapter from "./src/adapterBluez/adapter";
+import SystemBus from "./src/adapterBluez/systemBus";
 
 (async () => {
   try {
-    const bluez = new Bluez();
+    const systemBus = new SystemBus();
 
-    console.log("Attaching discover listener");
-    bluez.on("discover", (...peripheral) => {
-      console.log("discover event", peripheral);
+    const adapter1 = (await systemBus.getInterface({
+      service: "org.bluez",
+      path: "/org/bluez/hci0",
+      name: "org.bluez.Adapter1"
+    })) as any;
+
+    // console.log("adapter1", adapter1);
+
+    const objectManager = (await systemBus.getInterface({
+      service: "org.bluez",
+      path: "/",
+      name: "org.freedesktop.DBus.ObjectManager"
+    })) as any;
+
+    // console.log("objectManager", objectManager);
+
+    console.log("objectManager.on InterfacesAdded");
+    objectManager.on("InterfacesAdded", (...args: any[]) => {
+      console.log("InterfacesAdded", ...args);
     });
 
-    console.log("Starting scan");
-    await bluez.startScanning();
+    const managedObjects = await objectManager.GetManagedObjects();
 
-    await new Promise(res => setTimeout(res, 5000));
+    console.log("managedObjects", managedObjects);
 
-    console.log("Stopping scan");
-    await bluez.startScanning();
-
-    /* console.log("TS compiled, initializing adapter");
-    const adapter = new Bluez();
-    await adapter.init();
-    const peripheral = await adapter.find((...peripheral) => {
-      console.log(peripheral, "\n");
-      return peripheral[4].localName === "Find Me";
-    });
-    const [pUUID] = peripheral;
-    console.log(peripheral);
-    console.log(await adapter.getServices(pUUID));
-    await adapter.connect(pUUID);
-    console.log(await adapter.getServices(pUUID));
-    await new Promise(res => setTimeout(res, 2000));
-    console.log(await adapter.getServices(pUUID)); */
+    console.log("StartDiscovery");
+    await adapter1.StartDiscovery();
+    console.log("StartDiscovery command finished");
   } catch (error) {
     console.error(error);
     process.exit(1);

@@ -1,5 +1,6 @@
 import { DBusInterface } from "dbus";
 import SystemBus from "./systemBus";
+import Bluez from "../../new-src/bluez";
 
 interface Adapter1 extends DBusInterface {
   StartDiscovery: () => Promise<void>;

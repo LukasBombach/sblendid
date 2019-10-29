@@ -15,8 +15,13 @@ export default class Events extends EventEmitter {
 
   constructor() {
     super();
-    this.objectManager.on("InterfacesAdded", this.onInterfacesAdded.bind(this));
-    this.on("newListener", () => this.emitManagedObjects());
+    this.once("newListener", () => {
+      this.objectManager.on(
+        "InterfacesAdded",
+        this.onInterfacesAdded.bind(this)
+      );
+    });
+    //this.on("newListener", () => this.emitManagedObjects());
   }
 
   private async emitManagedObjects(): Promise<void> {
