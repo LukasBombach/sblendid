@@ -6,7 +6,7 @@ function getOsSpecificAdapter(): new () => Adapter {
   const platform = os.platform();
   if (platform === "darwin") return require("./adapterMacOS").default;
   if (platform === "win32") return require("./adapterWinRT").default;
-  if (platform === "linux") return require("./adapterDBus").default;
+  if (platform === "linux") return require("./adapterBluez").default;
   throw new AdapterError(`Unsupported platform "${platform}".`);
 }
 
