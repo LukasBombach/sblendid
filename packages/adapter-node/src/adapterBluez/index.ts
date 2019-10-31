@@ -74,11 +74,11 @@ export default class Bluez extends Adapter {
     throw new Error("Not implemented yet");
   }
 
-  public on<E extends Event>(event: E, listener: Listener<E>): void {
+  protected on<E extends Event>(event: E, listener: Listener<E>): void {
     this.events.on(event, listener);
   }
 
-  public off<E extends Event>(event: E, listener: Listener<E>): void {
+  protected off<E extends Event>(event: E, listener: Listener<E>): void {
     this.events.off(event, listener);
   }
 }

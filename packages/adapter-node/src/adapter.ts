@@ -69,9 +69,12 @@ export default abstract class Adapter {
     notify: boolean
   ): Promise<boolean>;
 
-  public abstract on<E extends Event>(event: E, listener: Listener<E>): void;
+  protected abstract on<E extends Event>(event: E, listener: Listener<E>): void;
 
-  public abstract off<E extends Event>(event: E, listener: Listener<E>): void;
+  protected abstract off<E extends Event>(
+    event: E,
+    listener: Listener<E>
+  ): void;
 
   protected async run<E extends Event, ReturnValue = Params<E>>(
     action: Action,
