@@ -4,13 +4,10 @@ import { Interfaces, Device1, GattService1 } from "./objectManager";
 import ObjectManager from "./objectManager";
 import Device from "./device";
 import Service from "./service";
-import List from "./list";
 
 export default class Events {
   private objectManager = new ObjectManager();
   private emitter = new EventEmitter();
-  private devices = new List<Device>();
-  private services = new List<Service>();
 
   public async init(): Promise<void> {
     const onInterfacesAdded = this.onInterfacesAdded.bind(this);
@@ -41,12 +38,12 @@ export default class Events {
 
   private handleDevice(path: string, device1: Device1): void {
     const device = new Device(path, device1);
-    this.devices.add(device);
+    Device.add(device);
     this.emitter.emit("discover", ...device.getNobleParams());
   }
 
   private handleService(gattService1: GattService1): void {
     const service = new Service(gattService1);
-    this.services.add(service);
+    Service.add(service);
   }
 }

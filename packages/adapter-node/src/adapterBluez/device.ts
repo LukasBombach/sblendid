@@ -1,10 +1,17 @@
+import md5 from "md5";
 import { Params, Advertisement, ServiceData } from "../types/noble";
 import { Device1 } from "./objectManager";
-import md5 from "md5";
+import List from "./list";
 
 export default class Device {
+  private static devices = new List<Device>();
   private path: string;
   private device1: Device1;
+  private interface?: Device1;
+
+  static add(device: Device): void {
+    Device.devices.add(device);
+  }
 
   constructor(path: string, device1: Device1) {
     this.path = path;
