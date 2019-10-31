@@ -70,6 +70,10 @@ export default class ObjectManager {
   }
 
   private async fetchObjectManager(): Promise<DBusObjectManager> {
-    return await this.systemBus.getInterface<DBusObjectManager>(ifaceParams);
+    try {
+      return await this.systemBus.getInterface<DBusObjectManager>(ifaceParams);
+    } catch (error) {
+      throw new Error(`Could not get Object Manager. ${error.message}`);
+    }
   }
 }

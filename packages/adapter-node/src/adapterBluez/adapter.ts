@@ -19,7 +19,6 @@ export default class BluezAdapter {
 
   public async startDiscovery(): Promise<void> {
     const adapter1 = await this.getAdapter1();
-    console.log("adapter1", adapter1);
     await adapter1.StartDiscovery();
   }
 

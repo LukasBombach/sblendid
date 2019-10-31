@@ -8,20 +8,25 @@ import Device from "./device";
 import Service from "./service";
 import List from "./list";
 
-export default class Events extends EventEmitter {
+export default class Events {
   private objectManager = new ObjectManager();
+  private emitter = new EventEmitter();
   private devices = new List<Device>();
   private services = new List<Service>();
 
-  constructor() {
-    super();
-    this.once("newListener", () => {
-      this.objectManager.on(
-        "InterfacesAdded",
-        this.onInterfacesAdded.bind(this)
-      );
-    });
-    //this.on("newListener", () => this.emitManagedObjects());
+  public async init(): Promise<void> {
+    await this.objectManager.on("InterfacesAdded", (path, interfaces) =>
+      this.onInterfacesAdded(path, interfaces)
+    );
+    // this.emitter.on("newListener", () => this.emitManagedObjects());
+  }
+
+  public on(event: string | symbol, listener: (...args: any[]) => void): void {
+    this.emitter.on(event, listener);
+  }
+
+  public off(event: string | symbol, listener: (...args: any[]) => void): void {
+    this.emitter.off(event, listener);
   }
 
   private async emitManagedObjects(): Promise<void> {
@@ -41,7 +46,7 @@ export default class Events extends EventEmitter {
   private handleDevice(path: string, device1: Device1): void {
     const device = new Device(path, device1);
     this.devices.add(device);
-    this.emit("discover", device.getNobleParams());
+    this.emitter.emit("discover", device.getNobleParams());
   }
 
   private handleService(gattService1: GattService1): void {

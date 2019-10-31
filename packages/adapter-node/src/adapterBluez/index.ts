@@ -6,7 +6,7 @@ import { Event, Listener } from "../types/noble";
 
 export default class Bluez {
   private adapter = new BluezAdapter();
-  // private events = new Events();
+  private events = new Events();
 
   public async init(): Promise<void> {}
 
