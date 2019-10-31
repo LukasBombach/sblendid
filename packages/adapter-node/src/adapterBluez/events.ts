@@ -1,10 +1,7 @@
 import { EventEmitter } from "events";
 import { Event, Listener } from "../types/noble";
-import ObjectManager, {
-  Interfaces,
-  Device1,
-  GattService1
-} from "./objectManager";
+import { Interfaces, Device1, GattService1 } from "./objectManager";
+import ObjectManager from "./objectManager";
 import Device from "./device";
 import Service from "./service";
 import List from "./list";

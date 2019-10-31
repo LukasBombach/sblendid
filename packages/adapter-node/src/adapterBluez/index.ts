@@ -1,8 +1,8 @@
 /// <reference path="../types/global.d.ts" />
+import { Event, Params, Listener } from "../types/noble";
 import Adapter, { FindCondition, Characteristic } from "../adapter";
 import BluezAdapter from "./adapter";
 import Events from "./events";
-import { Event, Params, Listener } from "../types/noble";
 
 export default class Bluez extends Adapter {
   private adapter = new BluezAdapter();
