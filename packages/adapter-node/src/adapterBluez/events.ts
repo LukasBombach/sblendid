@@ -18,7 +18,7 @@ export default class Events {
     await this.objectManager.on("InterfacesAdded", (path, interfaces) =>
       this.onInterfacesAdded(path, interfaces)
     );
-    // this.emitter.on("newListener", () => this.emitManagedObjects());
+    this.emitter.on("newListener", () => this.emitManagedObjects());
   }
 
   public on(event: string | symbol, listener: (...args: any[]) => void): void {
@@ -32,7 +32,6 @@ export default class Events {
   private async emitManagedObjects(): Promise<void> {
     const managedObjects = await this.objectManager.getManagedObjects();
     const entries = Object.entries(managedObjects);
-    console.log("Got managedObjects", managedObjects);
     entries.forEach(([path, iface]) => this.onInterfacesAdded(path, iface));
   }
 

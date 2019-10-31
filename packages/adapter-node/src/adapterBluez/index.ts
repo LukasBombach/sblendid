@@ -8,7 +8,9 @@ export default class Bluez {
   private adapter = new BluezAdapter();
   private events = new Events();
 
-  public async init(): Promise<void> {}
+  public async init(): Promise<void> {
+    await this.events.init();
+  }
 
   public async startScanning(): Promise<void> {
     await this.adapter.startDiscovery();
@@ -22,13 +24,13 @@ export default class Bluez {
     event: E,
     listener: Listener<E>
   ): Promise<void> {
-    // this.events.on(event, listener as any); // todo unlawful any
+    this.events.on(event, listener as any); // todo unlawful any
   }
 
   public async off<E extends Event>(
     event: E,
     listener: Listener<E>
   ): Promise<void> {
-    // this.events.off(event, listener as any); // todo unlawful any
+    this.events.off(event, listener as any); // todo unlawful any
   }
 }
