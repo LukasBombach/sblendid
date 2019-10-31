@@ -42,7 +42,7 @@ export default class Events {
   private handleDevice(path: string, device1: Device1): void {
     const device = new Device(path, device1);
     this.devices.add(device);
-    this.emitter.emit("discover", device.getNobleParams());
+    this.emitter.emit("discover", ...device.getNobleParams());
   }
 
   private handleService(gattService1: GattService1): void {

@@ -94,11 +94,11 @@ export default abstract class Adapter {
   ): Promise<Params<E>> {
     return new Promise<Params<E>>(resolve => {
       const queue = new Queue();
-      const listener = async (...params: Params<E>) => {
+      const listener = ((async (...params: Params<E>) => {
         const conditionIsMet = await queue.add(() => condition(...params));
         if (conditionIsMet) await queue.end(() => resolve(params));
         if (conditionIsMet) this.off(event, listener);
-      };
+      }) as any) as Listener<E>; // todo unlawful typecast
       this.on(event, listener);
     });
   }

@@ -5,13 +5,14 @@ import Bluez from "./src/adapterBluez";
     const bluez = new Bluez();
     await bluez.init();
 
-    await bluez.on("discover", (...peripheral) => {
-      console.log(peripheral);
+    const namedPeripheral = await bluez.find((...peripheral) => {
+      const [, , , , { localName }] = peripheral;
+      process.stdout.write(".");
+      return Boolean(localName);
     });
 
-    await bluez.startScanning();
-    await new Promise(res => setTimeout(res, 2000));
-    await bluez.stopScanning();
+    console.log("\n", "Found this:");
+    console.log(namedPeripheral);
 
     process.exit();
   } catch (error) {
