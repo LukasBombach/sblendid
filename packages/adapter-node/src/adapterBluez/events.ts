@@ -1,4 +1,5 @@
 import { EventEmitter } from "events";
+import { Event, Listener } from "../types/noble";
 import ObjectManager, {
   Interfaces,
   Device1,
@@ -15,17 +16,16 @@ export default class Events {
   private services = new List<Service>();
 
   public async init(): Promise<void> {
-    await this.objectManager.on("InterfacesAdded", (path, interfaces) =>
-      this.onInterfacesAdded(path, interfaces)
-    );
+    const onInterfacesAdded = this.onInterfacesAdded.bind(this);
+    await this.objectManager.on("InterfacesAdded", onInterfacesAdded);
     this.emitter.on("newListener", () => this.emitManagedObjects());
   }
 
-  public on(event: string | symbol, listener: (...args: any[]) => void): void {
+  public on<E extends Event>(event: E, listener: Listener<E>): void {
     this.emitter.on(event, listener);
   }
 
-  public off(event: string | symbol, listener: (...args: any[]) => void): void {
+  public off<E extends Event>(event: E, listener: Listener<E>): void {
     this.emitter.off(event, listener);
   }
 

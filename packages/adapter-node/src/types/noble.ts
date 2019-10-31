@@ -177,6 +177,6 @@ export type CharacteristicProperty = "read" | "write" | "notify";
 
 export type Event = keyof EventListeners;
 export type Params<E extends Event> = Parameters<EventListeners[E]>;
-export type Listener<E extends Event> = (...params: Params<E>) => void;
+export type Listener<E extends Event> = EventListeners[E];
 
 export default NobleAdapter;
