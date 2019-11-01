@@ -30,16 +30,12 @@ export default class Bluez extends Adapter {
   }
 
   public async connect(pUUID: PUUID): Promise<void> {
-    const device = Device.find(pUUID);
-    const msg = `The device with the UUID "${pUUID}" has not been discovered yet`;
-    if (!device) throw new Error(msg);
+    const device = this.getDevice(pUUID);
     await device.connect();
   }
 
   public async disconnect(pUUID: PUUID): Promise<void> {
-    const device = Device.find(pUUID);
-    const msg = `The device with the UUID "${pUUID}" has not been discovered yet`;
-    if (!device) throw new Error(msg);
+    const device = this.getDevice(pUUID);
     await device.disconnect();
   }
 
@@ -87,5 +83,12 @@ export default class Bluez extends Adapter {
 
   protected off<E extends Event>(event: E, listener: Listener<E>): void {
     this.events.off(event, listener);
+  }
+
+  private getDevice(pUUID: PUUID): Device {
+    const device = Device.find(pUUID);
+    const msg = `The device with the UUID "${pUUID}" has not been discovered yet`;
+    if (!device) throw new Error(msg);
+    return device;
   }
 }
