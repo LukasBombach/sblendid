@@ -3,6 +3,7 @@ import { Event, Params, Listener } from "../types/noble";
 import Adapter, { FindCondition, Characteristic } from "../adapter";
 import BluezAdapter from "./adapter";
 import Events from "./events";
+import Device from "./device";
 
 export default class Bluez extends Adapter {
   private adapter = new BluezAdapter();
@@ -28,12 +29,18 @@ export default class Bluez extends Adapter {
     );
   }
 
-  public connect(pUUID: PUUID): Promise<void> {
-    throw new Error("Not implemented yet");
+  public async connect(pUUID: PUUID): Promise<void> {
+    const device = Device.find(pUUID);
+    const msg = `The device with the UUID "${pUUID}" has not been discovered yet`;
+    if (!device) throw new Error(msg);
+    await device.connect();
   }
 
-  public disconnect(pUUID: PUUID): Promise<void> {
-    throw new Error("Not implemented yet");
+  public async disconnect(pUUID: PUUID): Promise<void> {
+    const device = Device.find(pUUID);
+    const msg = `The device with the UUID "${pUUID}" has not been discovered yet`;
+    if (!device) throw new Error(msg);
+    await device.disconnect();
   }
 
   public getRssi(pUUID: PUUID): Promise<number> {
