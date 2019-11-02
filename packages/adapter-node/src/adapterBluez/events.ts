@@ -37,7 +37,7 @@ export default class Events {
   }
 
   private handleDevice(path: string, device1: Device1): void {
-    const device = new Device(path, device1);
+    const device = new Device(path, device1, this);
     Device.add(device);
     this.emitter.emit("discover", ...device.getNobleParams());
   }
@@ -45,5 +45,6 @@ export default class Events {
   private handleService(gattService1: GattService1): void {
     const service = new Service(gattService1);
     Service.add(service);
+    this.emitter.emit("service", service);
   }
 }

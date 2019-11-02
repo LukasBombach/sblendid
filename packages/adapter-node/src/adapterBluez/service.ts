@@ -3,13 +3,22 @@ import List from "./list";
 
 export default class Service {
   private static services = new List<Service>();
-  private gattService1: GattService1;
+  public readonly gattService1: GattService1;
+  public readonly path: string;
+  public readonly uuid: SUUID;
 
-  static add(device: Service): void {
-    Service.services.add(device);
+  static add(service: Service): void {
+    Service.services.add(service);
+    console.log("added service", service.gattService1);
+  }
+
+  static findAll(path: string): Service[] {
+    return Service.services.findAll(s => s.path === path);
   }
 
   constructor(gattService1: GattService1) {
     this.gattService1 = gattService1;
+    this.path = gattService1.Device;
+    this.uuid = gattService1.UUID;
   }
 }

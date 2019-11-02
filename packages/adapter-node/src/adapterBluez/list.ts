@@ -9,4 +9,8 @@ export default class List<T> {
   find(predicate: (value: T) => unknown): T | undefined {
     return [...this.set].find(predicate);
   }
+
+  findAll(callback: (value: T) => boolean): T[] {
+    return [...this.set].filter(callback);
+  }
 }

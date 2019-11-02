@@ -8,7 +8,7 @@ import Bluez from "./src/adapterBluez";
     const roidmi = await bluez.find((...peripheral) => {
       const [, , , , { localName }] = peripheral;
       process.stdout.write(".");
-      return !!localName && /roidmi/i.test(localName);
+      return !!localName && /find me/i.test(localName);
     });
 
     console.log("\n", "Found this:");
@@ -18,11 +18,14 @@ import Bluez from "./src/adapterBluez";
 
     console.log("connecting");
     await bluez.connect(uuid);
+    console.log("connected");
 
-    console.log("disconnecting");
-    await bluez.disconnect(uuid);
+    await new Promise(res => setTimeout(res, 15000));
 
-    console.log("done");
+    // console.log("disconnecting");
+    // await bluez.disconnect(uuid);
+
+    // console.log("done");
     process.exit();
   } catch (error) {
     console.error(error);

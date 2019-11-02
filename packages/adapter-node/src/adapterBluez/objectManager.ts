@@ -22,7 +22,7 @@ export interface Device1 {
 }
 
 export interface GattService1 {
-  UUID: string;
+  UUID: SUUID;
   Device: string;
   Primary: boolean;
   Includes: any[];

@@ -43,8 +43,9 @@ export default class Bluez extends Adapter {
     throw new Error("Not implemented yet");
   }
 
-  public getServices(pUUID: PUUID): Promise<SUUID[]> {
-    throw new Error("Not implemented yet");
+  public async getServices(pUUID: PUUID): Promise<SUUID[]> {
+    const device = this.getDevice(pUUID);
+    return await device.getServices();
   }
 
   public getCharacteristics(

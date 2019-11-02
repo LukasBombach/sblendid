@@ -2,11 +2,17 @@ import md5 from "md5";
 import { Params, Advertisement, ServiceData } from "../types/noble";
 import SystemBus from "./systemBus";
 import { Device1 } from "./objectManager";
+import Events from "./events";
+import Service from "./service";
 import List from "./list";
 
+type Callback = (error: Error | null) => void;
+type CallbackWithValue = (error: Error | null, value: any) => void;
+
 interface Device1Interface {
-  Connect: (callback: (error?: Error) => void) => void;
-  Disconnect: (callback: (error?: Error) => void) => void;
+  Connect: (callback: Callback) => void;
+  Disconnect: (callback: Callback) => void;
+  getProperty: (name: string, callback: CallbackWithValue) => void;
 }
 
 export default class Device {
@@ -15,6 +21,7 @@ export default class Device {
   public readonly path: string;
   public readonly device1: Device1;
   private systemBus = new SystemBus();
+  private events: Events;
   private device1Interface?: Device1Interface;
 
   static add(device: Device): void {
@@ -25,10 +32,11 @@ export default class Device {
     return Device.devices.find(d => d.uuid === pUUID);
   }
 
-  constructor(path: string, device1: Device1) {
+  constructor(path: string, device1: Device1, events: Events) {
     this.uuid = this.getPUUID(device1.Address);
     this.path = path;
     this.device1 = device1;
+    this.events = events;
   }
 
   public async connect(): Promise<void> {
@@ -42,6 +50,32 @@ export default class Device {
     return new Promise(async (res, rej) => {
       const device1Interface = await this.getDevice1Interface();
       device1Interface.Disconnect(err => (err ? rej(err) : res()));
+    });
+  }
+
+  public async getServices(): Promise<SUUID[]> {
+    const servicesResolved = await this.getProperty("ServicesResolved");
+    console.log("getServices servicesResolved", servicesResolved);
+    if (Boolean(servicesResolved)) return this.findAllServiceUUIDs();
+    return new Promise(res => {
+      const listener = async () => {
+        const servicesResolved = await this.getProperty("ServicesResolved");
+        console.log("on service servicesResolved", servicesResolved);
+        if (Boolean(servicesResolved)) res(this.findAllServiceUUIDs());
+        this.events.off("service" as any, listener); // todo unlawful any
+      };
+      this.events.on("service" as any, listener); // todo unlawful any
+    });
+  }
+
+  private findAllServiceUUIDs(): SUUID[] {
+    return Service.findAll(this.path).map(s => s.uuid);
+  }
+
+  private getProperty(name: string) {
+    return new Promise(async (res, rej) => {
+      const iface = await this.getDevice1Interface();
+      iface.getProperty(name, (err, val) => (err ? rej(err) : res(val)));
     });
   }
 
