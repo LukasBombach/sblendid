@@ -5,27 +5,32 @@ import Bluez from "./src/adapterBluez";
     const bluez = new Bluez();
     await bluez.init();
 
-    const roidmi = await bluez.find((...peripheral) => {
+    const findme = await bluez.find((...peripheral) => {
       const [, , , , { localName }] = peripheral;
       process.stdout.write(".");
+      console.log(peripheral);
       return !!localName && /find me/i.test(localName);
     });
 
     console.log("\n", "Found this:");
-    console.log(roidmi);
+    console.log(findme);
 
-    const [uuid] = roidmi;
+    const [puuid] = findme;
 
     console.log("connecting");
-    await bluez.connect(uuid);
+    await bluez.connect(puuid);
     console.log("connected");
 
-    await new Promise(res => setTimeout(res, 15000));
+    console.log("Getting services");
+    const services = await bluez.getServices(puuid);
+    console.log("Done etting services");
 
-    // console.log("disconnecting");
-    // await bluez.disconnect(uuid);
+    console.log("Here are the services", services);
 
-    // console.log("done");
+    console.log("Waiting for 10 seconds");
+    await new Promise(res => setTimeout(res, 10000));
+
+    console.log("done");
     process.exit();
   } catch (error) {
     console.error(error);
