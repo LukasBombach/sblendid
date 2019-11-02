@@ -9,7 +9,6 @@ export default class Service {
 
   static add(service: Service): void {
     Service.services.add(service);
-    console.log("added service", service.gattService1);
   }
 
   static findAll(path: string): Service[] {

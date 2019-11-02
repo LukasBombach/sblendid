@@ -55,12 +55,10 @@ export default class Device {
 
   public async getServices(): Promise<SUUID[]> {
     const servicesResolved = await this.getProperty("ServicesResolved");
-    console.log("getServices servicesResolved", servicesResolved);
     if (Boolean(servicesResolved)) return this.findAllServiceUUIDs();
     return new Promise(res => {
       const listener = async () => {
         const servicesResolved = await this.getProperty("ServicesResolved");
-        console.log("on service servicesResolved", servicesResolved);
         if (Boolean(servicesResolved)) res(this.findAllServiceUUIDs());
         this.events.off("service" as any, listener); // todo unlawful any
       };
