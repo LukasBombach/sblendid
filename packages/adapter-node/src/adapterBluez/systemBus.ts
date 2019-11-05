@@ -1,3 +1,4 @@
+import { promisify } from "util";
 import DBus, { DBusInterface } from "dbus";
 
 export interface InterfaceParams {
@@ -29,33 +30,17 @@ export default class SystemBus {
     return methods.reduce<M>((api, [n, m]) => ({ ...api, [n]: m }), {} as M);
   }
 
-  private promisify(iface: DBusInterface, method: string): PromiseFn {
-    return (...args: any[]) => this.asPromised(iface, method, args);
-  }
-
-  private asPromised<I extends DBusInterface>(
-    iface: I,
-    method: keyof I,
-    args: any[]
-  ): Promise<any> {
-    return new Promise((res, rej) => {
-      iface[method](...args, (err: Error, ...data: any[]) =>
-        err ? rej(err) : res(data)
-      );
-    });
-  }
-
   private getMethods(iface: FixedDBusInterface): MethodTuple[] {
     const methodNames = Object.keys(iface.object.method);
-    return methodNames.map<MethodTuple>(n => [n, this.promisify(iface, n)]);
+    return methodNames.map(n => [n, promisify(iface.n.bind(iface))]);
   }
 
   private fetchInterface(params: InterfaceParams): Promise<FixedDBusInterface> {
     return new Promise((resolve, reject) => {
       const { service, path, name } = params;
-      SystemBus.bus.getInterface(service, path, name, (error, iface) => {
-        return error
-          ? reject(new Error(`${error.message}: ${service} ${path} ${name}`))
+      SystemBus.bus.getInterface(service, path, name, (err, iface) => {
+        return err
+          ? reject(new Error(`${err.message}: ${service} ${path} ${name}`))
           : resolve(iface as FixedDBusInterface);
       });
     });
