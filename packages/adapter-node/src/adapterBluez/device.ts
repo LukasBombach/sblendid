@@ -77,7 +77,7 @@ export default class Device {
     });
   }
 
-  public getNobleParams(): Params<"discover"> {
+  public toNoble(): Params<"discover"> {
     const { Address, AddressType, Blocked, RSSI } = this.device1;
     const uuid = this.getPUUID(Address);
     const advertisement = this.getAdvertisement();

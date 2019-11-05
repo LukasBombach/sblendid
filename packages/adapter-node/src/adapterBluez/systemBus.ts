@@ -9,13 +9,18 @@ export interface InterfaceParams {
 export default class SystemBus {
   private static bus = DBus.getBus("system");
 
-  public getInterface<T = DBusInterface>(params: InterfaceParams): Promise<T> {
-    const { service, path, name } = params;
+  public async getInterface<T = any>(params: InterfaceParams): Promise<T> {
+    const dbusInterface = await this.fetchInterface(params);
+    return dbusInterface as any;
+  }
+
+  private fetchInterface(params: InterfaceParams): Promise<DBusInterface> {
     return new Promise((resolve, reject) => {
+      const { service, path, name } = params;
       SystemBus.bus.getInterface(service, path, name, (error, iface) => {
         return error
           ? reject(new Error(`${error.message}: ${service} ${path} ${name}`))
-          : resolve(iface as any); // todo unlawful any
+          : resolve(iface);
       });
     });
   }

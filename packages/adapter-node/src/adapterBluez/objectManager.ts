@@ -28,9 +28,12 @@ export interface GattService1 {
   Includes: any[];
 }
 
+export interface GattCharacteristic1 {}
+
 export interface Interfaces {
   "org.bluez.Device1"?: Device1;
   "org.bluez.GattService1"?: GattService1;
+  "org.bluez.GattCharacteristic1"?: GattCharacteristic1;
 }
 
 type Event = "InterfacesAdded";

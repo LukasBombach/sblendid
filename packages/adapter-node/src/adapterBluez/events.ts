@@ -1,9 +1,15 @@
 import { EventEmitter } from "events";
 import { Event, Listener } from "../types/noble";
-import { Interfaces, Device1, GattService1 } from "./objectManager";
+import {
+  Interfaces,
+  Device1,
+  GattService1,
+  GattCharacteristic1
+} from "./objectManager";
 import ObjectManager from "./objectManager";
 import Device from "./device";
 import Service from "./service";
+import Characteristic from "./characteristic";
 
 export default class Events {
   private objectManager = new ObjectManager();
@@ -32,18 +38,26 @@ export default class Events {
   private onInterfacesAdded(path: string, interfaces: Interfaces): void {
     const device = interfaces["org.bluez.Device1"];
     const service = interfaces["org.bluez.GattService1"];
+    const characteristic = interfaces["org.bluez.GattCharacteristic1"];
     if (device) this.handleDevice(path, device);
     if (service) this.handleService(service);
+    if (characteristic) this.handleCharacteristic(characteristic);
   }
 
   private handleDevice(path: string, device1: Device1): void {
     const device = new Device(path, device1, this);
     Device.add(device);
-    this.emitter.emit("discover", ...device.getNobleParams());
+    this.emitter.emit("discover", ...device.toNoble());
   }
 
   private handleService(gattService1: GattService1): void {
     const service = new Service(gattService1);
+    Service.add(service);
+    this.emitter.emit("service", service);
+  }
+
+  private handleCharacteristic(characteristic: GattCharacteristic1): void {
+    const service = new Characteristic(characteristic);
     Service.add(service);
     this.emitter.emit("service", service);
   }

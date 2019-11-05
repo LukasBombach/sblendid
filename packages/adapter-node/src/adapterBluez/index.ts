@@ -4,6 +4,7 @@ import Adapter, { FindCondition, Characteristic } from "../adapter";
 import BluezAdapter from "./adapter";
 import Events from "./events";
 import Device from "./device";
+import Service from "./service";
 
 export default class Bluez extends Adapter {
   private adapter = new BluezAdapter();
@@ -48,11 +49,12 @@ export default class Bluez extends Adapter {
     return await device.getServices();
   }
 
-  public getCharacteristics(
+  public async getCharacteristics(
     pUUID: PUUID,
     sUUID: SUUID
   ): Promise<Characteristic[]> {
-    throw new Error("Not implemented yet");
+    const service = this.getService(pUUID, sUUID);
+    return await service.getCharacteristics();
   }
 
   public read(pUUID: PUUID, sUUID: SUUID, cUUID: CUUID): Promise<Buffer> {
@@ -91,5 +93,13 @@ export default class Bluez extends Adapter {
     const msg = `The device with the UUID "${pUUID}" has not been discovered yet`;
     if (!device) throw new Error(msg);
     return device;
+  }
+
+  private getService(pUUID: PUUID, sUUID: SUUID): Service {
+    const device = this.getDevice(pUUID);
+    const service = Service.find(device.path, sUUID);
+    const msg = `The service with the UUID "${sUUID}" could not be found on the device "${pUUID}"`;
+    if (!service) throw new Error(msg);
+    return service;
   }
 }

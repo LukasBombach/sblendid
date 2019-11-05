@@ -11,6 +11,14 @@
       "runtimeArgs": ["-r", "ts-node/register"],
       "args": ["${workspaceFolder}/dev.ts"],
       "env": { "TS_NODE_PROJECT": "${workspaceFolder}/tsconfig.json" }
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "systemBus.ts",
+      "runtimeArgs": ["-r", "ts-node/register"],
+      "args": ["${workspaceFolder}/systemBus.ts"],
+      "env": { "TS_NODE_PROJECT": "${workspaceFolder}/tsconfig.json" }
     }
   ]
 }
