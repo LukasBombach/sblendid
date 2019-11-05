@@ -9,7 +9,7 @@ import List from "./list";
 type Callback = (error: Error | null) => void;
 type CallbackWithValue = (error: Error | null, value: any) => void;
 
-interface Device1Interface {
+interface Device1Methods {
   Connect: (callback: Callback) => void;
   Disconnect: (callback: Callback) => void;
   getProperty: (name: string, callback: CallbackWithValue) => void;
@@ -22,7 +22,7 @@ export default class Device {
   public readonly device1: Device1;
   private systemBus = new SystemBus();
   private events: Events;
-  private device1Interface?: Device1Interface;
+  private dbusInterface?: Device1Methods;
 
   static add(device: Device): void {
     Device.devices.add(device);
@@ -41,14 +41,14 @@ export default class Device {
 
   public async connect(): Promise<void> {
     return new Promise(async (res, rej) => {
-      const device1Interface = await this.getDevice1Interface();
+      const device1Interface = await this.getDBusInterface();
       device1Interface.Connect(err => (err ? rej(err) : res()));
     });
   }
 
   public async disconnect(): Promise<void> {
     return new Promise(async (res, rej) => {
-      const device1Interface = await this.getDevice1Interface();
+      const device1Interface = await this.getDBusInterface();
       device1Interface.Disconnect(err => (err ? rej(err) : res()));
     });
   }
@@ -72,7 +72,7 @@ export default class Device {
 
   private getProperty(name: string) {
     return new Promise(async (res, rej) => {
-      const iface = await this.getDevice1Interface();
+      const iface = await this.getDBusInterface();
       iface.getProperty(name, (err, val) => (err ? rej(err) : res(val)));
     });
   }
@@ -84,14 +84,14 @@ export default class Device {
     return [uuid, Address, AddressType, !Blocked, advertisement, RSSI];
   }
 
-  private async getDevice1Interface(): Promise<Device1Interface> {
-    if (!this.device1Interface) {
-      this.device1Interface = await this.fetchDevice1Interface();
+  private async getDBusInterface(): Promise<Device1Methods> {
+    if (!this.dbusInterface) {
+      this.dbusInterface = await this.fetchDBusInterface();
     }
-    return this.device1Interface;
+    return this.dbusInterface;
   }
 
-  private fetchDevice1Interface(): Promise<Device1Interface> {
+  private fetchDBusInterface(): Promise<Device1Methods> {
     const service = "org.bluez";
     const path = this.path;
     const name = "org.bluez.Device1";

@@ -1,6 +1,9 @@
 import { GattService1 } from "./objectManager";
 import List from "./list";
 
+
+// const iface = await this.getInterface('org.bluez', path, 'org.bluez.GattService1');
+
 export default class Service {
   private static services = new List<Service>();
   public readonly gattService1: GattService1;
