@@ -15,14 +15,13 @@ interface DBusInterfaceObject {
 
 type FixedDBusInterface = DBusInterface & DBusInterfaceObject;
 
-type InterfaceDescriptor = Record<string, PromiseFn>;
 type PromiseFn = (...args: any[]) => Promise<any>;
 type MethodTuple = [string, PromiseFn];
 
 export default class SystemBus {
   private static bus = DBus.getBus("system");
 
-  public async getInterface<M extends InterfaceDescriptor>(
+  public async getInterface<M extends Record<string, PromiseFn>>(
     params: InterfaceParams
   ): Promise<M> {
     const iface = await this.fetchInterface(params);
