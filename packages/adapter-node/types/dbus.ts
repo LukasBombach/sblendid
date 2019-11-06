@@ -17,12 +17,10 @@ export interface InputApi {
 }
 export type OutputApi<A extends InputApi> = EventApi<A> & MethodApi<A>;
 export type MethodApi<A extends InputApi> = A["methods"];
-
 export interface EventApi<A extends InputApi> {
   on: EventMethod<A>;
   off: EventMethod<A>;
 }
-
 export type EventMethod<A extends InputApi> = <E extends keyof A["events"]>(
   event: E,
   listener: A["events"][E]
