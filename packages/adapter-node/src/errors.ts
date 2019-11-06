@@ -1,8 +1,8 @@
-export class AdapterError extends Error {
-  private static issuesPage = "https://github.com/LukasBombach/sblendid/issues";
+import pkg from "../package.json";
 
+export class AdapterError extends Error {
   constructor(message: string) {
-    super(`${message} Please file an issue at ${AdapterError.issuesPage}`);
+    super(`${message} Please file an issue at ${pkg.bugs.url}`);
     this.name = "NodeAdapterError";
   }
 }

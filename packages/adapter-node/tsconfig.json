@@ -11,6 +11,7 @@
     "module": "commonjs",
     "target": "es5",
     "noImplicitAny": true,
+    "resolveJsonModule": true,
     "typeRoots": [
       "../../node_modules/@types",
       "./node_modules/@types",

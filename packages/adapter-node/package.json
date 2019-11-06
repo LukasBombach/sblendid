@@ -16,6 +16,9 @@
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/@LukasBombach"
   },
+  "bugs": {
+    "url": "https://github.com/LukasBombach/sblendid/issues"
+  },
   "devDependencies": {
     "@hapi/joi": "16.1.0",
     "@types/dbus": "1.0.0",
