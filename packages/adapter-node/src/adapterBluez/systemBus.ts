@@ -14,7 +14,6 @@ interface DBusInterfaceObject {
 }
 
 type FixedDBusInterface = DBusInterface & DBusInterfaceObject;
-
 type PromiseFn = (...args: any[]) => Promise<any>;
 type MethodTuple = [string, PromiseFn];
 
@@ -33,9 +32,7 @@ export default class SystemBus {
     this.fetchInterface = promisify(getInterface) as FetchInterface;
   }
 
-  public async getInterface<M extends Record<string, PromiseFn>>(
-    params: InterfaceParams
-  ): Promise<M> {
+  public async getInterface<M extends {}>(params: InterfaceParams): Promise<M> {
     const { service, path, name } = params;
     const iface = await this.fetchInterface(service, path, name);
     const methods = this.getMethods(iface);
