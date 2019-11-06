@@ -1,12 +1,7 @@
 import { promisify } from "util";
 import DBus, { DBusInterface } from "dbus";
-import {
-  InputApi,
-  OutputApi,
-  EventApi,
-  MethodApi,
-  EventMethod
-} from "../types/dbus";
+import { InputApi, OutputApi } from "../types/dbus";
+import { EventApi, MethodApi, EventMethod } from "../types/dbus";
 
 export default class SystemBus {
   private static bus = DBus.getBus("system");

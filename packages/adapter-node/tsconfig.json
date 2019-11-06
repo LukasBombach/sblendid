@@ -11,6 +11,10 @@
     "module": "commonjs",
     "target": "es5",
     "noImplicitAny": true,
-    "typeRoots": ["./node_modules/@types", "./types/"]
+    "typeRoots": [
+      "../../node_modules/@types",
+      "./node_modules/@types",
+      "./types/"
+    ]
   }
 }
