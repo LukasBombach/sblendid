@@ -3,16 +3,16 @@ import { Interfaces } from "./src/adapterBluez/objectManager";
 
 (async () => {
   try {
-    interface Adapter {
+    interface AdapterApi {
       methods: {
         StartDiscovery: () => Promise<void>;
         StopDiscovery: () => Promise<void>;
       };
     }
 
-    interface ObjectManager {
+    interface ObjectManagerApi {
       events: {
-        InterfacesAdded: Interfaces;
+        InterfacesAdded: [string, Interfaces];
       };
     }
 
@@ -30,13 +30,22 @@ import { Interfaces } from "./src/adapterBluez/objectManager";
       name: "org.freedesktop.DBus.ObjectManager"
     };
 
-    const adapter = await systemBus.getInterface<Adapter>(adapterParams);
-    const objectManager = await systemBus.getInterface<ObjectManager>(
+    const adapter = await systemBus.getInterface<AdapterApi>(adapterParams);
+    const objectManager = await systemBus.getInterface<ObjectManagerApi>(
       objectManagerParams
     );
 
+    console.log("on InterfacesAdded");
+    objectManager.on("InterfacesAdded", (path, iface) => {
+      console.log(path, iface);
+    });
+
     console.log("StartDiscovery");
     await adapter.StartDiscovery();
+
+    console.log("Awaiting 5 seconds");
+    await new Promise(res => setTimeout(res, 5000));
+
     console.log("StopDiscovery");
     await adapter.StopDiscovery();
 
