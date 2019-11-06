@@ -4,7 +4,6 @@ import BluezDBus from "./src/adapterBluez/bluezDBus";
 (async () => {
   try {
     const bluezDBus = new BluezDBus();
-
     const adapter = await bluezDBus.getAdapter();
     const objectManager = await bluezDBus.getObjectManager();
 
