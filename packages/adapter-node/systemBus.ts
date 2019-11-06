@@ -1,10 +1,19 @@
 import SystemBus from "./src/adapterBluez/systemBus";
+import { Interfaces } from "./src/adapterBluez/objectManager";
 
 (async () => {
   try {
-    interface Methods {
-      StartDiscovery: () => Promise<void>;
-      StopDiscovery: () => Promise<void>;
+    interface Adapter {
+      methods: {
+        StartDiscovery: () => Promise<void>;
+        StopDiscovery: () => Promise<void>;
+      };
+    }
+
+    interface ObjectManager {
+      events: {
+        InterfacesAdded: Interfaces;
+      };
     }
 
     const systemBus = new SystemBus();
@@ -15,7 +24,16 @@ import SystemBus from "./src/adapterBluez/systemBus";
       name: "org.bluez.Adapter1"
     };
 
-    const adapter = await systemBus.getInterface<Methods>(adapterParams);
+    const objectManagerParams = {
+      service: "org.bluez",
+      path: "/",
+      name: "org.freedesktop.DBus.ObjectManager"
+    };
+
+    const adapter = await systemBus.getInterface<Adapter>(adapterParams);
+    const objectManager = await systemBus.getInterface<ObjectManager>(
+      objectManagerParams
+    );
 
     console.log("StartDiscovery");
     await adapter.StartDiscovery();

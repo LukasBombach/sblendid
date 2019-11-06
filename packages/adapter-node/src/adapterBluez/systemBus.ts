@@ -23,6 +23,11 @@ type FetchInterface = (
   name: string
 ) => Promise<FixedDBusInterface>;
 
+interface X {
+  methods?: Record<string, PromiseFn>;
+  events?: Record<string, any>;
+}
+
 export default class SystemBus {
   private static bus = DBus.getBus("system");
   private fetchInterface: FetchInterface;
@@ -32,11 +37,16 @@ export default class SystemBus {
     this.fetchInterface = promisify(getInterface) as FetchInterface;
   }
 
-  public async getInterface<M extends {}>(params: InterfaceParams): Promise<M> {
+  public async getInterface<I extends X>(
+    params: InterfaceParams
+  ): Promise<I["methods"]> {
     const { service, path, name } = params;
     const iface = await this.fetchInterface(service, path, name);
     const methods = this.getMethods(iface);
-    return methods.reduce<M>((api, [n, m]) => ({ ...api, [n]: m }), {} as M);
+    return methods.reduce<I["methods"]>(
+      (api, [n, m]) => ({ ...api, [n]: m }),
+      {} as I["methods"]
+    );
   }
 
   private getMethods(iface: FixedDBusInterface): MethodTuple[] {
