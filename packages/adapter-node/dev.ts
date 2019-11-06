@@ -1,39 +1,21 @@
-import Bluez from "./src/adapterBluez";
-import BluezAdapter from "./src/adapterBluez/adapter";
-import SystemBus from "./src/adapterBluez/systemBus";
+/// <reference path="./src/types/global.d.ts" />
+import BluezDBus from "./src/adapterBluez/bluezDBus";
 
 (async () => {
   try {
-    const systemBus = new SystemBus();
+    const bluezDBus = new BluezDBus();
+    const adapter = await bluezDBus.getAdapter();
+    const objectManager = await bluezDBus.getObjectManager();
 
-    const adapter1 = (await systemBus.getInterface({
-      service: "org.bluez",
-      path: "/org/bluez/hci0",
-      name: "org.bluez.Adapter1"
-    })) as any;
-
-    // console.log("adapter1", adapter1);
-
-    const objectManager = (await systemBus.getInterface({
-      service: "org.bluez",
-      path: "/",
-      name: "org.freedesktop.DBus.ObjectManager"
-    })) as any;
-
-    // console.log("objectManager", objectManager);
-
-    console.log("objectManager.on InterfacesAdded");
-    objectManager.on("InterfacesAdded", (...args: any[]) => {
-      console.log("InterfacesAdded", ...args);
+    objectManager.on("InterfacesAdded", (path, iface) => {
+      console.log(path, iface);
     });
 
-    const managedObjects = await objectManager.GetManagedObjects();
+    await adapter.StartDiscovery();
+    await new Promise(res => setTimeout(res, 5000));
+    await adapter.StopDiscovery();
 
-    console.log("managedObjects", managedObjects);
-
-    console.log("StartDiscovery");
-    await adapter1.StartDiscovery();
-    console.log("StartDiscovery command finished");
+    process.exit();
   } catch (error) {
     console.error(error);
     process.exit(1);
