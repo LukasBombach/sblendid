@@ -1,20 +1,29 @@
 import { Params } from "../../types/noble";
-import SblendidAdapter, {
-  FindCondition,
-  Characteristic
-} from "../../types/sblendidAdapter";
+import SblendidAdapter from "../../types/sblendidAdapter";
+import { FindCondition, Characteristic } from "../../types/sblendidAdapter";
+import { OutputApi } from "../../types/dbus";
+import { AdapterApi, ObjectManagerApi } from "../../types/bluez";
+import Bluez from "./bluez";
+import { NotInitializedError } from "../errors";
 
 export default class BluezAdapter implements SblendidAdapter {
+  private bluez = new Bluez();
+  private adapter?: OutputApi<AdapterApi>;
+  private objectManager?: OutputApi<ObjectManagerApi>;
+
   public async init(): Promise<void> {
-    throw new Error("Not implemented yet");
+    this.adapter = await this.bluez.getAdapter();
+    this.objectManager = await this.bluez.getObjectManager();
   }
 
   public async startScanning(): Promise<void> {
-    throw new Error("Not implemented yet");
+    if (!this.adapter) throw new NotInitializedError("startScanning");
+    await this.adapter.StartDiscovery();
   }
 
   public async stopScanning(): Promise<void> {
-    throw new Error("Not implemented yet");
+    if (!this.adapter) throw new NotInitializedError("startScanning");
+    await this.adapter.StopDiscovery();
   }
 
   public async find(condition: FindCondition): Promise<Params<"discover">> {
