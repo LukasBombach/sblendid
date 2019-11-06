@@ -1,52 +1,19 @@
-import SystemBus from "./src/adapterBluez/systemBus";
-import { Interfaces } from "./src/adapterBluez/objectManager";
+/// <reference path="./src/types/global.d.ts" />
+import BluezDBus from "./src/adapterBluez/bluezDBus";
 
 (async () => {
   try {
-    interface AdapterApi {
-      methods: {
-        StartDiscovery: () => Promise<void>;
-        StopDiscovery: () => Promise<void>;
-      };
-    }
+    const bluezDBus = new BluezDBus();
 
-    interface ObjectManagerApi {
-      events: {
-        InterfacesAdded: [string, Interfaces];
-      };
-    }
+    const adapter = await bluezDBus.getAdapter();
+    const objectManager = await bluezDBus.getObjectManager();
 
-    const systemBus = new SystemBus();
-
-    const adapterParams = {
-      service: "org.bluez",
-      path: "/org/bluez/hci0",
-      name: "org.bluez.Adapter1"
-    };
-
-    const objectManagerParams = {
-      service: "org.bluez",
-      path: "/",
-      name: "org.freedesktop.DBus.ObjectManager"
-    };
-
-    const adapter = await systemBus.getInterface<AdapterApi>(adapterParams);
-    const objectManager = await systemBus.getInterface<ObjectManagerApi>(
-      objectManagerParams
-    );
-
-    console.log("on InterfacesAdded");
     objectManager.on("InterfacesAdded", (path, iface) => {
       console.log(path, iface);
     });
 
-    console.log("StartDiscovery");
     await adapter.StartDiscovery();
-
-    console.log("Awaiting 5 seconds");
     await new Promise(res => setTimeout(res, 5000));
-
-    console.log("StopDiscovery");
     await adapter.StopDiscovery();
 
     process.exit();

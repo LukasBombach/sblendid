@@ -1,23 +1,17 @@
 import { promisify } from "util";
 import DBus, { DBusInterface } from "dbus";
 
-export interface InterfaceParams {
-  service: string;
-  path: string;
-  name: string;
-}
-
 interface DBusInterfaceObject {
   object: {
     method: Record<string, any>;
   };
 }
 
-type FixedDBusInterface = DBusInterface & DBusInterfaceObject;
-type PromiseFn = (...args: any[]) => Promise<any>;
-type MethodTuple = [string, PromiseFn];
+export type FixedDBusInterface = DBusInterface & DBusInterfaceObject;
+export type PromiseFn = (...args: any[]) => Promise<any>;
+export type MethodTuple = [string, PromiseFn];
 
-type FetchInterface = (
+export type FetchInterface = (
   service: string,
   path: string,
   name: string
@@ -28,27 +22,27 @@ interface Api {
   events?: Record<string, any[]>;
 }
 
-type EventApi<A extends Api> = {
+export type EventApi<A extends Api> = {
   on: Listener<A>;
   off: Listener<A>;
 };
 
-type MethodApi<A extends Api> = A["methods"];
+export type MethodApi<A extends Api> = A["methods"];
 
-type InterfaceApi<A extends Api> = EventApi<A> & MethodApi<A>;
+export type InterfaceApi<A extends Api> = EventApi<A> & MethodApi<A>;
 
-type Event<A extends Api> = keyof A["events"];
+export type Event<A extends Api> = keyof A["events"];
 
-type Params<A extends Api, E extends Event<A>> = A["events"] extends Record<
-  string,
-  any[]
->
+export type Params<
+  A extends Api,
+  E extends Event<A>
+> = A["events"] extends Record<string, any[]>
   ? A["events"][E] extends any[]
     ? A["events"][E]
     : []
   : [];
 
-type Listener<A extends Api> = <E extends Event<A>>(
+export type Listener<A extends Api> = <E extends Event<A>>(
   event: E,
   listener: (...val: Params<A, E>) => void
 ) => void;
@@ -63,9 +57,10 @@ export default class SystemBus {
   }
 
   public async getInterface<A extends Api>(
-    params: InterfaceParams
+    service: string,
+    path: string,
+    name: string
   ): Promise<InterfaceApi<A>> {
-    const { service, path, name } = params;
     const iface = await this.fetchInterface(service, path, name);
     const methods: MethodApi<A> = this.getMethods(iface);
     const events: EventApi<A> = this.getEvents(iface);
