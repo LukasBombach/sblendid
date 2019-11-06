@@ -1,6 +1,6 @@
 import SystemBus from "./systemBus";
-import { OutputApi } from "../types/dbus";
-import { AdapterApi, ObjectManagerApi } from "../types/bluez";
+import { OutputApi } from "../../types/dbus";
+import { AdapterApi, ObjectManagerApi } from "../../types/bluez";
 
 export default class Bluez {
   private readonly service = "org.bluez";

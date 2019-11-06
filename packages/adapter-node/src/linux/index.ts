@@ -1,10 +1,10 @@
-import { Params } from "../types/noble";
+import { Params } from "../../types/noble";
 import SblendidAdapter, {
   FindCondition,
   Characteristic
-} from "../types/sblendidAdapter";
+} from "../../types/sblendidAdapter";
 
-export default class AdapterBluez implements SblendidAdapter {
+export default class BluezAdapter implements SblendidAdapter {
   public async init(): Promise<void> {
     throw new Error("Not implemented yet");
   }

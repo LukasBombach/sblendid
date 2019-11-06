@@ -1,4 +1,4 @@
-import SystemBus from "./src/systemBus";
+import SystemBus from "./src/linux/systemBus";
 
 export interface Interfaces {
   "org.bluez.Device1"?: boolean;
