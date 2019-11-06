@@ -2,8 +2,10 @@ import { CUUID } from "./ble";
 import { Params } from "../types/noble";
 
 export type FindCondition = (
-  ...params: Params<"discover">
+  ...peripheral: Peripheral
 ) => Promise<boolean> | boolean;
+
+export type Peripheral = Params<"discover">;
 
 export interface Characteristic {
   uuid: CUUID;
@@ -18,7 +20,7 @@ export default interface SblendidAdapter {
   init(): Promise<void>;
   startScanning(): Promise<void>;
   stopScanning(): Promise<void>;
-  find(condition: FindCondition): Promise<Params<"discover">>;
+  find(condition: FindCondition): Promise<Peripheral>;
   connect(pUUID: PUUID): Promise<void>;
   disconnect(pUUID: PUUID): Promise<void>;
   getRssi(pUUID: PUUID): Promise<number>;
