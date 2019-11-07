@@ -1,33 +1,33 @@
 import { Params } from "../../types/noble";
 import SblendidAdapter from "../../types/sblendidAdapter";
 import { FindCondition, Characteristic } from "../../types/sblendidAdapter";
-import { OutputApi } from "../../types/dbus";
-import { AdapterApi, ObjectManagerApi } from "../../types/bluez";
+import { Adapter, ObjectManager } from "../../types/bluez";
+import Watcher from "../watcher";
 import Bluez from "./bluez";
-import { NotInitializedError } from "../errors";
 
 export default class BluezAdapter implements SblendidAdapter {
   private bluez = new Bluez();
-  private adapter?: OutputApi<AdapterApi>;
-  private objectManager?: OutputApi<ObjectManagerApi>;
+  private adapter?: Adapter;
+  private objectManager?: ObjectManager;
 
-  public async init(): Promise<void> {
-    this.adapter = await this.bluez.getAdapter();
-    this.objectManager = await this.bluez.getObjectManager();
-  }
+  public async init(): Promise<void> {}
 
   public async startScanning(): Promise<void> {
-    if (!this.adapter) throw new NotInitializedError("startScanning");
-    await this.adapter.StartDiscovery();
+    const adapter = await this.getAdapter();
+    await adapter.StartDiscovery();
   }
 
   public async stopScanning(): Promise<void> {
-    if (!this.adapter) throw new NotInitializedError("startScanning");
-    await this.adapter.StopDiscovery();
+    const adapter = await this.getAdapter();
+    await adapter.StopDiscovery();
   }
 
   public async find(condition: FindCondition): Promise<Params<"discover">> {
-    throw new Error("Not implemented yet");
+    const watcher = await this.getWatcher("discover", condition);
+    await this.startScanning();
+    const peripheral = await watcher.resolved();
+    await this.stopScanning();
+    return peripheral;
   }
 
   public async connect(pUUID: PUUID): Promise<void> {
@@ -74,5 +74,21 @@ export default class BluezAdapter implements SblendidAdapter {
     notify: boolean
   ): Promise<boolean> {
     throw new Error("Not implemented yet");
+  }
+
+  private async getWatcher(event: string, condition: FindCondition) {
+    const objectManager = await this.getObjectManager();
+    return new Watcher(objectManager, event, condition);
+  }
+
+  private async getAdapter(): Promise<Adapter> {
+    if (!this.adapter) this.adapter = await this.bluez.getAdapter();
+    return this.adapter;
+  }
+
+  private async getObjectManager(): Promise<ObjectManager> {
+    if (!this.objectManager)
+      this.objectManager = await this.bluez.getObjectManager();
+    return this.objectManager;
   }
 }

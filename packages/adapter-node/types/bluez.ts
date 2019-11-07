@@ -1,3 +1,5 @@
+import { OutputApi } from "./dbus";
+
 export interface Device1 {
   Address: string;
   AddressType: "public" | "random";
@@ -38,3 +40,6 @@ export interface ObjectManagerApi {
     InterfacesAdded: (path: string, interfaces: Interfaces) => void;
   };
 }
+
+export type Adapter = OutputApi<AdapterApi>;
+export type ObjectManager = OutputApi<ObjectManagerApi>;
