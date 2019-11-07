@@ -1,3 +1,4 @@
+import { PUUID, SUUID, CUUID } from "../../types/ble";
 import { Params } from "../../types/noble";
 import SblendidAdapter from "../../types/sblendidAdapter";
 import { FindCondition, Characteristic } from "../../types/sblendidAdapter";
@@ -13,20 +14,27 @@ export default class BluezAdapter implements SblendidAdapter {
   public async init(): Promise<void> {}
 
   public async startScanning(): Promise<void> {
+    console.log("startScanning");
     const adapter = await this.getAdapter();
     await adapter.StartDiscovery();
   }
 
   public async stopScanning(): Promise<void> {
+    console.log("stopScanning");
     const adapter = await this.getAdapter();
     await adapter.StopDiscovery();
   }
 
   public async find(condition: FindCondition): Promise<Params<"discover">> {
-    const watcher = await this.getWatcher("discover", condition);
+    const watcher = await this.getWatcher<Params<"discover">>( // todo bad explicit type declaration
+      "InterfacesAdded", // todo there must be a typeguard here
+      condition
+    );
     await this.startScanning();
+    console.log("Waiting for watcher to be resolved");
     const peripheral = await watcher.resolved();
     await this.stopScanning();
+    console.log("returning peripheral", peripheral);
     return peripheral;
   }
 
@@ -76,9 +84,12 @@ export default class BluezAdapter implements SblendidAdapter {
     throw new Error("Not implemented yet");
   }
 
-  private async getWatcher(event: string, condition: FindCondition) {
+  private async getWatcher<P extends any[]>(
+    event: string,
+    condition: FindCondition
+  ) {
     const objectManager = await this.getObjectManager();
-    return new Watcher(objectManager, event, condition);
+    return new Watcher<P>(objectManager, event, condition); // todo bad explicit type declaration
   }
 
   private async getAdapter(): Promise<Adapter> {

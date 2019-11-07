@@ -1,6 +1,6 @@
 interface EventEmitter {
-  on: (event: string, listener: Function) => any;
-  off: (event: string, listener: Function) => any;
+  on: (event: any, listener: Function) => any; // todo uncool any
+  off: (event: any, listener: Function) => any; // todo uncool any
 }
 
 type Condition = (...args: any[]) => Promise<boolean> | boolean;
@@ -16,8 +16,13 @@ export default class Watcher<T extends any[]> {
   constructor(eventEmitter: EventEmitter, event: string, condition: Condition) {
     this.eventEmitter = eventEmitter;
     this.event = event;
-    this.listener = (...args: T) => condition(...args) && this.resolve(args);
-    this.promise = new Promise<T>(this.setResolver).then(this.stopListening);
+    this.listener = (...args: T) => {
+      console.log("got event", args);
+      if (condition(...args)) this.resolve(args);
+    };
+    this.promise = new Promise<T>(res => this.setResolver(res)).then(val =>
+      this.stopListening(val)
+    );
     this.startListening();
   }
 
@@ -26,12 +31,14 @@ export default class Watcher<T extends any[]> {
   }
 
   private startListening(): void {
+    console.log("starting to listen", this.event);
     this.eventEmitter.on(this.event, this.listener);
   }
 
-  private stopListening(args: T): T {
+  private stopListening(val: T): T {
+    console.log("stopping listening");
     this.eventEmitter.off(this.event, this.listener);
-    return args;
+    return val;
   }
 
   private setResolver(resolve: Resolver<T>): void {

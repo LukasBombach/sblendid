@@ -1,18 +1,18 @@
-import Bluez from "./src/linux/bluez";
+import SblendidAdapter from "./src";
 
 (async () => {
   try {
-    const bluez = new Bluez();
-    const adapter = await bluez.getAdapter();
-    const objectManager = await bluez.getObjectManager();
+    const adapter = new SblendidAdapter();
+    let i = 0;
+    const peripheral = await adapter.find(
+      (uuid, address, type, connectable, advertisement, rssi) => {
+        console.log([uuid, address, type, connectable, advertisement, rssi]);
+        return ++i >= 3;
+      }
+    );
 
-    objectManager.on("InterfacesAdded", (path, iface) => {
-      console.log(path, iface);
-    });
-
-    await adapter.StartDiscovery();
-    await new Promise(res => setTimeout(res, 2000));
-    await adapter.StopDiscovery();
+    console.log("\n");
+    console.log("Found", peripheral);
 
     process.exit();
   } catch (error) {
