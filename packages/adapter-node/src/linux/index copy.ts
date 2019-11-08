@@ -24,7 +24,10 @@ export default class BluezAdapter implements SblendidAdapter {
   }
 
   public async find(condition: FindCondition): Promise<Params<"discover">> {
-    const watcher = await this.getWatcher("InterfacesAdded", condition);
+    const watcher = await this.getWatcher<Params<"discover">>( // todo bad explicit type declaration
+      "InterfacesAdded", // todo there must be a typeguard here
+      condition
+    );
     await this.startScanning();
     const peripheral = await watcher.resolved();
     await this.stopScanning();
@@ -77,9 +80,12 @@ export default class BluezAdapter implements SblendidAdapter {
     throw new Error("Not implemented yet");
   }
 
-  private async getWatcher(event: string, condition: FindCondition) {
+  private async getWatcher<P extends any[]>(
+    event: string,
+    condition: FindCondition
+  ) {
     const objectManager = await this.getObjectManager();
-    return new Watcher(objectManager, event, condition);
+    return new Watcher<P>(objectManager, event, condition); // todo bad explicit type declaration
   }
 
   private async getAdapter(): Promise<Adapter> {

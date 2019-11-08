@@ -15,8 +15,11 @@ export interface InputApi {
   methods?: Record<string, (...args: any[]) => Promise<any>>;
   events?: Record<string, (...args: any[]) => void>;
 }
+
 export type OutputApi<A extends InputApi> = EventApi<A> & MethodApi<A>;
+
 export type MethodApi<A extends InputApi> = A["methods"];
+
 export interface EventApi<A extends InputApi> {
   on: EventMethod<A>;
   off: EventMethod<A>;
