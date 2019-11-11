@@ -1,70 +1,51 @@
 import { EventApi } from "../types/dbus";
-import { ObjectManager } from "../types/bluez";
 
-interface EventEmitter<A = EventApi<any>> {
-  on: <E extends keyof A>(event: E, listener: A[E]) => void;
-  off: <E extends keyof A>(event: E, listener: A[E]) => void;
-}
-
-type Events<E extends EventEmitter> = Parameters<E["on"]>[0];
-type Condition = (...args: any[]) => Promise<boolean> | boolean;
+type GetApi<E extends EventApi<any>> = E extends EventApi<infer T> ? T : never;
+type Event<E extends EventApi<any>> = keyof GetApi<E>["events"];
+type Listener<E extends EventApi<any>, K extends Event<E>> = GetApi<
+  E
+>["events"][K];
+type Value<E extends EventApi<any>, K extends Event<E>> = Parameters<
+  Listener<E, K>
+>;
+type Condition<E extends EventApi<any>, K extends Event<E>> = (
+  ...args: Value<E, K>
+) => Promise<boolean> | boolean;
 type Resolver<T> = (value?: T | PromiseLike<T> | undefined) => void;
 
-/* 
+export default class Watcher<A extends EventApi<any>, E extends Event<A>> {
+  private emitter: A;
+  private event: E;
+  private listener: Listener<A, E>;
+  private promise: Promise<Value<A, E>>;
+  private resolve!: Resolver<Value<A, E>>;
 
-type Listener<EE extends EventEmitter, E extends Events<EE>> = Parameters<
-  EE["on"]
->[1];
-
-type Value = Parameters<Listener<ObjectManager, "InterfacesAdded">>;
-
-type MngrEvents = Events<ObjectManager>;
-type MngrListener = Listener<ObjectManager, "InterfacesAdded">; */
-
-export default class Watcher<E extends EventEmitter> {
-  private eventEmitter: E;
-  private event: Events<E>;
-  private listener: (...args: T) => void;
-  private promise: Promise<T>;
-  private resolve!: Resolver<T>;
-
-  constructor(eventEmitter: E, event: Events<E>, condition: Condition) {
-    this.eventEmitter = eventEmitter;
+  constructor(emitter: A, event: E, condition: Condition<A, E>) {
+    this.emitter = emitter;
     this.event = event;
-    this.listener = (...args: T) => {
+    this.listener = (...args: Value<A, E>) => {
       if (condition(...args)) this.resolve(args);
     };
-    this.promise = new Promise<T>(res => this.setResolver(res)).then(val =>
-      this.stopListening(val)
+    this.promise = new Promise<Value<A, E>>(res => this.setResolver(res)).then(
+      val => this.stopListening(val)
     );
     this.startListening();
   }
 
-  public resolved(): Promise<T> {
+  public resolved(): Promise<Value<A, E>> {
     return this.promise;
   }
 
   private startListening(): void {
-    this.eventEmitter.on(this.event, this.listener);
+    this.emitter.on(this.event, this.listener);
   }
 
-  private stopListening(val: T): T {
-    this.eventEmitter.off(this.event, this.listener);
+  private stopListening(val: Value<A, E>): Value<A, E> {
+    this.emitter.off(this.event, this.listener);
     return val;
   }
 
-  private setResolver(resolve: Resolver<T>): void {
+  private setResolver(resolve: Resolver<Value<A, E>>): void {
     this.resolve = resolve;
   }
 }
-
-const mngr = {} as ObjectManager;
-
-async () => {
-  const watcher0 = new Watcher(mngr, "as", () => true);
-  const watcher = new Watcher(mngr, "InterfacesAdded", () => true);
-
-  const val = await watcher.resolved();
-
-  console.log(watcher0, watcher, val);
-};
