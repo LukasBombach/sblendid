@@ -1,12 +1,12 @@
 import { PUUID, SUUID, CUUID } from "../../types/ble";
 import { Params } from "../../types/noble";
 import SblendidAdapter from "../../types/sblendidAdapter";
-import { FindCondition, Characteristic } from "../../types/sblendidAdapter";
+import { Characteristic } from "../../types/sblendidAdapter";
 import { Adapter, ObjectManager } from "../../types/bluez";
-import Watcher from "../watcher";
+import Watcher, { Condition, Value } from "../watcher";
 import Bluez from "./bluez";
 
-export default class BluezAdapter implements SblendidAdapter {
+export default class BluezAdapter /* implements SblendidAdapter */ {
   private bluez = new Bluez();
   private adapter?: Adapter;
   private objectManager?: ObjectManager;
@@ -23,8 +23,12 @@ export default class BluezAdapter implements SblendidAdapter {
     await adapter.StopDiscovery();
   }
 
-  public async find(condition: FindCondition): Promise<Params<"discover">> {
-    const watcher = await this.getWatcher("InterfacesAdded", condition);
+  public async find(
+    condition: Condition<ObjectManager, "InterfacesAdded">
+    // ): Promise<Params<"discover">> {
+  ): Promise<Value<ObjectManager, "InterfacesAdded">> {
+    const objectManager = await this.getObjectManager();
+    const watcher = new Watcher(objectManager, "InterfacesAdded", condition);
     await this.startScanning();
     const peripheral = await watcher.resolved();
     await this.stopScanning();
@@ -75,11 +79,6 @@ export default class BluezAdapter implements SblendidAdapter {
     notify: boolean
   ): Promise<boolean> {
     throw new Error("Not implemented yet");
-  }
-
-  private async getWatcher(event: string, condition: FindCondition) {
-    const objectManager = await this.getObjectManager();
-    return new Watcher(objectManager, event, condition);
   }
 
   private async getAdapter(): Promise<Adapter> {

@@ -1,17 +1,19 @@
 import { EventApi } from "../types/dbus";
 
-type GetApi<E extends EventApi<any>> = E extends EventApi<infer T> ? T : never;
-type Event<E extends EventApi<any>> = keyof GetApi<E>["events"];
-type Listener<E extends EventApi<any>, K extends Event<E>> = GetApi<
+export type GetApi<E extends EventApi<any>> = E extends EventApi<infer T>
+  ? T
+  : never;
+export type Event<E extends EventApi<any>> = keyof GetApi<E>["events"];
+export type Listener<E extends EventApi<any>, K extends Event<E>> = GetApi<
   E
 >["events"][K];
-type Value<E extends EventApi<any>, K extends Event<E>> = Parameters<
+export type Value<E extends EventApi<any>, K extends Event<E>> = Parameters<
   Listener<E, K>
 >;
-type Condition<E extends EventApi<any>, K extends Event<E>> = (
+export type Condition<E extends EventApi<any>, K extends Event<E>> = (
   ...args: Value<E, K>
 ) => Promise<boolean> | boolean;
-type Resolver<T> = (value?: T | PromiseLike<T> | undefined) => void;
+export type Resolver<T> = (value?: T | PromiseLike<T> | undefined) => void;
 
 export default class Watcher<A extends EventApi<any>, E extends Event<A>> {
   private emitter: A;
