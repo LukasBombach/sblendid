@@ -38,7 +38,6 @@ export interface AdapterApi {
 export interface ObjectManagerApi {
   events: {
     InterfacesAdded: (path: string, interfaces: Interfaces) => void;
-    Test: (isTrue: boolean) => void;
   };
 }
 

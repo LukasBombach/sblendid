@@ -1,15 +1,16 @@
 import { PUUID, SUUID, CUUID } from "../../types/ble";
 import { Params } from "../../types/noble";
-import SblendidAdapter from "../../types/sblendidAdapter";
+import SblendidAdapter, { FindCondition } from "../../types/sblendidAdapter";
 import { Characteristic } from "../../types/sblendidAdapter";
-import { Adapter, ObjectManager } from "../../types/bluez";
-import Watcher, { Condition, Value } from "../watcher";
+import { Adapter } from "../../types/bluez";
+import Watcher from "../watcher";
 import Bluez from "./bluez";
+import ObjectManager from "./objectManager";
 
-export default class BluezAdapter /* implements SblendidAdapter */ {
+export default class BluezAdapter implements SblendidAdapter {
   private bluez = new Bluez();
   private adapter?: Adapter;
-  private objectManager?: ObjectManager;
+  private objectManager: ObjectManager = new ObjectManager();
 
   public async init(): Promise<void> {}
 
@@ -23,16 +24,12 @@ export default class BluezAdapter /* implements SblendidAdapter */ {
     await adapter.StopDiscovery();
   }
 
-  public async find(
-    condition: Condition<ObjectManager, "InterfacesAdded">
-    // ): Promise<Params<"discover">> {
-  ): Promise<Value<ObjectManager, "InterfacesAdded">> {
-    const objectManager = await this.getObjectManager();
-    const watcher = new Watcher(objectManager, "InterfacesAdded", condition);
+  public async find(condition: FindCondition): Promise<Params<"discover">> {
+    const watcher = new Watcher(this.objectManager, "device", condition);
     await this.startScanning();
-    const peripheral = await watcher.resolved();
+    const device = await watcher.resolved();
     await this.stopScanning();
-    return peripheral;
+    return device.toNoble();
   }
 
   public async connect(pUUID: PUUID): Promise<void> {
@@ -84,11 +81,5 @@ export default class BluezAdapter /* implements SblendidAdapter */ {
   private async getAdapter(): Promise<Adapter> {
     if (!this.adapter) this.adapter = await this.bluez.getAdapter();
     return this.adapter;
-  }
-
-  private async getObjectManager(): Promise<ObjectManager> {
-    if (!this.objectManager)
-      this.objectManager = await this.bluez.getObjectManager();
-    return this.objectManager;
   }
 }
