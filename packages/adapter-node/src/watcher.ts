@@ -1,40 +1,30 @@
-import { EventApi } from "../types/dbus";
+import Emitter, { Events, Listener, Value } from "../types/emitter";
 
-export type GetApi<E extends EventApi<any>> = E extends EventApi<infer T>
-  ? T
-  : never;
-export type Event<E extends EventApi<any>> = keyof GetApi<E>["events"];
-export type Listener<E extends EventApi<any>, K extends Event<E>> = GetApi<
-  E
->["events"][K];
-export type Value<E extends EventApi<any>, K extends Event<E>> = Parameters<
-  Listener<E, K>
->;
-export type Condition<E extends EventApi<any>, K extends Event<E>> = (
+export type Condition<E extends Emitter<any>, K extends Events<E>> = (
   ...args: Value<E, K>
 ) => Promise<boolean> | boolean;
 export type Resolver<T> = (value?: T | PromiseLike<T> | undefined) => void;
 
-export default class Watcher<A extends EventApi<any>, E extends Event<A>> {
-  private emitter: A;
-  private event: E;
-  private listener: Listener<A, E>;
-  private promise: Promise<Value<A, E>>;
-  private resolve!: Resolver<Value<A, E>>;
+export default class Watcher<E extends Emitter<any>, K extends Events<E>> {
+  private emitter: E;
+  private event: K;
+  private listener: Listener<E, K>;
+  private promise: Promise<Value<E, K>>;
+  private resolve!: Resolver<Value<E, K>>;
 
-  constructor(emitter: A, event: E, condition: Condition<A, E>) {
+  constructor(emitter: E, event: K, condition: Condition<E, K>) {
     this.emitter = emitter;
     this.event = event;
-    this.listener = (...args: Value<A, E>) => {
+    this.listener = (...args: Value<E, K>) => {
       if (condition(...args)) this.resolve(args);
     };
-    this.promise = new Promise<Value<A, E>>(res => this.setResolver(res)).then(
+    this.promise = new Promise<Value<E, K>>(res => this.setResolver(res)).then(
       val => this.stopListening(val)
     );
     this.startListening();
   }
 
-  public resolved(): Promise<Value<A, E>> {
+  public resolved(): Promise<Value<E, K>> {
     return this.promise;
   }
 
@@ -42,12 +32,12 @@ export default class Watcher<A extends EventApi<any>, E extends Event<A>> {
     this.emitter.on(this.event, this.listener);
   }
 
-  private stopListening(val: Value<A, E>): Value<A, E> {
+  private stopListening(val: Value<E, K>): Value<E, K> {
     this.emitter.off(this.event, this.listener);
     return val;
   }
 
-  private setResolver(resolve: Resolver<Value<A, E>>): void {
+  private setResolver(resolve: Resolver<Value<E, K>>): void {
     this.resolve = resolve;
   }
 }
