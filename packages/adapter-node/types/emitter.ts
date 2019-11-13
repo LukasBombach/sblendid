@@ -1,9 +1,7 @@
-export default interface Emitter<A extends Api> {
-  on: <E extends keyof A>(event: E, listener: A[E]) => void;
-  off: <E extends keyof A>(event: E, listener: A[E]) => void;
+export default abstract class Emitter<A extends {}> {
+  public abstract on<E extends keyof A>(event: E, listener: A[E]): void;
+  public abstract off<E extends keyof A>(event: E, listener: A[E]): void;
 }
-
-export type Api = Record<string, (...args: any[]) => any>;
 
 export type GetApi<E extends Emitter<any>> = E extends Emitter<infer T>
   ? T
@@ -18,3 +16,15 @@ export type Listener<E extends Emitter<any>, K extends Events<E>> = GetApi<
 export type Value<E extends Emitter<any>, K extends Events<E>> = Parameters<
   Listener<E, K>
 >;
+
+import Device from "../src/linux/device";
+
+interface Mngr {
+  device: (device: Device) => void;
+}
+
+const x = {} as Emitter<Mngr>;
+
+x.on("device", device => {
+  device.toNoble();
+});

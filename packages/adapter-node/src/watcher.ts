@@ -1,11 +1,15 @@
 import Emitter, { Events, Listener, Value } from "../types/emitter";
+import ObjectManager from "./linux/objectManager";
 
 export type Condition<E extends Emitter<any>, K extends Events<E>> = (
   ...args: Value<E, K>
 ) => Promise<boolean> | boolean;
 export type Resolver<T> = (value?: T | PromiseLike<T> | undefined) => void;
 
-export default class Watcher<E extends Emitter<any>, K extends Events<E>> {
+export default class Watcher<
+  E extends Emitter<any>,
+  K extends Events<E>
+> {
   private emitter: E;
   private event: K;
   private listener: Listener<E, K>;
@@ -41,3 +45,6 @@ export default class Watcher<E extends Emitter<any>, K extends Events<E>> {
     this.resolve = resolve;
   }
 }
+
+const objectManager = new ObjectManager();
+const watcher = new Watcher(objectManager, "device", () => {});
