@@ -17,7 +17,7 @@ export type Value<E extends Emitter<any>, K extends Events<E>> = Parameters<
   Listener<E, K>
 >;
 
-import Device from "../src/linux/device";
+/* import Device from "../src/linux/device";
 
 interface Mngr {
   device: (device: Device) => void;
@@ -28,3 +28,4 @@ const x = {} as Emitter<Mngr>;
 x.on("device", device => {
   device.toNoble();
 });
+ */
