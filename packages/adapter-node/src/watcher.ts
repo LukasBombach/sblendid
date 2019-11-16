@@ -1,4 +1,5 @@
 import Emitter, { Events, Listener, Value } from "../types/emitter";
+import Queue from "./queue";
 
 export type Condition<E extends Emitter<any>, K extends Events<E>> = (
   ...args: Value<E, K>
@@ -11,16 +12,22 @@ export default class Watcher<E extends Emitter<any>, K extends Events<E>> {
   private listener: Listener<E, K>;
   private promise: Promise<Value<E, K>>;
   private resolve!: Resolver<Value<E, K>>;
+  private queue = new Queue();
 
   constructor(emitter: E, event: K, condition: Condition<E, K>) {
     this.emitter = emitter;
     this.event = event;
-    this.listener = (...args: Value<E, K>) => {
-      if (condition(...args)) this.resolve(args);
+    this.listener = async (...args: Value<E, K>) => {
+      const conditionIsMet = await this.queue.add(() => condition(...args));
+      if (conditionIsMet) this.resolve(args);
     };
-    this.promise = new Promise<Value<E, K>>(res =>
-      this.setResolver(res)
-    ).then(val => this.stopListening(val));
+    this.promise = new Promise<Value<E, K>>(res => this.setResolver(res)).then(
+      async val => {
+        await this.queue.end();
+        this.emitter.off(this.event, this.listener);
+        return val;
+      }
+    );
     this.startListening();
   }
 
@@ -30,11 +37,6 @@ export default class Watcher<E extends Emitter<any>, K extends Events<E>> {
 
   private startListening(): void {
     this.emitter.on(this.event, this.listener);
-  }
-
-  private stopListening(val: Value<E, K>): Value<E, K> {
-    this.emitter.off(this.event, this.listener);
-    return val;
   }
 
   private setResolver(resolve: Resolver<Value<E, K>>): void {
