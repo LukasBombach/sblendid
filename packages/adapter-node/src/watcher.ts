@@ -1,71 +1,46 @@
-import Emitter, { Events, Listener, Value } from "../types/emitter";
 import Queue from "./queue";
 
-export type Condition<E extends Emitter<any>, K extends Events<E>> = (
-  ...args: Value<E, K>
-) => Promise<boolean> | boolean;
-export type Resolver<T> = (value?: T | PromiseLike<T> | undefined) => void;
+export interface Emitter<A extends {}> {
+  on: <E extends keyof A>(
+    event: E,
+    listener: (...args: Value<A, E>) => void
+  ) => void;
+  off: <E extends keyof A>(
+    event: E,
+    listener: (...args: Value<A, E>) => void
+  ) => void;
+}
 
-export default class Watcher<E extends Emitter<any>, K extends Events<E>> {
-  private emitter: E;
-  private event: K;
-  private listener: Listener<E, K>;
-  private promise: Promise<Value<E, K>>;
-  private resolve!: Resolver<Value<E, K>>;
+export type Value<A extends {}, E extends keyof A> = A[E] extends (
+  ...args: any
+) => any
+  ? Parameters<A[E]>
+  : never;
+
+export type Condition<A extends {}, E extends keyof A> = (
+  ...args: Value<A, E>
+) => Promish<boolean>;
+
+export type Promish<T> = Promise<T> | T;
+
+export default class Watcher<A extends {}, E extends keyof A> {
+  private promise: Promise<Value<A, E>>;
   private queue = new Queue();
 
-  constructor(emitter: E, event: K, condition: Condition<E, K>) {
-    this.emitter = emitter;
-    this.event = event;
-    this.listener = async (...args: Value<E, K>) => {
-      const conditionIsMet = await this.queue.add(() => condition(...args));
-      if (conditionIsMet) this.resolve(args);
-    };
-    this.promise = new Promise<Value<E, K>>(res => this.setResolver(res)).then(
-      async val => {
-        await this.queue.end();
-        this.emitter.off(this.event, this.listener);
-        return val;
-      }
-    );
-    this.startListening();
+  constructor(emitter: Emitter<A>, event: E, condition: Condition<A, E>) {
+    this.promise = new Promise(res => {
+      const listener = async (...args: Value<A, E>) => {
+        const conditionIsMet = await this.queue.add(() => condition(...args));
+        if (conditionIsMet) {
+          emitter.off(event, listener);
+          res(args);
+        }
+      };
+      emitter.on(event, listener);
+    });
   }
 
-  public resolved(): Promise<Value<E, K>> {
+  public resolved(): Promise<Value<A, E>> {
     return this.promise;
   }
-
-  private startListening(): void {
-    this.emitter.on(this.event, this.listener);
-  }
-
-  private setResolver(resolve: Resolver<Value<E, K>>): void {
-    this.resolve = resolve;
-  }
 }
-
-/* interface Api {
-  num: (param: number) => void;
-  bool: (param: boolean) => void;
-}
-
-class X extends Emitter<Api> {
-  public on<E extends Events<Emitter<Api>>>(
-    event: E,
-    listener: Listener<Emitter<Api>, E>
-  ): void {}
-  public off<E extends Events<Emitter<Api>>>(
-    event: E,
-    listener: Listener<Emitter<Api>, E>
-  ): void {}
-}
-
-const x = new X();
-
-x.on("num", n => {});
-x.off("bool", b => {});
-x.off("foo", f => {});
-
-const watcher = new Watcher<Emitter<Api>, "num">(x, "num", () => true);
-
-const res = watcher.resolved(); */
