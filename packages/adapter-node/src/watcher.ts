@@ -30,8 +30,7 @@ export default class Watcher<A extends {}, E extends keyof A> {
   constructor(emitter: Emitter<A>, event: E, condition: Condition<A, E>) {
     this.promise = new Promise(res => {
       const listener = async (...args: Value<A, E>) => {
-        const conditionIsMet = await this.queue.add(() => condition(...args));
-        if (conditionIsMet) {
+        if (await this.isMet(condition, args)) {
           emitter.off(event, listener);
           res(args);
         }
@@ -42,5 +41,12 @@ export default class Watcher<A extends {}, E extends keyof A> {
 
   public resolved(): Promise<Value<A, E>> {
     return this.promise;
+  }
+
+  private async isMet(
+    condition: Condition<A, E>,
+    args: Value<A, E>
+  ): Promise<boolean> {
+    return await this.queue.add(() => condition(...args));
   }
 }
