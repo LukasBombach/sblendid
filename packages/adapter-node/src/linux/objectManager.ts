@@ -8,6 +8,7 @@ import Device from "./device";
 
 export interface Api {
   discover: (...peripheral: Params<"discover">) => void;
+  justATest: (...peripheral: Params<"discover">) => void;
 }
 
 export default class ObjectManager extends Emitter<Api> {
