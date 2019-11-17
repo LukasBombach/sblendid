@@ -1,3 +1,4 @@
+// import { Emitter, Event, Value, Condition } from "../types/emitter";
 import Queue from "./queue";
 
 export type Emitter<E, L extends Listener> = {

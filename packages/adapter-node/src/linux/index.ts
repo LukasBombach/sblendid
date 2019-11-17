@@ -5,7 +5,7 @@ import { Characteristic } from "../../types/sblendidAdapter";
 import { Adapter } from "../../types/bluez";
 import Watcher from "../watcher";
 import Bluez from "./bluez";
-import ObjectManager, { Api } from "./objectManager";
+import ObjectManager from "./objectManager";
 
 export default class BluezAdapter implements SblendidAdapter {
   private bluez = new Bluez();
