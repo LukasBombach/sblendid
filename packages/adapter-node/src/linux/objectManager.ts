@@ -8,7 +8,6 @@ import Device from "./device";
 
 export interface Api {
   discover: (...peripheral: Params<"discover">) => void;
-  justATest: (...peripheral: Params<"discover">) => void;
 }
 
 export default class ObjectManager extends Emitter<Api> {
@@ -50,17 +49,3 @@ export default class ObjectManager extends Emitter<Api> {
     return this.interface;
   }
 }
-
-/* 
-import Watcher from "../watcher";
-const objectManager = new ObjectManager();
-
-objectManager.on("device", device => {
-  device.toNoble();
-});
-objectManager.on("asd", device => {
-  device.toNoble();
-});
-
-const watcher = new Watcher(objectManager, "", () => {});
- */

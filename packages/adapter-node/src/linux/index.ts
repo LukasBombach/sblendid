@@ -6,7 +6,6 @@ import { Adapter } from "../../types/bluez";
 import Watcher from "../watcher";
 import Bluez from "./bluez";
 import ObjectManager, { Api } from "./objectManager";
-import Emitter from "../../types/emitter";
 
 export default class BluezAdapter implements SblendidAdapter {
   private bluez = new Bluez();
@@ -26,11 +25,7 @@ export default class BluezAdapter implements SblendidAdapter {
   }
 
   public async find(condition: FindCondition): Promise<Params<"discover">> {
-    const watcher = new Watcher<Emitter<Api>, "discover">(
-      this.objectManager,
-      "discover",
-      condition
-    );
+    const watcher = new Watcher(this.objectManager, "discover", condition);
     await this.startScanning();
     const peripheral = await watcher.resolved();
     await this.stopScanning();
