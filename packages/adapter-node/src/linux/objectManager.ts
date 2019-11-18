@@ -47,7 +47,7 @@ export default class ObjectManager extends Emitter<Api> {
   private handleDevice(path: string, device1: Device1): void {
     const device = new Device(path, device1);
     Device.add(device);
-    this.emitter.emit("discover", device.toNoble());
+    this.emitter.emit("discover", ...device.toNoble());
   }
 
   private async getInterface(): Promise<Interface> {

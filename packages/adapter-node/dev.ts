@@ -6,8 +6,8 @@ import SblendidAdapter from "./src";
 
     const adapter = new SblendidAdapter();
     let i = 0;
-    const peripheral = await adapter.find(async (...args) => {
-      console.log(args);
+    const peripheral = await adapter.find(async uuid => {
+      console.log(uuid);
       console.log("waiting 2 seconds");
       await new Promise(res => setTimeout(res, 2000));
       return ++i >= 3;
