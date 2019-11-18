@@ -1,5 +1,6 @@
 import md5 from "md5";
 import { Params, Advertisement, ServiceData } from "../../types/noble";
+import { PUUID } from "../../types/ble";
 import { Device1 } from "../../types/bluez";
 import List from "../list";
 

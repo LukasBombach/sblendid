@@ -14,22 +14,28 @@ export default class ObjectManager extends Emitter<Api> {
   private bluez = new Bluez();
   private emitter = new EventEmitter();
   private interface?: Interface;
-  public async init(): Promise<void> {
+  private eventsSetUp = false;
+
+  public async setupEvents(): Promise<void> {
+    if (this.eventsSetUp) return;
+    this.eventsSetUp = true;
     const iface = await this.getInterface();
     iface.on("InterfacesAdded", this.onInterfacesAdded.bind(this));
   }
 
-  public on<E extends Events<Emitter<Api>>>(
+  public async on<E extends Events<Emitter<Api>>>(
     event: E,
     listener: Listener<Emitter<Api>, E>
-  ): void {
+  ): Promise<void> {
+    await this.setupEvents();
     this.emitter.on(event, listener);
   }
 
-  public off<E extends Events<Emitter<Api>>>(
+  public async off<E extends Events<Emitter<Api>>>(
     event: E,
     listener: Listener<Emitter<Api>, E>
-  ): void {
+  ): Promise<void> {
+    await this.setupEvents();
     this.emitter.off(event, listener);
   }
 
@@ -41,7 +47,7 @@ export default class ObjectManager extends Emitter<Api> {
   private handleDevice(path: string, device1: Device1): void {
     const device = new Device(path, device1);
     Device.add(device);
-    this.emitter.emit("device", device);
+    this.emitter.emit("discover", device.toNoble());
   }
 
   private async getInterface(): Promise<Interface> {
