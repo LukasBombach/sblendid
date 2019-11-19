@@ -3,14 +3,12 @@ import SblendidAdapter from "./src";
 (async () => {
   try {
     console.log("Starting dev script");
-
     const adapter = new SblendidAdapter();
-    let i = 0;
-    const peripheral = await adapter.find(async uuid => {
-      console.log(uuid);
-      console.log("waiting 1 seconds");
-      await new Promise(res => setTimeout(res, 1000));
-      return ++i >= 3;
+
+    let i = 10;
+    const peripheral = await adapter.find((...peripheral) => {
+      console.log(peripheral);
+      return --i <= 0;
     });
 
     console.log("\n");

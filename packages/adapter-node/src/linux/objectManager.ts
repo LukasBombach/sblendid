@@ -1,6 +1,6 @@
 import { EventEmitter } from "events";
 import Bluez from "./bluez";
-import { ObjectManager as Interface } from "../../types/bluez";
+import { ObjectManager as Interface, ManagedObjects } from "../../types/bluez";
 import { Interfaces, Device1 } from "../../types/bluez";
 import Emitter, { Events, Listener } from "../../types/emitter";
 import { Params } from "../../types/noble";
@@ -29,6 +29,7 @@ export default class ObjectManager extends Emitter<Api> {
   ): Promise<void> {
     await this.setupEvents();
     this.emitter.on(event, listener);
+    this.emitManagedObjects();
   }
 
   public async off<E extends Events<Emitter<Api>>>(
@@ -48,6 +49,19 @@ export default class ObjectManager extends Emitter<Api> {
     const device = new Device(path, device1);
     Device.add(device);
     this.emitter.emit("discover", ...device.toNoble());
+  }
+
+  private async emitManagedObjects(): Promise<void> {
+    const managedObjects = await this.getManagedObjects();
+    const entries = Object.entries(managedObjects);
+    for (const [path, interfaces] of entries) {
+      this.onInterfacesAdded(path, interfaces);
+    }
+  }
+
+  private async getManagedObjects(): Promise<ManagedObjects> {
+    const iface = await this.getInterface();
+    return await iface.GetManagedObjects();
   }
 
   private async getInterface(): Promise<Interface> {

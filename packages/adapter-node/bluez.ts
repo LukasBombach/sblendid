@@ -7,9 +7,15 @@ import Bluez from "./src/linux/bluez";
 
     console.log(objectManager);
 
+    console.log("\n\n\n####\n\n\n");
+
     const managedObjects = await objectManager.GetManagedObjects();
 
     console.log(managedObjects);
+
+    /* for (const obj of Object.values(managedObjects)) {
+      console.log(obj);
+    } */
 
     process.exit();
   } catch (error) {

@@ -37,8 +37,8 @@ export interface AdapterApi {
 
 export interface ObjectManagerApi {
   methods: {
-    GetManagedObjects: () => Promise<Record<string, Interfaces>>
-  },
+    GetManagedObjects: () => Promise<ManagedObjects>;
+  };
   events: {
     InterfacesAdded: (path: string, interfaces: Interfaces) => void;
   };
@@ -46,3 +46,4 @@ export interface ObjectManagerApi {
 
 export type Adapter = OutputApi<AdapterApi>;
 export type ObjectManager = OutputApi<ObjectManagerApi>;
+export type ManagedObjects = Record<string, Record<string, Interfaces>>;
