@@ -50,16 +50,9 @@ export default class BluezAdapter implements SblendidAdapter {
 
   public async getServices(pUUID: PUUID): Promise<SUUID[]> {
     const device = this.getDevice(pUUID);
-    const iface = await SystemBus.fetchInterface(
-      "org.bluez",
-      device.path,
-      "org.bluez.Device1"
-    );
-    return iface as any;
-    // const device = this.getDevice(pUUID);
-    // const condition = async () => await device.getProperty("ServicesResolveds");
-    // await Watcher.resolved(this.objectManager, "service", condition);
-    // return device.getServiceUUIDs();
+    const condition = async () => await device.servicesResolved();
+    await Watcher.resolved(this.objectManager, "service", condition);
+    return device.getServiceUUIDs();
   }
 
   public async getCharacteristics(

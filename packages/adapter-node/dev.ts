@@ -1,3 +1,4 @@
+import { inspect } from "util";
 import SblendidAdapter from "./src";
 
 (async () => {
@@ -26,10 +27,10 @@ import SblendidAdapter from "./src";
     // console.log("Connecting...");
     // await adapter.connect(uuid);
 
-    const iface = await adapter.getServices(uuid);
-    console.log(
-      require("util").inspect((iface as any).object.property, { depth: 10 })
-    );
+    const servicesResolved = await adapter.getServices(uuid);
+    console.log("servicesResolved");
+    console.log(typeof servicesResolved);
+    console.log(servicesResolved);
 
     // console.log("Connected, now disconnecting...");
     // await adapter.disconnect(uuid);

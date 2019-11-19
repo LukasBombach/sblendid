@@ -1,7 +1,12 @@
 import { promisify } from "util";
 import DBus, { DBusInterface } from "dbus";
 import { ApiDefinition, InterfaceApi } from "../../types/dbus";
-import { EventApi, MethodApi, EventMethod } from "../../types/dbus";
+import {
+  EventApi,
+  MethodApi,
+  EventMethod,
+  GetPropertyApi
+} from "../../types/dbus";
 
 export default class SystemBus {
   private static bus = DBus.getBus("system");
@@ -17,7 +22,8 @@ export default class SystemBus {
     const iface = await SystemBus.fetchInterface(service, path, name);
     const methods: MethodApi<A> = this.getMethods(iface);
     const events: EventApi<A> = this.getEvents(iface);
-    return { ...events, ...methods };
+    const getProperty: GetPropertyApi<A> = this.getProperties(iface);
+    return { ...events, ...methods, ...getProperty };
   }
 
   private getMethods<A extends ApiDefinition>(
@@ -35,6 +41,13 @@ export default class SystemBus {
     const on: EventMethod<A> = (event, listener) => iface.on(event, listener);
     const off: EventMethod<A> = (event, listener) => iface.off(event, listener);
     return { on, off };
+  }
+
+  private getProperties<A extends ApiDefinition>(
+    iface: DBusInterface
+  ): GetPropertyApi<A> {
+    const getProperty = promisify(iface.getProperty.bind(iface));
+    return { getProperty } as GetPropertyApi<A>;
   }
 
   private asPromised<I extends DBusInterface>(iface: I, method: keyof I) {

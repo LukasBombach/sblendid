@@ -60,7 +60,6 @@ export interface Device1Api {
     // Class: { type: "u"; access: "read" };
     // ManufacturerData: { type: "a{qv}"; access: "read" };
     // ServiceData: { type: "a{sv}"; access: "read" };
-    // UUIDs: { type: "as"; access: "read" };
     Address: string;
     AddressType: string;
     Alias: string;
@@ -75,6 +74,7 @@ export interface Device1Api {
     ServicesResolved: boolean;
     Trusted: boolean;
     TxPower: number;
+    UUIDs: string[];
   };
 }
 

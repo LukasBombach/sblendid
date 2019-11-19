@@ -38,8 +38,10 @@ export default class Device {
     await api.Disconnect();
   }
 
-  // public async getServiceUUIDs(): Promise<SUUID[]> {}
-  // public async getProperty(property: string): Promise<> {}
+  public async servicesResolved(): Promise<boolean> {
+    const api = await this.getApi();
+    return await api.getProperty("ServicesResolved");
+  }
 
   public toNoble(): Params<"discover"> {
     const { Address, AddressType, Blocked, RSSI } = this.device1;

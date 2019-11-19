@@ -14,11 +14,20 @@ declare module "dbus" {
 export interface ApiDefinition {
   methods?: Record<string, (...args: any[]) => Promise<any>>;
   events?: Record<string, (...args: any[]) => void>;
+  properties?: Record<string, any>;
 }
 
-export type InterfaceApi<A extends ApiDefinition> = EventApi<A> & MethodApi<A>;
+export type InterfaceApi<A extends ApiDefinition> = EventApi<A> &
+  GetPropertyApi<A> &
+  MethodApi<A>;
 
 export type MethodApi<A extends ApiDefinition> = A["methods"];
+
+export interface GetPropertyApi<A extends ApiDefinition> {
+  getProperty: <N extends keyof A["properties"]>(
+    name: N
+  ) => Promise<A["properties"][N]>;
+}
 
 export interface EventApi<A extends ApiDefinition> {
   on: EventMethod<A>;
