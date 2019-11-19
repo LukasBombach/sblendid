@@ -18,7 +18,10 @@ export default class Bluez {
     return await this.getInterface<ObjectManagerApi>(path, name);
   }
 
-  public async getInterface<A>(path: string, name: string) {
+  public async getInterface<A>(
+    path: string,
+    name: string
+  ): Promise<OutputApi<A>> {
     return await this.systemBus.getInterface<A>(this.service, path, name);
   }
 }

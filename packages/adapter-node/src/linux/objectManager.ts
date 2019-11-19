@@ -14,11 +14,11 @@ export default class ObjectManager extends Emitter<Api> {
   private bluez = new Bluez();
   private emitter = new EventEmitter();
   private interface?: Interface;
-  private eventsSetUp = false;
+  private eventsAreSetUp = false;
 
   public async setupEvents(): Promise<void> {
-    if (this.eventsSetUp) return;
-    this.eventsSetUp = true;
+    if (this.eventsAreSetUp) return;
+    this.eventsAreSetUp = true;
     const iface = await this.getInterface();
     iface.on("InterfacesAdded", this.onInterfacesAdded.bind(this));
   }
