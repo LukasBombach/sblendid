@@ -1,13 +1,19 @@
 import { EventEmitter } from "events";
 import Bluez from "./bluez";
-import { ObjectManager as Interface, ManagedObjects } from "../../types/bluez";
+import {
+  ObjectManager as Interface,
+  ManagedObjects,
+  GattService1
+} from "../../types/bluez";
 import { Interfaces, Device1Props } from "../../types/bluez";
 import Emitter, { Events, Listener } from "../../types/emitter";
 import { Params } from "../../types/noble";
 import Device from "./device";
+import Service from "./service";
 
 export interface Api {
   discover: (...peripheral: Params<"discover">) => void;
+  service: (service: Service) => void;
 }
 
 export default class ObjectManager extends Emitter<Api> {
@@ -42,13 +48,21 @@ export default class ObjectManager extends Emitter<Api> {
 
   private onInterfacesAdded(path: string, interfaces: Interfaces): void {
     const device = interfaces["org.bluez.Device1"];
+    const service = interfaces["org.bluez.GattService1"];
     if (device) this.handleDevice(path, device);
+    if (service) this.handleService(path, service);
   }
 
   private handleDevice(path: string, device1: Device1Props): void {
     const device = new Device(path, device1);
     Device.add(device);
     this.emitter.emit("discover", ...device.toNoble());
+  }
+
+  private handleService(path: string, gattService1: GattService1): void {
+    const service = new Service(path, gattService1);
+    Service.add(service);
+    this.emitter.emit("service", service);
   }
 
   private async emitManagedObjects(): Promise<void> {

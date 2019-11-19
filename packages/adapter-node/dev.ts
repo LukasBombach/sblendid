@@ -6,17 +6,9 @@ import SblendidAdapter from "./src";
     console.log("Starting dev script");
     const adapter = new SblendidAdapter();
 
-    /* let i = 10;
-    await adapter.find((...p) => {
-      console.log(p);
-      return --i <= 0;
-    }); */
-
     const peripheral = await adapter.find((...peripheral) => {
       const [, , , , advertisement] = peripheral;
-      return (
-        !!advertisement.localName && /roidmi/i.test(advertisement.localName)
-      );
+      return !!advertisement.localName && /band/i.test(advertisement.localName);
     });
 
     console.log("\n");
@@ -24,16 +16,16 @@ import SblendidAdapter from "./src";
 
     const [uuid] = peripheral;
 
-    // console.log("Connecting...");
-    // await adapter.connect(uuid);
+    console.log("Connecting...");
+    await adapter.connect(uuid);
 
-    const servicesResolved = await adapter.getServices(uuid);
-    console.log("servicesResolved");
-    console.log(typeof servicesResolved);
-    console.log(servicesResolved);
+    const services = await adapter.getServices(uuid);
+    console.log("services");
+    console.log(typeof services);
+    console.log(services);
 
-    // console.log("Connected, now disconnecting...");
-    // await adapter.disconnect(uuid);
+    console.log("Connected, now disconnecting...");
+    await adapter.disconnect(uuid);
 
     console.log("done");
 

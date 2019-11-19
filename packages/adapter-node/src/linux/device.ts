@@ -38,6 +38,11 @@ export default class Device {
     await api.Disconnect();
   }
 
+  public async getServiceUUIDs(): Promise<SUUID[]> {
+    const api = await this.getApi();
+    return await api.getProperty("UUIDs");
+  }
+
   public async servicesResolved(): Promise<boolean> {
     const api = await this.getApi();
     return await api.getProperty("ServicesResolved");
