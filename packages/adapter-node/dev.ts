@@ -5,7 +5,7 @@ import SblendidAdapter from "./src";
     console.log("Starting dev script");
     const adapter = new SblendidAdapter();
 
-    let i = 10;
+    let i = 3;
     const peripheral = await adapter.find((...peripheral) => {
       console.log(peripheral);
       return --i <= 0;

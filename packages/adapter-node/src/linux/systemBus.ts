@@ -1,6 +1,6 @@
 import { promisify } from "util";
 import DBus, { DBusInterface } from "dbus";
-import { InputApi, OutputApi } from "../../types/dbus";
+import { ApiDefinition, InterfaceApi } from "../../types/dbus";
 import { EventApi, MethodApi, EventMethod } from "../../types/dbus";
 
 export default class SystemBus {
@@ -9,25 +9,29 @@ export default class SystemBus {
     SystemBus.bus.getInterface.bind(SystemBus.bus)
   );
 
-  public async getInterface<A extends InputApi>(
+  public async getInterface<A extends ApiDefinition>(
     service: string,
     path: string,
     name: string
-  ): Promise<OutputApi<A>> {
+  ): Promise<InterfaceApi<A>> {
     const iface = await SystemBus.fetchInterface(service, path, name);
     const methods: MethodApi<A> = this.getMethods(iface);
     const events: EventApi<A> = this.getEvents(iface);
     return { ...events, ...methods };
   }
 
-  private getMethods<A extends InputApi>(iface: DBusInterface): MethodApi<A> {
+  private getMethods<A extends ApiDefinition>(
+    iface: DBusInterface
+  ): MethodApi<A> {
     return Object.keys(iface.object.method).reduce<MethodApi<A>>(
       (api, method) => Object.assign(api, this.asPromised(iface, method)),
       {} as MethodApi<A>
     );
   }
 
-  private getEvents<A extends InputApi>(iface: DBusInterface): EventApi<A> {
+  private getEvents<A extends ApiDefinition>(
+    iface: DBusInterface
+  ): EventApi<A> {
     const on: EventMethod<A> = (event, listener) => iface.on(event, listener);
     const off: EventMethod<A> = (event, listener) => iface.off(event, listener);
     return { on, off };

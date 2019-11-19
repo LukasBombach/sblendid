@@ -1,23 +1,28 @@
-import { OutputApi } from "./dbus";
+import { InterfaceApi } from "./dbus";
 
 export interface Device1 {
+  Adapter: string;
   Address: string;
   AddressType: "public" | "random";
   Alias: string;
   Blocked: boolean;
+  Connected: boolean;
+  LegacyPairing: boolean;
+  ManufacturerData: Record<string, number[]>;
+  Name: string;
+  Paired: boolean;
   RSSI: number;
+  ServiceData: Record<string, number[]>;
+  ServicesResolved: boolean;
+  Trusted: boolean;
   TxPower: number;
   UUIDs: string[];
-  ServicesResolved: boolean;
-  ManufacturerData: Record<string, number[]>;
-  ServiceData: Record<string, number[]>;
-  AdvertisingData: Record<string, number[]>;
 }
 
 export interface GattService1 {
-  UUID: SUUID;
   Device: string;
   Primary: boolean;
+  UUID: SUUID;
 }
 
 export interface GattCharacteristic1 {}
@@ -44,6 +49,6 @@ export interface ObjectManagerApi {
   };
 }
 
-export type Adapter = OutputApi<AdapterApi>;
-export type ObjectManager = OutputApi<ObjectManagerApi>;
+export type Adapter = InterfaceApi<AdapterApi>;
+export type ObjectManager = InterfaceApi<ObjectManagerApi>;
 export type ManagedObjects = Record<string, Record<string, Interfaces>>;

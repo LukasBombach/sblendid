@@ -11,20 +11,22 @@ declare module "dbus" {
   }
 }
 
-export interface InputApi {
+export interface ApiDefinition {
   methods?: Record<string, (...args: any[]) => Promise<any>>;
   events?: Record<string, (...args: any[]) => void>;
 }
 
-export type OutputApi<A extends InputApi> = EventApi<A> & MethodApi<A>;
+export type InterfaceApi<A extends ApiDefinition> = EventApi<A> & MethodApi<A>;
 
-export type MethodApi<A extends InputApi> = A["methods"];
+export type MethodApi<A extends ApiDefinition> = A["methods"];
 
-export interface EventApi<A extends InputApi> {
+export interface EventApi<A extends ApiDefinition> {
   on: EventMethod<A>;
   off: EventMethod<A>;
 }
-export type EventMethod<A extends InputApi> = <E extends keyof A["events"]>(
+export type EventMethod<A extends ApiDefinition> = <
+  E extends keyof A["events"]
+>(
   event: E,
   listener: A["events"][E]
 ) => void;
