@@ -36,6 +36,9 @@ export interface AdapterApi {
 }
 
 export interface ObjectManagerApi {
+  methods: {
+    GetManagedObjects: () => Promise<Record<string, Interfaces>>
+  },
   events: {
     InterfacesAdded: (path: string, interfaces: Interfaces) => void;
   };

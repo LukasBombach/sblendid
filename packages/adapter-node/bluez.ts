@@ -3,16 +3,13 @@ import Bluez from "./src/linux/bluez";
 (async () => {
   try {
     const bluez = new Bluez();
-    const adapter = await bluez.getAdapter();
     const objectManager = await bluez.getObjectManager();
 
-    objectManager.on("InterfacesAdded", (path, iface) => {
-      console.log(path, iface);
-    });
+    console.log(objectManager);
 
-    await adapter.StartDiscovery();
-    await new Promise(res => setTimeout(res, 2000));
-    await adapter.StopDiscovery();
+    const managedObjects = await objectManager.GetManagedObjects();
+
+    console.log(managedObjects);
 
     process.exit();
   } catch (error) {
