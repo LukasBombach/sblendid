@@ -1,14 +1,18 @@
 import md5 from "md5";
 import { Params, Advertisement, ServiceData } from "../../types/noble";
+import { InterfaceApi } from "../../types/dbus";
 import { PUUID } from "../../types/ble";
-import { Device1 } from "../../types/bluez";
+import { Device1Props, Device1Api } from "../../types/bluez";
+import Bluez from "./bluez";
 import List from "../list";
 
 export default class Device {
   private static devices = new List<Device>();
   public readonly uuid: PUUID;
   public readonly path: string;
-  public readonly device1: Device1;
+  public readonly device1: Device1Props;
+  private api?: InterfaceApi<Device1Api>;
+  private readonly bluez = new Bluez();
 
   static add(device: Device): void {
     Device.devices.add(device);
@@ -18,10 +22,20 @@ export default class Device {
     return Device.devices.find(d => d.uuid === pUUID);
   }
 
-  constructor(path: string, device1: Device1) {
+  constructor(path: string, device1: Device1Props) {
     this.uuid = this.getPUUID(device1.Address);
     this.path = path;
     this.device1 = device1;
+  }
+
+  public async connect(): Promise<void> {
+    const api = await this.getApi();
+    await api.Connect();
+  }
+
+  public async disconnect(): Promise<void> {
+    const api = await this.getApi();
+    await api.Disconnect();
   }
 
   public toNoble(): Params<"discover"> {
@@ -29,6 +43,11 @@ export default class Device {
     const uuid = this.getPUUID(Address);
     const advertisement = this.getAdvertisement();
     return [uuid, Address, AddressType, !Blocked, advertisement, RSSI];
+  }
+
+  private async getApi(): Promise<InterfaceApi<Device1Api>> {
+    if (!this.api) this.api = await this.bluez.getDevice(this.path);
+    return this.api;
   }
 
   private getPUUID(address: string): PUUID {

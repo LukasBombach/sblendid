@@ -1,7 +1,7 @@
 import { EventEmitter } from "events";
 import Bluez from "./bluez";
 import { ObjectManager as Interface, ManagedObjects } from "../../types/bluez";
-import { Interfaces, Device1 } from "../../types/bluez";
+import { Interfaces, Device1Props } from "../../types/bluez";
 import Emitter, { Events, Listener } from "../../types/emitter";
 import { Params } from "../../types/noble";
 import Device from "./device";
@@ -45,7 +45,7 @@ export default class ObjectManager extends Emitter<Api> {
     if (device) this.handleDevice(path, device);
   }
 
-  private handleDevice(path: string, device1: Device1): void {
+  private handleDevice(path: string, device1: Device1Props): void {
     const device = new Device(path, device1);
     Device.add(device);
     this.emitter.emit("discover", ...device.toNoble());

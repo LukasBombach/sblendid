@@ -1,6 +1,6 @@
 import SystemBus from "./systemBus";
 import { InterfaceApi } from "../../types/dbus";
-import { AdapterApi, ObjectManagerApi } from "../../types/bluez";
+import { AdapterApi, ObjectManagerApi, Device1Api } from "../../types/bluez";
 
 export default class Bluez {
   private readonly service = "org.bluez";
@@ -16,6 +16,11 @@ export default class Bluez {
     const path = "/";
     const name = "org.freedesktop.DBus.ObjectManager";
     return await this.getInterface<ObjectManagerApi>(path, name);
+  }
+
+  public async getDevice(path: string): Promise<InterfaceApi<Device1Api>> {
+    const name = "org.bluez.Device1";
+    return await this.getInterface<Device1Api>(path, name);
   }
 
   public async getInterface<A>(

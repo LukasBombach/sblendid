@@ -6,6 +6,7 @@ import { Adapter } from "../../types/bluez";
 import Watcher from "../watcher";
 import Bluez from "./bluez";
 import ObjectManager from "./objectManager";
+import Device from "./device";
 
 export default class BluezAdapter implements SblendidAdapter {
   private bluez = new Bluez();
@@ -33,11 +34,13 @@ export default class BluezAdapter implements SblendidAdapter {
   }
 
   public async connect(pUUID: PUUID): Promise<void> {
-    throw new Error("Not implemented yet");
+    const device = this.getDevice(pUUID);
+    await device.connect();
   }
 
   public async disconnect(pUUID: PUUID): Promise<void> {
-    throw new Error("Not implemented yet");
+    const device = this.getDevice(pUUID);
+    await device.disconnect();
   }
 
   public getRssi(pUUID: PUUID): Promise<number> {
@@ -76,6 +79,13 @@ export default class BluezAdapter implements SblendidAdapter {
     notify: boolean
   ): Promise<boolean> {
     throw new Error("Not implemented yet");
+  }
+
+  private getDevice(pUUID: PUUID): Device {
+    const device = Device.find(pUUID);
+    const msg = `Could not find the device with the uuid "${pUUID}"`;
+    if (!device) throw new Error(msg);
+    return device;
   }
 
   private async getAdapter(): Promise<Adapter> {

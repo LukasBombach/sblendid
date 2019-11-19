@@ -1,6 +1,6 @@
 import { InterfaceApi } from "./dbus";
 
-export interface Device1 {
+export interface Device1Props {
   Adapter: string;
   Address: string;
   AddressType: "public" | "random";
@@ -28,7 +28,7 @@ export interface GattService1 {
 export interface GattCharacteristic1 {}
 
 export interface Interfaces {
-  "org.bluez.Device1"?: Device1;
+  "org.bluez.Device1"?: Device1Props;
   "org.bluez.GattService1"?: GattService1;
   "org.bluez.GattCharacteristic1"?: GattCharacteristic1;
 }
@@ -46,6 +46,13 @@ export interface ObjectManagerApi {
   };
   events: {
     InterfacesAdded: (path: string, interfaces: Interfaces) => void;
+  };
+}
+
+export interface Device1Api {
+  methods: {
+    Connect: () => Promise<void>;
+    Disconnect: () => Promise<void>;
   };
 }
 
