@@ -54,6 +54,28 @@ export interface Device1Api {
     Connect: () => Promise<void>;
     Disconnect: () => Promise<void>;
   };
+  properties: {
+    // Adapter: { type: "o"; access: "read" };
+    // Appearance: { type: "q"; access: "read" };
+    // Class: { type: "u"; access: "read" };
+    // ManufacturerData: { type: "a{qv}"; access: "read" };
+    // ServiceData: { type: "a{sv}"; access: "read" };
+    // UUIDs: { type: "as"; access: "read" };
+    Address: string;
+    AddressType: string;
+    Alias: string;
+    Blocked: boolean;
+    Connected: boolean;
+    Icon: string;
+    LegacyPairing: boolean;
+    Modalias: string;
+    Name: string;
+    Paired: boolean;
+    RSSI: number;
+    ServicesResolved: boolean;
+    Trusted: boolean;
+    TxPower: number;
+  };
 }
 
 export type Adapter = InterfaceApi<AdapterApi>;

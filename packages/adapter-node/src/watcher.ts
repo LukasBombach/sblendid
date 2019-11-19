@@ -5,6 +5,15 @@ export default class Watcher<A extends Emitter<any, any>, E extends Event<A>> {
   private promise: Promise<Value<A>>;
   private queue = new Queue();
 
+  public static async resolved<A extends Emitter<any, any>, E extends Event<A>>(
+    emitter: A,
+    event: E,
+    condition: Condition<A>
+  ): Promise<Value<A>> {
+    const watcher = new Watcher(emitter, event, condition);
+    return await watcher.resolved();
+  }
+
   constructor(emitter: A, event: E, condition: Condition<A>) {
     this.promise = new Promise(res => {
       const listener = async (...args: Value<A>) => {

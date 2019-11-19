@@ -5,7 +5,7 @@ import { EventApi, MethodApi, EventMethod } from "../../types/dbus";
 
 export default class SystemBus {
   private static bus = DBus.getBus("system");
-  private static fetchInterface = promisify(
+  public static fetchInterface = promisify(
     SystemBus.bus.getInterface.bind(SystemBus.bus)
   );
 

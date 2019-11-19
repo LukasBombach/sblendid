@@ -14,7 +14,7 @@ import SblendidAdapter from "./src";
     const peripheral = await adapter.find((...peripheral) => {
       const [, , , , advertisement] = peripheral;
       return (
-        !!advertisement.localName && /Smart Band/i.test(advertisement.localName)
+        !!advertisement.localName && /roidmi/i.test(advertisement.localName)
       );
     });
 
@@ -23,11 +23,16 @@ import SblendidAdapter from "./src";
 
     const [uuid] = peripheral;
 
-    console.log("Connecting...");
-    await adapter.connect(uuid);
+    // console.log("Connecting...");
+    // await adapter.connect(uuid);
 
-    console.log("Connected, now disconnecting...");
-    await adapter.disconnect(uuid);
+    const iface = await adapter.getServices(uuid);
+    console.log(
+      require("util").inspect((iface as any).object.property, { depth: 10 })
+    );
+
+    // console.log("Connected, now disconnecting...");
+    // await adapter.disconnect(uuid);
 
     console.log("done");
 

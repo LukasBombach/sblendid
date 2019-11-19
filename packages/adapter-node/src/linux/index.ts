@@ -7,6 +7,7 @@ import Watcher from "../watcher";
 import Bluez from "./bluez";
 import ObjectManager from "./objectManager";
 import Device from "./device";
+import SystemBus from "./systemBus";
 
 export default class BluezAdapter implements SblendidAdapter {
   private bluez = new Bluez();
@@ -48,7 +49,17 @@ export default class BluezAdapter implements SblendidAdapter {
   }
 
   public async getServices(pUUID: PUUID): Promise<SUUID[]> {
-    throw new Error("Not implemented yet");
+    const device = this.getDevice(pUUID);
+    const iface = await SystemBus.fetchInterface(
+      "org.bluez",
+      device.path,
+      "org.bluez.Device1"
+    );
+    return iface as any;
+    // const device = this.getDevice(pUUID);
+    // const condition = async () => await device.getProperty("ServicesResolveds");
+    // await Watcher.resolved(this.objectManager, "service", condition);
+    // return device.getServiceUUIDs();
   }
 
   public async getCharacteristics(

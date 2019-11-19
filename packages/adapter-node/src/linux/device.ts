@@ -1,7 +1,7 @@
 import md5 from "md5";
 import { Params, Advertisement, ServiceData } from "../../types/noble";
 import { InterfaceApi } from "../../types/dbus";
-import { PUUID } from "../../types/ble";
+import { PUUID, SUUID } from "../../types/ble";
 import { Device1Props, Device1Api } from "../../types/bluez";
 import Bluez from "./bluez";
 import List from "../list";
@@ -37,6 +37,9 @@ export default class Device {
     const api = await this.getApi();
     await api.Disconnect();
   }
+
+  // public async getServiceUUIDs(): Promise<SUUID[]> {}
+  // public async getProperty(property: string): Promise<> {}
 
   public toNoble(): Params<"discover"> {
     const { Address, AddressType, Blocked, RSSI } = this.device1;
