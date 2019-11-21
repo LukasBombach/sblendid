@@ -1,18 +1,21 @@
-export type Emitter<E, L extends Listener> = {
-  on: (event: E, listener: L) => any;
-  off: (event: E, listener: L) => any;
-};
+export interface Emitter<A extends {}> {
+  on: <E extends keyof A>(event: E, listener: A[E]) => any;
+  off: <E extends keyof A>(event: E, listener: A[E]) => any;
+}
 
-export type Listener = (...args: any[]) => any;
-
-export type Event<A extends Emitter<any, any>> = A extends Emitter<infer T, any>
-  ? T
+export type Event<E extends Emitter<any>> = E extends Emitter<infer T>
+  ? keyof T
   : never;
 
-export type Value<A extends Emitter<any, any>> = A extends Emitter<any, infer T>
-  ? Parameters<T>
+export type Value<
+  E extends Emitter<any>,
+  K extends Event<E>
+> = E extends Emitter<infer T>
+  ? T[K] extends (...args: any[]) => any
+    ? Parameters<T[K]>
+    : never
   : never;
 
-export type Condition<A extends Emitter<any, any>> = (
-  ...args: Value<A>
+export type Condition<E extends Emitter<any>, K extends Event<E>> = (
+  ...args: Value<E, K>
 ) => Promise<boolean> | boolean;

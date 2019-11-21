@@ -19,6 +19,7 @@ import SblendidAdapter from "./src";
     console.log("Connecting...");
     await adapter.connect(uuid);
 
+    console.log("Connected. Loading services...");
     const services = await adapter.getServices(uuid);
     console.log("services");
     console.log(typeof services);

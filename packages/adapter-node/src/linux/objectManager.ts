@@ -6,7 +6,8 @@ import {
   GattService1
 } from "../../types/bluez";
 import { Interfaces, Device1Props } from "../../types/bluez";
-import Emitter, { Events, Listener } from "../../types/emitter";
+import { Emitter } from "../../types/watcher";
+// import Emitter from "../../types/emitter";
 import { Params } from "../../types/noble";
 import Device from "./device";
 import Service from "./service";
@@ -16,7 +17,7 @@ export interface Api {
   service: (service: Service) => void;
 }
 
-export default class ObjectManager extends Emitter<Api> {
+export default class ObjectManager implements Emitter<Api> {
   private bluez = new Bluez();
   private emitter = new EventEmitter();
   private interface?: Interface;
@@ -29,18 +30,18 @@ export default class ObjectManager extends Emitter<Api> {
     iface.on("InterfacesAdded", this.onInterfacesAdded.bind(this));
   }
 
-  public async on<E extends Events<Emitter<Api>>>(
+  public async on<E extends keyof Api>(
     event: E,
-    listener: Listener<Emitter<Api>, E>
+    listener: Api[E]
   ): Promise<void> {
     await this.setupEvents();
     this.emitter.on(event, listener);
     this.emitManagedObjects();
   }
 
-  public async off<E extends Events<Emitter<Api>>>(
+  public async off<E extends keyof Api>(
     event: E,
-    listener: Listener<Emitter<Api>, E>
+    listener: Api[E]
   ): Promise<void> {
     await this.setupEvents();
     this.emitter.off(event, listener);

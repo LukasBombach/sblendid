@@ -5,9 +5,9 @@ import { Characteristic } from "../../types/sblendidAdapter";
 import { Adapter } from "../../types/bluez";
 import Watcher from "../watcher";
 import Bluez from "./bluez";
-import ObjectManager from "./objectManager";
+import ObjectManager, { Api } from "./objectManager";
+import { Emitter } from "../../types/watcher";
 import Device from "./device";
-import SystemBus from "./systemBus";
 
 export default class BluezAdapter implements SblendidAdapter {
   private bluez = new Bluez();
@@ -27,7 +27,11 @@ export default class BluezAdapter implements SblendidAdapter {
   }
 
   public async find(condition: FindCondition): Promise<Params<"discover">> {
-    const watcher = new Watcher(this.objectManager, "discover", condition);
+    const watcher = new Watcher(
+      this.objectManager as Emitter<Api>, // todo bad typecast
+      "discover",
+      condition
+    );
     await this.startScanning();
     const peripheral = await watcher.resolved();
     await this.stopScanning();
@@ -51,7 +55,11 @@ export default class BluezAdapter implements SblendidAdapter {
   public async getServices(pUUID: PUUID): Promise<SUUID[]> {
     const device = this.getDevice(pUUID);
     const condition = async () => await device.servicesResolved();
-    await Watcher.resolved(this.objectManager, "service", condition);
+    await Watcher.resolved(
+      this.objectManager as Emitter<Api>, // todo bad typecast
+      "service",
+      condition
+    );
     return device.getServiceUUIDs();
   }
 
