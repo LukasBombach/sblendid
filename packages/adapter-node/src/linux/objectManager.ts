@@ -61,6 +61,7 @@ export default class ObjectManager implements Emitter<Api> {
   }
 
   private handleService(path: string, gattService1: GattService1): void {
+    console.log("Got service", path, gattService1.UUID);
     const service = new Service(path, gattService1);
     Service.add(service);
     this.emitter.emit("service", service);

@@ -54,13 +54,22 @@ export default class BluezAdapter implements SblendidAdapter {
 
   public async getServices(pUUID: PUUID): Promise<SUUID[]> {
     const device = this.getDevice(pUUID);
-    const condition = async () => await device.servicesResolved();
-    await Watcher.resolved(
-      this.objectManager as Emitter<Api>, // todo bad typecast
-      "service",
-      condition
-    );
-    return device.getServiceUUIDs();
+    const condition = async () => {
+      await new Promise(res => setTimeout(res, 0));
+      const resolved = await device.servicesResolved();
+      console.log("Checking resolved", typeof resolved, resolved);
+      return resolved;
+    };
+    if (!(await condition())) {
+      console.log("First check false, starting watcher");
+      await Watcher.resolved(
+        this.objectManager as Emitter<Api>, // todo bad typecast
+        "service",
+        condition
+      );
+    }
+    console.log("resolved, loading uuids");
+    return await device.getServiceUUIDs();
   }
 
   public async getCharacteristics(

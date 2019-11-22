@@ -21,11 +21,10 @@ import SblendidAdapter from "./src";
 
     console.log("Connected. Loading services...");
     const services = await adapter.getServices(uuid);
-    console.log("services");
-    console.log(typeof services);
+    console.log("Got services");
     console.log(services);
 
-    console.log("Connected, now disconnecting...");
+    console.log("Now disconnecting...");
     await adapter.disconnect(uuid);
 
     console.log("done");
