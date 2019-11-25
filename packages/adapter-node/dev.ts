@@ -5,10 +5,13 @@ import SblendidAdapter from "./src";
   try {
     console.log("Starting dev script");
     const adapter = new SblendidAdapter();
+    const name = /roidmi/i;
 
+    console.log("Finding device... ");
     const peripheral = await adapter.find((...peripheral) => {
       const [, , , , advertisement] = peripheral;
-      return !!advertisement.localName && /band/i.test(advertisement.localName);
+      process.stdout.write(".");
+      return !!advertisement.localName && name.test(advertisement.localName);
     });
 
     console.log("\n");

@@ -1,7 +1,4 @@
 import { Emitter, Event, Value, Condition } from "../types/watcher";
-import { Params } from "../types/noble";
-import Service from "./linux/service";
-
 import Queue from "./queue";
 
 export default class Watcher<E extends Emitter<any>, K extends Event<E>> {

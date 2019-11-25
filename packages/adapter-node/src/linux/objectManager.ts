@@ -23,13 +23,6 @@ export default class ObjectManager implements Emitter<Api> {
   private interface?: Interface;
   private eventsAreSetUp = false;
 
-  public async setupEvents(): Promise<void> {
-    if (this.eventsAreSetUp) return;
-    this.eventsAreSetUp = true;
-    const iface = await this.getInterface();
-    iface.on("InterfacesAdded", this.onInterfacesAdded.bind(this));
-  }
-
   public async on<E extends keyof Api>(
     event: E,
     listener: Api[E]
@@ -67,9 +60,17 @@ export default class ObjectManager implements Emitter<Api> {
     this.emitter.emit("service", service);
   }
 
+  private async setupEvents(): Promise<void> {
+    if (this.eventsAreSetUp) return;
+    this.eventsAreSetUp = true;
+    const iface = await this.getInterface();
+    iface.on("InterfacesAdded", this.onInterfacesAdded.bind(this));
+  }
+
   private async emitManagedObjects(): Promise<void> {
     const managedObjects = await this.getManagedObjects();
     const entries = Object.entries(managedObjects);
+    console.log("Emitting Managed Objects");
     for (const [path, interfaces] of entries) {
       this.onInterfacesAdded(path, interfaces);
     }

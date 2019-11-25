@@ -55,11 +55,18 @@ export default class BluezAdapter implements SblendidAdapter {
   public async getServices(pUUID: PUUID): Promise<SUUID[]> {
     const device = this.getDevice(pUUID);
     const condition = async () => {
-      await new Promise(res => setTimeout(res, 0));
+      console.log("init check, waiting 1000ms");
+      await new Promise(res => setTimeout(res, 1000));
       const resolved = await device.servicesResolved();
-      console.log("Checking resolved", typeof resolved, resolved);
+      console.log("resolved?", resolved);
       return resolved;
     };
+    console.log("Setting up interval");
+    setInterval(async () => {
+      const resolved = await device.servicesResolved();
+      console.log("#interval resolved?", resolved);
+    }, 1000);
+    console.log("Performing first check");
     if (!(await condition())) {
       console.log("First check false, starting watcher");
       await Watcher.resolved(
@@ -67,6 +74,8 @@ export default class BluezAdapter implements SblendidAdapter {
         "service",
         condition
       );
+    } else {
+      console.log("Fist check true");
     }
     console.log("resolved, loading uuids");
     return await device.getServiceUUIDs();
