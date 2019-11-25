@@ -1,22 +1,22 @@
 import { Emitter, Event, Value, Condition } from "../types/watcher";
 import Queue from "./queue";
 
-export default class Watcher<E extends Emitter<any>, K extends Event<E>> {
-  private promise: Promise<Value<E, K>>;
+export default class Watcher<M extends Emitter<any>, E extends Event<M>> {
+  private promise: Promise<Value<M, E>>;
   private queue = new Queue();
 
-  public static async resolved<E extends Emitter<any>, K extends Event<E>>(
-    emitter: E,
-    event: K,
-    condition: Condition<E, K>
-  ): Promise<Value<E, K>> {
+  public static async resolved<M extends Emitter<any>, E extends Event<M>>(
+    emitter: M,
+    event: E,
+    condition: Condition<M, E>
+  ): Promise<Value<M, E>> {
     const watcher = new Watcher(emitter, event, condition);
     return await watcher.resolved();
   }
 
-  constructor(emitter: E, event: K, condition: Condition<E, K>) {
+  constructor(emitter: M, event: E, condition: Condition<M, E>) {
     this.promise = new Promise(res => {
-      const listener = async (...args: Value<E, K>) => {
+      const listener = async (...args: Value<M, E>) => {
         if (await this.isMet(condition, args)) {
           emitter.off(event, listener);
           res(args);
@@ -26,13 +26,13 @@ export default class Watcher<E extends Emitter<any>, K extends Event<E>> {
     });
   }
 
-  public resolved(): Promise<Value<E, K>> {
+  public resolved(): Promise<Value<M, E>> {
     return this.promise;
   }
 
   private async isMet(
-    condition: Condition<E, K>,
-    args: Value<E, K>
+    condition: Condition<M, E>,
+    args: Value<M, E>
   ): Promise<boolean> {
     return await this.queue.add(() => condition(...args));
   }

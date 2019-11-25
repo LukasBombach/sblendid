@@ -20,7 +20,6 @@ export default class SystemBus {
     name: string
   ): Promise<InterfaceApi<A>> {
     const iface = await SystemBus.fetchInterface(service, path, name);
-    if (name === "org.bluez.Device1") console.log("device", iface);
     const methods: MethodApi<A> = this.getMethods(iface);
     const events: EventApi<A> = this.getEvents(iface);
     const getProperty: GetPropertyApi<A> = this.getProperties(iface);
