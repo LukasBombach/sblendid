@@ -7,7 +7,6 @@ import {
 } from "../../types/bluez";
 import { Interfaces, Device1Props } from "../../types/bluez";
 import { Emitter } from "../../types/watcher";
-// import Emitter from "../../types/emitter";
 import { Params } from "../../types/noble";
 import Device from "./device";
 import Service from "./service";
@@ -17,13 +16,28 @@ export interface Api {
   service: (service: Service) => void;
 }
 
+// export default class ObjectManager implements Emitter<Api> {
 export default class ObjectManager implements Emitter<Api> {
-  private bluez = new Bluez();
+  /* private bluez = new Bluez();
   private emitter = new EventEmitter();
   private interface?: Interface;
-  private eventsAreSetUp = false;
+  private eventsAreSetUp = false; */
 
   public async on<E extends keyof Api>(
+    event: E,
+    listener: Api[E]
+  ): Promise<void> {
+    // implementation omitted for the sake of this example
+  }
+
+  public async off<E extends keyof Api>(
+    event: E,
+    listener: Api[E]
+  ): Promise<void> {
+    // implementation omitted for the sake of this example
+  }
+
+  /* public async on<E extends keyof Api>(
     event: E,
     listener: Api[E]
   ): Promise<void> {
@@ -38,9 +52,9 @@ export default class ObjectManager implements Emitter<Api> {
   ): Promise<void> {
     await this.setupEvents();
     this.emitter.off(event, listener);
-  }
+  } */
 
-  private onInterfacesAdded(path: string, interfaces: Interfaces): void {
+  /* private onInterfacesAdded(path: string, interfaces: Interfaces): void {
     const device = interfaces["org.bluez.Device1"];
     const service = interfaces["org.bluez.GattService1"];
     if (device) this.handleDevice(path, device);
@@ -84,5 +98,5 @@ export default class ObjectManager implements Emitter<Api> {
   private async getInterface(): Promise<Interface> {
     if (!this.interface) this.interface = await this.bluez.getObjectManager();
     return this.interface;
-  }
+  } */
 }

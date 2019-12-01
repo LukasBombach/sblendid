@@ -27,11 +27,12 @@ export default class BluezAdapter implements SblendidAdapter {
   }
 
   public async find(condition: FindCondition): Promise<Params<"discover">> {
-    const watcher = new Watcher(
+    /* const watcher = new Watcher(
       this.objectManager as Emitter<Api>, // todo bad typecast
       "discover",
       condition
-    );
+    ); */
+    const watcher = new Watcher(new ObjectManager(), "discover", condition);
     await this.startScanning();
     const peripheral = await watcher.resolved();
     await this.stopScanning();
