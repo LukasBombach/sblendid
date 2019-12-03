@@ -1,27 +1,20 @@
-import { Emitter, GetApi, Value, Condition } from "../types/watcher";
+import { Emitter, Value, Condition, Api } from "../types/watcher";
 import Queue from "./queue";
-import ObjectManager from "./linux/objectManager";
 
-//export default class Watcher<A extends {}, E extends Event<M>, M = Emitter<A>> {
-export default class Watcher<
-  M extends Emitter<any>,
-  E extends keyof GetApi<M>,
-  A = GetApi<M>
-> {
-  // export default class Watcher<A extends {}, E extends keyof A, M = Emitter<A>> {
+export default class Watcher<A extends {}, E extends keyof A> {
   private promise: Promise<Value<A, E>>;
   private queue = new Queue();
 
-  /* public static async resolved<
-    A extends {},
-    M extends Emitter<A>,
-    E extends Event<M>
-  >(emitter: M, event: E, condition: Condition<M, E>): Prosmise<Value<M, E>> {
+  public static async resolved<A extends {}, E extends keyof A>(
+    emitter: Emitter<A>,
+    event: E,
+    condition: Condition<A, E>
+  ): Promise<Value<A, E>> {
     const watcher = new Watcher(emitter, event, condition);
     return await watcher.resolved();
-  } */
+  }
 
-  constructor(emitter: M, event: E, condition: Condition<A, E>) {
+  constructor(emitter: Emitter<A>, event: E, condition: Condition<A, E>) {
     this.promise = new Promise(res => {
       const listener = async (...args: Value<A, E>) => {
         if (await this.isMet(condition, args)) {
@@ -44,5 +37,3 @@ export default class Watcher<
     return await this.queue.add(() => condition(...args));
   }
 }
-
-const watcher = new Watcher(new ObjectManager(), "discover", () => true);
