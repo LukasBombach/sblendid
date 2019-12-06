@@ -53,7 +53,6 @@ export default class ObjectManager implements Emitter<Api> {
   }
 
   private handleService(path: string, gattService1: GattService1): void {
-    console.log("Got service", path, gattService1.UUID);
     const service = new Service(path, gattService1);
     Service.add(service);
     this.emitter.emit("service", service);
@@ -69,7 +68,6 @@ export default class ObjectManager implements Emitter<Api> {
   private async emitManagedObjects(): Promise<void> {
     const managedObjects = await this.getManagedObjects();
     const entries = Object.entries(managedObjects);
-    console.log("Emitting Managed Objects");
     for (const [path, interfaces] of entries) {
       this.onInterfacesAdded(path, interfaces);
     }
