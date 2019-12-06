@@ -48,6 +48,14 @@ export default class Device {
     return await api.getProperty("ServicesResolved");
   }
 
+  public async getRssi(): Promise<number> {
+    const api = await this.getApi();
+    const properties = await api.getProperties();
+    const errorMsg = "RSSI cannot be found for the peripheral";
+    if (typeof properties.RSSI === "undefined") throw new Error(errorMsg);
+    return properties.RSSI;
+  }
+
   public toNoble(): Params<"discover"> {
     const { Address, AddressType, Blocked, RSSI } = this.device1;
     const uuid = this.getPUUID(Address);

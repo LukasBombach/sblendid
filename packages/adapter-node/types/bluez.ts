@@ -70,7 +70,7 @@ export interface Device1Api {
     Modalias: string;
     Name: string;
     Paired: boolean;
-    RSSI: number;
+    RSSI?: number;
     ServicesResolved: boolean;
     Trusted: boolean;
     TxPower: number;

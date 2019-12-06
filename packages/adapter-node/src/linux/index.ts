@@ -45,8 +45,9 @@ export default class BluezAdapter implements SblendidAdapter {
     await device.disconnect();
   }
 
-  public getRssi(pUUID: PUUID): Promise<number> {
-    throw new Error("Not implemented yet");
+  public async getRssi(pUUID: PUUID): Promise<number> {
+    const device = this.getDevice(pUUID);
+    return await device.getRssi();
   }
 
   public async getServices(pUUID: PUUID): Promise<SUUID[]> {

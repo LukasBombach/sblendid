@@ -47,7 +47,8 @@ export default class SystemBus {
     iface: DBusInterface
   ): GetPropertyApi<A> {
     const getProperty = promisify(iface.getProperty.bind(iface));
-    return { getProperty } as GetPropertyApi<A>;
+    const getProperties = promisify(iface.getProperties.bind(iface));
+    return { getProperty, getProperties } as GetPropertyApi<A>;
   }
 
   private asPromised<I extends DBusInterface>(iface: I, method: keyof I) {

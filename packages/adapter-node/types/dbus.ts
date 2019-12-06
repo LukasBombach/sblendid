@@ -27,6 +27,7 @@ export interface GetPropertyApi<A extends ApiDefinition> {
   getProperty: <N extends keyof A["properties"]>(
     name: N
   ) => Promise<A["properties"][N]>;
+  getProperties: () => Promise<A["properties"]>;
 }
 
 export interface EventApi<A extends ApiDefinition> {
