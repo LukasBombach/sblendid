@@ -44,6 +44,7 @@ export default class LinuxAdapter implements SblendidAdapter {
 
   public async getServices(pUUID: PUUID): Promise<SUUID[]> {
     const device = this.getDevice(pUUID);
+    return await device.getServiceUUIDs();
     const condition = async () => {
       await new Promise(res => setTimeout(res, 50)); // todo no, just no.
       const resolved = await device.servicesResolved();
