@@ -3,13 +3,15 @@ import Bluez from "./bluez";
 import {
   ObjectManager as Interface,
   ManagedObjects,
-  GattService1
+  GattService1,
+  GattCharacteristic1
 } from "../../types/bluez";
 import { Interfaces, Device1Props } from "../../types/bluez";
 import { Emitter, Listener } from "../../types/watcher";
 import { Params } from "../../types/noble";
 import Device from "./device";
 import Service from "./service";
+import Characteristic from "./characteristic";
 
 export interface Api {
   discover: (...peripheral: Params<"discover">) => void;
@@ -41,8 +43,10 @@ export default class ObjectManager implements Emitter<Api> {
   private onInterfacesAdded(path: string, interfaces: Interfaces): void {
     const device = interfaces["org.bluez.Device1"];
     const service = interfaces["org.bluez.GattService1"];
+    const characteristic = interfaces["org.bluez.GattCharacteristic1"];
     if (device) this.handleDevice(path, device);
     if (service) this.handleService(path, service);
+    if (characteristic) this.handleCharacteristic(path, characteristic);
   }
 
   private handleDevice(path: string, device1: Device1Props): void {
@@ -55,6 +59,15 @@ export default class ObjectManager implements Emitter<Api> {
     const service = new Service(path, gattService1);
     Service.add(service);
     this.emitter.emit("service", service);
+  }
+
+  private handleCharacteristic(
+    path: string,
+    gattCharacteristic1: GattCharacteristic1
+  ): void {
+    const characteristic = new Characteristic(path, gattCharacteristic1);
+    Characteristic.add(characteristic);
+    this.emitter.emit("characteristic", characteristic);
   }
 
   private async setupEvents(): Promise<void> {

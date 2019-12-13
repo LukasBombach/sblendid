@@ -1,3 +1,4 @@
+import md5 from "md5";
 import { Params } from "../../types/noble";
 import { InterfaceApi } from "../../types/dbus";
 import { SUUID } from "../../types/ble";
@@ -10,6 +11,7 @@ import ObjectManager from "./objectManager";
 
 export default class Device {
   private static devices = new List<Device>();
+  public readonly uuid: string;
   public readonly path: string;
   public readonly props: Device1Props;
   private api?: InterfaceApi<Device1Api>;
@@ -19,11 +21,12 @@ export default class Device {
     Device.devices.add(device);
   }
 
-  static find(path: string): Device | undefined {
-    return Device.devices.find(d => d.path === path);
+  static find(uuid: string): Device | undefined {
+    return Device.devices.find(d => d.uuid === uuid);
   }
 
   constructor(path: string, props: Device1Props) {
+    this.uuid = this.getPUUID(props.Address);
     this.path = path;
     this.props = props;
   }
@@ -66,6 +69,17 @@ export default class Device {
     if (await this.servicesResolved()) return;
     const mngr = this.objectManager;
     await Watcher.resolved(mngr, "service", () => this.servicesResolved());
+  }
+
+  private getPUUID(address: string): PUUID {
+    const hash = md5(address);
+    return [
+      hash.substr(0, 8),
+      hash.substr(8, 4),
+      hash.substr(12, 4),
+      hash.substr(16, 4),
+      hash.substr(20, 12)
+    ].join("-");
   }
 
   private async getApi(): Promise<InterfaceApi<Device1Api>> {

@@ -1,9 +1,10 @@
 import { PUUID, SUUID, CUUID } from "../../types/ble";
 import { Params } from "../../types/noble";
 import SblendidAdapter, { FindCondition } from "../../types/sblendidAdapter";
-import { Characteristic } from "../../types/sblendidAdapter";
+import Characteristic from "./characteristic";
 import Scanner from "./scanner";
 import Device from "./device";
+import Service from "./service";
 
 export default class LinuxAdapter implements SblendidAdapter {
   private scanner = new Scanner();
@@ -46,36 +47,56 @@ export default class LinuxAdapter implements SblendidAdapter {
     pUUID: PUUID,
     sUUID: SUUID
   ): Promise<Characteristic[]> {
-    throw new Error("Not implemented yet");
+    const service = this.getService(pUUID, sUUID);
+    return await service.getCharacteristics();
   }
 
-  public read(pUUID: PUUID, sUUID: SUUID, cUUID: CUUID): Promise<Buffer> {
-    throw new Error("Not implemented yet");
+  public async read(pUUID: PUUID, sUUID: SUUID, cUUID: CUUID): Promise<Buffer> {
+    const characteristic = this.getCharacteristic(cUUID);
+    return await characteristic.read();
   }
 
-  public write(
+  public async write(
     pUUID: PUUID,
     sUUID: SUUID,
     cUUID: CUUID,
     value: Buffer,
     withoutResponse: boolean
   ): Promise<void> {
-    throw new Error("Not implemented yet");
+    const characteristic = this.getCharacteristic(cUUID);
+    return await characteristic.write(value, withoutResponse);
   }
 
-  public notify(
+  public async notify(
     pUUID: PUUID,
     sUUID: SUUID,
     cUUID: CUUID,
     notify: boolean
   ): Promise<boolean> {
-    throw new Error("Not implemented yet");
+    const characteristic = this.getCharacteristic(cUUID);
+    return await characteristic.notify(notify);
   }
 
   private getDevice(pUUID: PUUID): Device {
     const device = Device.find(pUUID);
-    const msg = `Could not find the device with the uuid "${pUUID}"`;
-    if (!device) throw new Error(msg);
+    if (!device) throw this.notFoundError("device", pUUID);
     return device;
+  }
+
+  private getService(sUUID: SUUID): Service {
+    const service = Service.find(sUUID);
+    if (!service) throw this.notFoundError("service", sUUID);
+    return service;
+  }
+
+  private getCharacteristic(cUUID: CUUID): Characteristic {
+    const characteristic = Characteristic.find(cUUID);
+    if (!characteristic) throw this.notFoundError("characteristic", cUUID);
+    return characteristic;
+  }
+
+  private notFoundError(iface: string, uuid: PUUID | SUUID | CUUID): Error {
+    const msg = `Could not find the ${iface} with the uuid "${uuid}"`;
+    return new Error(msg);
   }
 }
