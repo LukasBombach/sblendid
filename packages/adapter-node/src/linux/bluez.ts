@@ -3,30 +3,34 @@ import { InterfaceApi } from "../../types/dbus";
 import { AdapterApi, ObjectManagerApi, Device1Api } from "../../types/bluez";
 
 export default class Bluez {
-  private readonly service = "org.bluez";
-  private readonly systemBus = new SystemBus();
+  private static readonly service = "org.bluez";
+  private static readonly systemBus = new SystemBus();
 
-  public async getAdapter(): Promise<InterfaceApi<AdapterApi>> {
+  public static async getAdapter(): Promise<InterfaceApi<AdapterApi>> {
     const path = "/org/bluez/hci0";
     const name = "org.bluez.Adapter1";
-    return await this.getInterface<AdapterApi>(path, name);
+    return await Bluez.getInterface<AdapterApi>(path, name);
   }
 
-  public async getObjectManager(): Promise<InterfaceApi<ObjectManagerApi>> {
+  public static async getObjectManager(): Promise<
+    InterfaceApi<ObjectManagerApi>
+  > {
     const path = "/";
     const name = "org.freedesktop.DBus.ObjectManager";
-    return await this.getInterface<ObjectManagerApi>(path, name);
+    return await Bluez.getInterface<ObjectManagerApi>(path, name);
   }
 
-  public async getDevice(path: string): Promise<InterfaceApi<Device1Api>> {
+  public static async getDevice(
+    path: string
+  ): Promise<InterfaceApi<Device1Api>> {
     const name = "org.bluez.Device1";
-    return await this.getInterface<Device1Api>(path, name);
+    return await Bluez.getInterface<Device1Api>(path, name);
   }
 
-  public async getInterface<A>(
+  public static async getInterface<A>(
     path: string,
     name: string
   ): Promise<InterfaceApi<A>> {
-    return await this.systemBus.getInterface<A>(this.service, path, name);
+    return await Bluez.systemBus.getInterface<A>(Bluez.service, path, name);
   }
 }

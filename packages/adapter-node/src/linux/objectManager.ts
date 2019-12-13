@@ -17,7 +17,6 @@ export interface Api {
 }
 
 export default class ObjectManager implements Emitter<Api> {
-  private bluez = new Bluez();
   private emitter = new EventEmitter();
   private interface?: Interface;
   private eventsAreSetUp = false;
@@ -79,7 +78,7 @@ export default class ObjectManager implements Emitter<Api> {
   }
 
   private async getInterface(): Promise<Interface> {
-    if (!this.interface) this.interface = await this.bluez.getObjectManager();
+    if (!this.interface) this.interface = await Bluez.getObjectManager();
     return this.interface;
   }
 }

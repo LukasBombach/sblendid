@@ -4,35 +4,27 @@ import SblendidAdapter, { FindCondition } from "../../types/sblendidAdapter";
 import { Characteristic } from "../../types/sblendidAdapter";
 import { Adapter } from "../../types/bluez";
 import Watcher from "../watcher";
-import Bluez from "./bluez";
 import ObjectManager, { Api } from "./objectManager";
+import Scanner from "./scanner";
 import { Emitter } from "../../types/watcher";
 import Device from "./device";
 
-export default class BluezAdapter implements SblendidAdapter {
-  private bluez = new Bluez();
-  private adapter?: Adapter;
-  private objectManager: ObjectManager = new ObjectManager();
+export default class LinuxAdapter implements SblendidAdapter {
+  private objectManager = new ObjectManager();
+  private scanner = new Scanner();
 
   public async init(): Promise<void> {}
 
   public async startScanning(): Promise<void> {
-    const adapter = await this.getAdapter();
-    await adapter.StartDiscovery();
+    await this.scanner.startScanning();
   }
 
   public async stopScanning(): Promise<void> {
-    const adapter = await this.getAdapter();
-    await adapter.StopDiscovery();
+    await this.scanner.stopScanning();
   }
 
   public async find(condition: FindCondition): Promise<Params<"discover">> {
-    const mngr = this.objectManager;
-    const watcher = new Watcher<Api, "discover">(mngr, "discover", condition);
-    await this.startScanning();
-    const peripheral = await watcher.resolved();
-    await this.stopScanning();
-    return peripheral;
+    return await this.scanner.find(condition);
   }
 
   public async connect(pUUID: PUUID): Promise<void> {
@@ -102,10 +94,5 @@ export default class BluezAdapter implements SblendidAdapter {
     const msg = `Could not find the device with the uuid "${pUUID}"`;
     if (!device) throw new Error(msg);
     return device;
-  }
-
-  private async getAdapter(): Promise<Adapter> {
-    if (!this.adapter) this.adapter = await this.bluez.getAdapter();
-    return this.adapter;
   }
 }
