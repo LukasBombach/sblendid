@@ -19,7 +19,12 @@ COPY . /
 # docker run --mount type=bind,source=/proc/1/ns/,target=/rootns bletest /bin/bash
 
 # service dbus start
+
+# docker run --mount type=bind,source=/proc/1/ns/,target=/rootns my/image
+# nsenter --net=/rootns/net /var/run/dbus/system_bus_socket args
+
 # bluetoothd -n
+
 
 # hciconfig
 # bluetoothctl
