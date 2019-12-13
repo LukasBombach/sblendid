@@ -1,10 +1,13 @@
 import { PUUID, SUUID, CUUID } from "../../types/ble";
 import { Params } from "../../types/noble";
-import SblendidAdapter, { FindCondition } from "../../types/sblendidAdapter";
-import Characteristic from "./characteristic";
+import SblendidAdapter, {
+  FindCondition,
+  Characteristic as NobleCharacteristic
+} from "../../types/sblendidAdapter";
 import Scanner from "./scanner";
 import Device from "./device";
 import Service from "./service";
+import Characteristic from "./characteristic";
 
 export default class LinuxAdapter implements SblendidAdapter {
   private scanner = new Scanner();
@@ -46,9 +49,10 @@ export default class LinuxAdapter implements SblendidAdapter {
   public async getCharacteristics(
     pUUID: PUUID,
     sUUID: SUUID
-  ): Promise<Characteristic[]> {
+  ): Promise<NobleCharacteristic[]> {
     const service = this.getService(pUUID, sUUID);
-    return await service.getCharacteristics();
+    const characteristics = await service.getCharacteristics();
+    return characteristics.map(c => c.toNoble());
   }
 
   public async read(pUUID: PUUID, sUUID: SUUID, cUUID: CUUID): Promise<Buffer> {
