@@ -5,12 +5,15 @@ import { Device1Props, Device1Api } from "../../types/bluez";
 import Bluez from "./bluez";
 import NoblePeripheral from "./noblePeripheral";
 import List from "../list";
+import Watcher from "../watcher";
+import ObjectManager from "./objectManager";
 
 export default class Device {
   private static devices = new List<Device>();
   public readonly path: string;
-  public readonly device1: Device1Props;
+  public readonly props: Device1Props;
   private api?: InterfaceApi<Device1Api>;
+  private objectManager = new ObjectManager();
 
   static add(device: Device): void {
     Device.devices.add(device);
@@ -20,9 +23,9 @@ export default class Device {
     return Device.devices.find(d => d.path === path);
   }
 
-  constructor(path: string, device1: Device1Props) {
+  constructor(path: string, props: Device1Props) {
     this.path = path;
-    this.device1 = device1;
+    this.props = props;
   }
 
   public async connect(): Promise<void> {
@@ -37,11 +40,13 @@ export default class Device {
 
   public async getServiceUUIDs(): Promise<SUUID[]> {
     const api = await this.getApi();
+    await this.waitUntilServicesAreResolved();
     return await api.getProperty("UUIDs");
   }
 
-  public async servicesResolved(): Promise<boolean> {
+  public async servicesResolved(timeout = 50): Promise<boolean> {
     const api = await this.getApi();
+    await new Promise(res => setTimeout(res, timeout)); // todo no no no, just no.
     return await api.getProperty("ServicesResolved");
   }
 
@@ -54,7 +59,13 @@ export default class Device {
   }
 
   public toNoble(): Params<"discover"> {
-    return NoblePeripheral.toArray(this.device1);
+    return NoblePeripheral.toArray(this.props);
+  }
+
+  private async waitUntilServicesAreResolved(): Promise<void> {
+    if (await this.servicesResolved()) return;
+    const mngr = this.objectManager;
+    await Watcher.resolved(mngr, "service", () => this.servicesResolved());
   }
 
   private async getApi(): Promise<InterfaceApi<Device1Api>> {

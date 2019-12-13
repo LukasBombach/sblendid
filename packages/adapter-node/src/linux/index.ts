@@ -2,15 +2,10 @@ import { PUUID, SUUID, CUUID } from "../../types/ble";
 import { Params } from "../../types/noble";
 import SblendidAdapter, { FindCondition } from "../../types/sblendidAdapter";
 import { Characteristic } from "../../types/sblendidAdapter";
-import { Adapter } from "../../types/bluez";
-import Watcher from "../watcher";
-import ObjectManager, { Api } from "./objectManager";
 import Scanner from "./scanner";
-import { Emitter } from "../../types/watcher";
 import Device from "./device";
 
 export default class LinuxAdapter implements SblendidAdapter {
-  private objectManager = new ObjectManager();
   private scanner = new Scanner();
 
   public async init(): Promise<void> {}
@@ -44,19 +39,6 @@ export default class LinuxAdapter implements SblendidAdapter {
 
   public async getServices(pUUID: PUUID): Promise<SUUID[]> {
     const device = this.getDevice(pUUID);
-    return await device.getServiceUUIDs();
-    const condition = async () => {
-      await new Promise(res => setTimeout(res, 50)); // todo no, just no.
-      const resolved = await device.servicesResolved();
-      return resolved;
-    };
-    if (!(await condition())) {
-      await Watcher.resolved(
-        this.objectManager as Emitter<Api>, // todo bad typecast
-        "service",
-        condition
-      );
-    }
     return await device.getServiceUUIDs();
   }
 
