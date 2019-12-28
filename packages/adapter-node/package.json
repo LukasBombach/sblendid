@@ -1,34 +1,37 @@
 {
-  "name": "@sblendid/adapter-node",
-  "version": "0.2.0",
-  "main": "dist/index.cjs.js",
-  "module": "dist/index.es.js",
-  "types": "dist/src",
-  "files": [
-    "native"
-  ],
-  "license": "MIT",
-  "scripts": {
-    "build": "rollup -c rollup.config.ts",
-    "test": "jest -c jest.config.json --runInBand"
-  },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/@LukasBombach"
-  },
-  "devDependencies": {
-    "@hapi/joi": "16.1.0",
-    "@types/hapi__joi": "15.0.4",
-    "@types/jest": "24.0.18",
-    "@types/noble": "0.0.39",
-    "@types/web-bluetooth": "0.0.4",
-    "jest": "24.9.0",
-    "rollup": "1.20.1",
-    "rollup-plugin-auto-external": "2.0.0",
-    "rollup-plugin-commonjs": "10.0.2",
-    "rollup-plugin-node-resolve": "5.2.0",
-    "rollup-plugin-terser": "5.1.1",
-    "rollup-plugin-typescript2": "0.23.0",
-    "ts-jest": "24.1.0",
-    "typescript": "3.5.3"
-  }
+    "name": "@sblendid/adapter-node",
+    "version": "0.2.0",
+    "main": "dist/index.cjs.js",
+    "module": "dist/index.es.js",
+    "types": "dist/src",
+    "files": [
+        "native"
+    ],
+    "license": "MIT",
+    "scripts": {
+        "build": "rollup -c rollup.config.ts",
+        "test": "jest -c jest.config.json --runInBand",
+        "ts": "ts-node --project tsconfig.json",
+        "debug": "node --nolazy --inspect-brk=9229 mac.js"
+    },
+    "publishConfig": {
+        "registry": "https://npm.pkg.github.com/@LukasBombach"
+    },
+    "devDependencies": {
+        "@hapi/joi": "16.1.0",
+        "@types/hapi__joi": "15.0.4",
+        "@types/jest": "24.0.18",
+        "@types/noble": "0.0.39",
+        "@types/web-bluetooth": "0.0.4",
+        "jest": "24.9.0",
+        "rollup": "1.20.1",
+        "rollup-plugin-auto-external": "2.0.0",
+        "rollup-plugin-commonjs": "10.0.2",
+        "rollup-plugin-node-resolve": "5.2.0",
+        "rollup-plugin-terser": "5.1.1",
+        "rollup-plugin-typescript2": "0.23.0",
+        "ts-jest": "24.1.0",
+        "ts-node": "8.5.4",
+        "typescript": "3.5.3"
+    }
 }
