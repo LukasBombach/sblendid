@@ -18,6 +18,10 @@ export default class Adapter {
     this.bindings.init();
   }
 
+  stop(): void {
+    this.bindings.stop();
+  }
+
   startScanning(
     serviceUuids?: BluetoothServiceUUID[],
     allowDuplicates?: boolean

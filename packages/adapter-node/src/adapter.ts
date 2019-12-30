@@ -13,4 +13,8 @@ export default class Adapter {
       () => this.bindings.when("stateChange", state => state === "poweredOn")
     );
   }
+
+  public powerOff(): void {
+    this.bindings.stop();
+  }
 }

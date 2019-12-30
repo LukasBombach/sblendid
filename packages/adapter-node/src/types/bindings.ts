@@ -128,6 +128,7 @@ declare class Bindings {
   constructor();
 
   init(): void;
+  stop(): void;
 
   startScanning(
     serviceUuids?: BluetoothServiceUUID[],
