@@ -56,6 +56,9 @@ import Sblendid from "@sblendid/sblendid";
   const value = await service.read("uuid");
   await service.write("uuid", Buffer.from("value", "utf8"));
   service.on("uuid", value => console.log(value));
+
+  // You need to power off your Bluetooth adapter or your Node process won't end
+  await Sblendid.powerOff();
 })();
 ```
 
@@ -108,6 +111,9 @@ const converters: {
   const value2 = await service.read("otherValue");
   await service.write("otherValue", 22);
   service.on("otherValue", value => console.log(value));
+
+  // You need to power off your Bluetooth adapter or your Node process won't end
+  await Sblendid.powerOff();
 })();
 ```
 
@@ -127,6 +133,10 @@ import Sblendid from "@sblendid/sblendid";
     console.log(uuid, name, connectable);
     console.log(txPowerLevel, manufacturerData, serviceUUIDs);
   });
+
+  // You need to power off your Bluetooth adapter or your Node process won't end
+  // Note the lower case "s", powerOff is a static and an instance method
+  await sblendid.powerOff();
 })();
 ```
 
@@ -163,6 +173,7 @@ import Sblendid from "@sblendid/sblendid";
   const peripheral = await Sblendid.connect(
     async peripheral => await checkSomething(peripheral)
   );
+  await Sblendid.powerOff();
 })();
 ```
 
@@ -179,6 +190,7 @@ import Sblendid from "@sblendid/sblendid";
 (async () => {
   const peripheral = await Sblendid.connect("My Peripheral");
   const services = await peripheral.getServices();
+  await Sblendid.powerOff();
 })();
 ```
 
@@ -196,6 +208,7 @@ import Sblendid from "@sblendid/sblendid";
   const peripheral = await Sblendid.connect("My Peripheral");
   const service = await peripheral.getService("a000");
   const characteristics = await service.getCharacteristics();
+  await Sblendid.powerOff();
 })();
 ```
 
@@ -220,6 +233,8 @@ const batteryLevelUuid = "2a19";
   const batteryLevel = await batteryService.read(batteryLevelUuid);
 
   console.log("Battery Level", batteryLevel.readUInt8(0), "%");
+
+  await Sblendid.powerOff();
 })();
 ```
 
@@ -245,6 +260,8 @@ const batteryLevelUuid = "2a19";
   await batteryService.on(batteryLevelUuid, batteryLevel => {
     console.log("Battery Level", batteryLevel.readUInt8(0), "%");
   });
+
+  await Sblendid.powerOff();
 })();
 ```
 
@@ -267,6 +284,8 @@ const newAlertUuid = "2a44";
 
   const alertService = await peripheral.getService(alertServiceUuid);
   await alertService.write(newAlertUuid, Buffer.from("Message", "utf8");
+
+  await Sblendid.powerOff();
 })();
 ```
 
@@ -313,8 +332,10 @@ class Sblendid {
 
   constructor() {}
   public static async powerOn(): Promise<Sblendid> {}
+  public static async powerOff(): Promise<Sblendid> {}
   public static async connect(condition: Condition): Promise<Peripheral> {}
   public async powerOn(): Promise<void> {}
+  public async powerOff(): Promise<void> {}
   public async find(condition: Condition): Promise<Peripheral> {}
   public startScanning(listener?: PeripheralListener): void {}
   public stopScanning(): void {}
@@ -339,6 +360,30 @@ import Sblendid from "@sblendid/sblendid";
 
 const sblendid = await Sblendid.powerOn();
 sblendid.startScanning();
+```
+
+#### `static async powerOff(): Promise<void>`
+
+When you use BLE you need power on your BLE adapter (Your actual
+hardware). This library will keep the BLE adapter running while
+your node process runs. When you are done with using BLE you need
+to power off the BLE adapter again.
+
+> If you don't do this, your Node process will keep running after
+> your script is done. I.e. you will see the last line of your
+> code being executed, but your Node script just won't return to
+> your console.
+>
+> Don't worry, if you forgot to call powerOff, you can just press
+> ctrl + c to stop your script and there will be no hard done
+> whatsoever, It can just be very annoying.
+
+```ts
+import Sblendid from "@sblendid/sblendid";
+
+const sblendid = await Sblendid.powerOn();
+sblendid.startScanning();
+await Sblendid.powerOff();
 ```
 
 #### `static async connect(condition: Condition): Promise<Peripheral>`
@@ -410,6 +455,21 @@ import Sblendid from "@sblendid/sblendid";
 
 const sblendid = new Sblendid();
 await sblendid.powerOn();
+```
+
+#### `async powerOff(): Promise<void>`
+
+The `powerOff` method is available as a class method as well as an instance method.
+They do exactly the same thing. It is only there for convencience in sutations where
+you have an instance but not the class. Please refer to the documentation of
+`Sblendid.powerOff` to read about it.
+
+```ts
+import Sblendid from "@sblendid/sblendid";
+
+const sblendid = await Sblendid.powerOn();
+sblendid.startScanning();
+await sblendid.powerOff();
 ```
 
 #### `async find(condition: Condition): Promise<Peripheral>`
