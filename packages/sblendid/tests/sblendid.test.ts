@@ -12,14 +12,14 @@ describe("Sblendid", () => {
   ];
 
   it("powers on the adapter using its static method", async () => {
-    const spy = jest.spyOn(Adapter.prototype, "powerOn");
+    const spy = jest.spyOn(Adapter, "powerOn");
     const sblendid = await Sblendid.powerOn();
     expect(sblendid).toBeInstanceOf(Sblendid);
     expect(spy).toHaveBeenCalledWith();
   });
 
   it("waits for the adapter to have been powered on", async () => {
-    const spy = jest.spyOn(Adapter.prototype, "powerOn");
+    const spy = jest.spyOn(Adapter, "powerOn");
     await Sblendid.powerOn();
     const spyReturn = spy.mock.results[0].value;
     expect(inspect(spyReturn)).toBe("Promise { undefined }");
