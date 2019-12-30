@@ -12,11 +12,7 @@ export interface CharacteristicData {
 }
 
 export default class Characteristic {
-  private bindings: Bindings;
-
-  constructor(bindings: Bindings) {
-    this.bindings = bindings;
-  }
+  private bindings = Bindings.getInstance();
 
   public async read(pUUID: PUUID, sUUID: SUUID, cUUID: CUUID): Promise<Buffer> {
     const isThis = this.isThis(pUUID, sUUID, cUUID);

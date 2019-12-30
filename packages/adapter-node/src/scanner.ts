@@ -6,11 +6,7 @@ export type FindCondition = (
 ) => Promish<boolean>;
 
 export default class Scanner {
-  private bindings: Bindings;
-
-  constructor(bindings: Bindings) {
-    this.bindings = bindings;
-  }
+  private bindings = Bindings.getInstance();
 
   public async find(condition: FindCondition): Promise<Params<"discover">> {
     return await this.bindings.run<"discover">(
