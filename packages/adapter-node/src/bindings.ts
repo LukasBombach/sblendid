@@ -12,10 +12,22 @@ export type WhenCondition<E extends Event> = (
 ) => Promish<boolean>;
 
 export default class Adapter {
+  private static instance?: Adapter;
   private bindings: Bindings = new NativeBindings();
+
+  public static getInstance(): Adapter {
+    if (!Adapter.instance) Adapter.instance = new Adapter();
+    return Adapter.instance;
+  }
+
+  private constructor() {}
 
   init(): void {
     this.bindings.init();
+  }
+
+  stop(): void {
+    this.bindings.stop();
   }
 
   startScanning(

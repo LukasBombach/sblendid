@@ -19,6 +19,10 @@ export default class Sblendid {
     return sblendid;
   }
 
+  public static async powerOff(): Promise<void> {
+    await Adapter.powerOff();
+  }
+
   public static async connect(condition: Condition): Promise<Peripheral> {
     const sblendid = await Sblendid.powerOn();
     const peripheral = await sblendid.find(condition);
@@ -27,7 +31,11 @@ export default class Sblendid {
   }
 
   public async powerOn(): Promise<void> {
-    await this.adapter.powerOn();
+    await Adapter.powerOn();
+  }
+
+  public async powerOff(): Promise<void> {
+    await Adapter.powerOff();
   }
 
   // todo maybe this should be static

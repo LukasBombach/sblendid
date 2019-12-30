@@ -1,5 +1,13 @@
 import { AnySchema, ValidationOptions } from "@hapi/joi";
 
+declare global {
+  namespace jest {
+    interface Matchers<R, T> {
+      toMatchSchema(schema: AnySchema, options?: ValidationOptions): R;
+    }
+  }
+}
+
 expect.extend({
   toMatchSchema(received: any, schema: AnySchema, options?: ValidationOptions) {
     const validationResult = schema.validate(received, options);

@@ -9,11 +9,7 @@ const defaultProperties: Properties = {
 };
 
 export default class Service {
-  private bindings: Bindings;
-
-  constructor(bindings: Bindings) {
-    this.bindings = bindings;
-  }
+  private bindings = Bindings.getInstance();
 
   public async getCharacteristics(
     pUUID: PUUID,

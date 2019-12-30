@@ -9,7 +9,7 @@ import { findCharacteristic } from "./utils/characteristic";
 import "./matchers/schema";
 import "./matchers/events";
 
-describe("SblendidNodeAdapter", () => {
+describe("Sblendid Node Adapter", () => {
   const adapter = new NodeAdapter();
   const name = "Find Me";
   const deviceInfo = "180a";
@@ -18,19 +18,12 @@ describe("SblendidNodeAdapter", () => {
   let puuid: string;
 
   beforeAll(async () => {
-    await adapter.powerOn();
+    await NodeAdapter.powerOn();
     [puuid] = await adapter.find(hasName(name));
   });
 
-  it("enables the usage of the BLE adapter", async () => {
-    const secondAdapter = new NodeAdapter();
-    await expect(secondAdapter.powerOn()).resolves.toBe(undefined);
-  });
-
-  it("doesn't crash when initialized multiple times", async () => {
-    const secondAdapter = new NodeAdapter();
-    await expect(secondAdapter.powerOn()).resolves.toBe(undefined);
-    await expect(secondAdapter.powerOn()).resolves.toBe(undefined);
+  afterAll(async () => {
+    await NodeAdapter.powerOff();
   });
 
   it(`scans for peripherals`, async () => {

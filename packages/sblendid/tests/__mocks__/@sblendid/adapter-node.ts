@@ -37,10 +37,15 @@ export class AdapterMock {
     setInterval(() => bindings.emit("discover", ...discoverParams), 10);
   }
 }
+
+Object.assign(AdapterMock, {
+  powerOn: jest.fn().mockReturnValue(
+    new Promise<void>(res => setTimeout(res, 0))
+  ),
+  powerOff: jest.fn().mockResolvedValue(undefined)
+});
+
 Object.assign(AdapterMock.prototype, {
-  powerOn: jest
-    .fn()
-    .mockReturnValue(new Promise<void>(res => setTimeout(res, 0))),
   startScanning: jest.fn(),
   stopScanning: jest.fn(),
   find: jest.fn(async (listener: Listener) => {

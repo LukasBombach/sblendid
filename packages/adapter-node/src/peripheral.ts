@@ -16,11 +16,7 @@ export interface Advertisement {
 }
 
 export default class Peripheral {
-  private bindings: Bindings;
-
-  constructor(bindings: Bindings) {
-    this.bindings = bindings;
-  }
+  private bindings = Bindings.getInstance();
 
   public async connect(pUUID: PUUID): Promise<void> {
     await this.bindings.run(

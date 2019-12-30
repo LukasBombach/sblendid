@@ -13,15 +13,18 @@ export { AddressType, Advertisement } from "./peripheral";
 export { CharacteristicData } from "./characteristic";
 
 export default class SblendidNodeAdapter {
-  private bindings = new Bindings();
-  private adapter = new Adapter(this.bindings);
-  private scanner = new Scanner(this.bindings);
-  private peripheral = new Peripheral(this.bindings);
-  private service = new Service(this.bindings);
-  private characteristic = new Characteristic(this.bindings);
+  private bindings = Bindings.getInstance();
+  private scanner = new Scanner();
+  private peripheral = new Peripheral();
+  private service = new Service();
+  private characteristic = new Characteristic();
 
-  public powerOn(): Promise<void> {
-    return this.adapter.powerOn();
+  public static powerOn(): Promise<void> {
+    return Adapter.powerOn();
+  }
+
+  public static powerOff(): Promise<void> {
+    return Adapter.powerOff();
   }
 
   public startScanning(): void {
