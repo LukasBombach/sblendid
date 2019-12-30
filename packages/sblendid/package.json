@@ -12,9 +12,6 @@
         "test": "jest -c jest.config.json",
         "example": "ts-node --project tsconfig.json"
     },
-    "publishConfig": {
-        "registry": "https://npm.pkg.github.com/@LukasBombach"
-    },
     "devDependencies": {
         "@rollup/plugin-commonjs": "11.0.0",
         "@rollup/plugin-node-resolve": "6.0.0",
