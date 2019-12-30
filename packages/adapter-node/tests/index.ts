@@ -18,12 +18,12 @@ describe("Sblendid Node Adapter", () => {
   let puuid: string;
 
   beforeAll(async () => {
-    await adapter.powerOn();
+    await NodeAdapter.powerOn();
     [puuid] = await adapter.find(hasName(name));
   });
 
   afterAll(async () => {
-    await adapter.powerOff();
+    await NodeAdapter.powerOff();
   });
 
   it(`scans for peripherals`, async () => {

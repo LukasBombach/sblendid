@@ -19,11 +19,11 @@ export default class SblendidNodeAdapter {
   private service = new Service();
   private characteristic = new Characteristic();
 
-  public powerOn(): Promise<void> {
+  public static powerOn(): Promise<void> {
     return Adapter.powerOn();
   }
 
-  public powerOff(): Promise<void> {
+  public static powerOff(): Promise<void> {
     return Adapter.powerOff();
   }
 
