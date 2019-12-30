@@ -11,6 +11,10 @@ describe("Sblendid", () => {
     ["using an async callback", p => new Promise(res => res(!!p.connectable))]
   ];
 
+  afterAll(async () => {
+    await Sblendid.powerOff();
+  });
+
   it("powers on the adapter using its static method", async () => {
     const spy = jest.spyOn(Adapter, "powerOn");
     const sblendid = await Sblendid.powerOn();
@@ -23,6 +27,27 @@ describe("Sblendid", () => {
     await Sblendid.powerOn();
     const spyReturn = spy.mock.results[0].value;
     expect(inspect(spyReturn)).toBe("Promise { undefined }");
+  });
+
+  it("powers off the adapter using its static method", async () => {
+    const spy = jest.spyOn(Adapter, "powerOff");
+    await Sblendid.powerOff();
+    expect(spy).toHaveBeenCalledWith();
+  });
+
+  it("powers on the adapter using its instance method", async () => {
+    const spy = jest.spyOn(Adapter, "powerOn");
+    const sblendid = new Sblendid();
+    await sblendid.powerOn();
+    await sblendid.powerOff();
+    expect(spy).toHaveBeenCalledWith();
+  });
+
+  it("powers off the adapter using its instance method", async () => {
+    const spy = jest.spyOn(Adapter, "powerOff");
+    const sblendid = await Sblendid.powerOn();
+    await sblendid.powerOff();
+    expect(spy).toHaveBeenCalledWith();
   });
 
   it.each(conditions)("connects to a peripheral %s", async (_, condition) => {

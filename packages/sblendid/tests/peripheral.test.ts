@@ -50,6 +50,7 @@ describe("Peripheral", () => {
     await peripheral.disconnect();
     connnectSpy.mockRestore();
     disconnnectSpy.mockRestore();
+    await Sblendid.powerOff();
   });
 
   it.each(options)("creates a new peripheral that %s", async (_, opts) => {
