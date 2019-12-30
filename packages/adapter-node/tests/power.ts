@@ -18,15 +18,17 @@ describe("Sblendid Node Adapter", () => {
 
   it("doesn't crash when initialized multiple times", async () => {
     const adapter = new NodeAdapter();
-    await expect(adapter.powerOn()).resolves.toBe(undefined);
-    await expect(adapter.powerOn()).resolves.toBe(undefined);
+    await expect(
+      Promise.all([adapter.powerOn(), adapter.powerOn()])
+    ).resolves.toEqual([undefined, undefined]);
     await adapter.powerOff();
   });
 
   it("doesn't crash when stopped multiple times", async () => {
     const adapter = new NodeAdapter();
     await adapter.powerOn();
-    await expect(adapter.powerOff()).resolves.toBe(undefined);
-    await expect(adapter.powerOff()).resolves.toBe(undefined);
+    await expect(
+      Promise.all([adapter.powerOff(), adapter.powerOff()])
+    ).resolves.toEqual([undefined, undefined]);
   });
 });
