@@ -1,6 +1,6 @@
 {
     "name": "@sblendid/adapter-node",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "main": "dist/index.cjs.js",
     "module": "dist/index.es.js",
     "types": "dist/src",
@@ -11,9 +11,6 @@
     "scripts": {
         "build": "rollup -c rollup.config.ts",
         "test": "jest -c jest.config.json --runInBand"
-    },
-    "publishConfig": {
-        "registry": "https://npm.pkg.github.com/@LukasBombach"
     },
     "devDependencies": {
         "@hapi/joi": "16.1.8",
