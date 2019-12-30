@@ -14,7 +14,7 @@ export default class Adapter {
     );
   }
 
-  public powerOff(): void {
+  public async powerOff(): Promise<void> {
     this.bindings.stop();
   }
 }

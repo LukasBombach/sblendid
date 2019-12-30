@@ -24,7 +24,7 @@ export default class SblendidNodeAdapter {
     return this.adapter.powerOn();
   }
 
-  public async powerOff(): Promise<void> {
+  public powerOff(): Promise<void> {
     return this.adapter.powerOff();
   }
 
