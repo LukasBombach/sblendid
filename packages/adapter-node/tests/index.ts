@@ -9,27 +9,6 @@ import { findCharacteristic } from "./utils/characteristic";
 import "./matchers/schema";
 import "./matchers/events";
 
-describe.only("Sblendid Node Adapter", () => {
-  it("turns on the BLE adapter", async () => {
-    const adapter = new NodeAdapter();
-    await expect(adapter.powerOn()).resolves.toBe(undefined);
-    await adapter.powerOff();
-  });
-
-  it("turns off the BLE adapter", async () => {
-    const adapter = new NodeAdapter();
-    await adapter.powerOn();
-    await expect(adapter.powerOff()).resolves.toBe(undefined);
-  });
-
-  it.only("doesn't crash when initialized multiple times", async () => {
-    const adapter = new NodeAdapter();
-    await expect(adapter.powerOn()).resolves.toBe(undefined);
-    // await expect(adapter.powerOn()).resolves.toBe(undefined);
-    await adapter.powerOff();
-  });
-});
-
 describe("Sblendid Node Adapter", () => {
   const adapter = new NodeAdapter();
   const name = "Find Me";
