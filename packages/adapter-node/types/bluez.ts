@@ -25,7 +25,11 @@ export interface GattService1 {
   UUID: SUUID;
 }
 
-export interface GattCharacteristic1 {}
+export interface GattCharacteristic1 {
+  UUID: CUUID;
+  Service: GattService1;
+  Flags: ("read" | "write" | "notify")[];
+}
 
 export interface Interfaces {
   "org.bluez.Device1"?: Device1Props;

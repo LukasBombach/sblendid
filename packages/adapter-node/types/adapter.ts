@@ -1,22 +1,29 @@
 import { CUUID } from "./ble";
-import { Params } from "../types/noble";
 
-export type FindCondition = (
-  ...peripheral: Peripheral
-) => Promise<boolean> | boolean;
+export type AddressType = "public" | "random";
 
-export type Peripheral = Params<"discover">;
+export interface Peripheral {
+  uuid: string;
+  address: string;
+  addressType: AddressType;
+  rssi: number;
+  txPowerLevel: number;
+  blocked: boolean;
+  name?: string;
+  serviceUuids?: SUUID[];
+  manufacturerData?: Buffer;
+}
 
 export interface Characteristic {
   uuid: CUUID;
-  properties: {
-    read: boolean;
-    write: boolean;
-    notify: boolean;
-  };
+  read: boolean;
+  write: boolean;
+  notify: boolean;
 }
 
-export default interface SblendidAdapter {
+export type FindCondition = (peripheral: Peripheral) => Promish<boolean>;
+
+export default interface Adapter {
   init(): Promise<void>;
   startScanning(): Promise<void>;
   stopScanning(): Promise<void>;

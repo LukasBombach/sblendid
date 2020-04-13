@@ -1,15 +1,14 @@
-import { PUUID, SUUID, CUUID } from "../../types/ble";
-import { Params } from "../../types/noble";
-import SblendidAdapter, {
+import Adapter, {
   FindCondition,
-  Characteristic as NobleCharacteristic
-} from "../../types/sblendidAdapter";
+  Peripheral,
+  Characteristic as CharacteristicJSON,
+} from "../../types/adapter";
 import Scanner from "./scanner";
 import Device from "./device";
 import Service from "./service";
 import Characteristic from "./characteristic";
 
-export default class LinuxAdapter implements SblendidAdapter {
+export default class LinuxAdapter implements Adapter {
   private scanner = new Scanner();
 
   public async init(): Promise<void> {}
@@ -22,7 +21,7 @@ export default class LinuxAdapter implements SblendidAdapter {
     await this.scanner.stopScanning();
   }
 
-  public async find(condition: FindCondition): Promise<Params<"discover">> {
+  public async find(condition: FindCondition): Promise<Peripheral> {
     return await this.scanner.find(condition);
   }
 
@@ -49,10 +48,9 @@ export default class LinuxAdapter implements SblendidAdapter {
   public async getCharacteristics(
     pUUID: PUUID,
     sUUID: SUUID
-  ): Promise<NobleCharacteristic[]> {
-    const service = this.getService(pUUID, sUUID);
-    const characteristics = await service.getCharacteristics();
-    return characteristics.map(c => c.toNoble());
+  ): Promise<CharacteristicJSON[]> {
+    const characteristics = Characteristic.findByService(sUUID);
+    return characteristics.map((c) => c.serialize());
   }
 
   public async read(pUUID: PUUID, sUUID: SUUID, cUUID: CUUID): Promise<Buffer> {

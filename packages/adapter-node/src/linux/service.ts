@@ -1,5 +1,6 @@
 import { GattService1 } from "../../types/bluez";
 import List from "../list";
+import { Characteristic } from "../../types/adapter";
 
 export default class Service {
   private static services = new List<Service>();
@@ -12,7 +13,7 @@ export default class Service {
   }
 
   static find(sUUID: SUUID): Service | undefined {
-    return Service.services.find(s => s.uuid === sUUID);
+    return Service.services.find((s) => s.uuid === sUUID);
   }
 
   constructor(path: string, gattService1: GattService1) {

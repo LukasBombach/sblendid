@@ -1,4 +1,4 @@
-import { FindCondition } from "../../types/sblendidAdapter";
+import { FindCondition, Peripheral } from "../../types/adapter";
 import { Adapter } from "../../types/bluez";
 import Bluez from "./bluez";
 import ObjectManager, { Api } from "./objectManager";
@@ -19,7 +19,7 @@ export default class Scanner {
     await adapter.StopDiscovery();
   }
 
-  public async find(condition: FindCondition): Promise<Params<"discover">> {
+  public async find(condition: FindCondition): Promise<Peripheral> {
     const mngr = this.objectManager;
     const watcher = new Watcher<Api, "discover">(mngr, "discover", condition);
     await this.startScanning();
