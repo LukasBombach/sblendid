@@ -21,7 +21,7 @@ export interface CharacteristicJSON {
 
 export type FindCondition = (peripheral: PeripheralJSON) => Promish<boolean>;
 
-export default interface Adapter {
+export interface Adapter {
   init(): Promise<void>;
   startScanning(): Promise<void>;
   stopScanning(): Promise<void>;
