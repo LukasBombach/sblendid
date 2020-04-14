@@ -82,6 +82,15 @@ export interface Device1Api {
   };
 }
 
+export interface GattCharacteristic1Api {
+  methods: {
+    ReadValue: () => Promise<number[]>;
+    WriteValue: (value: number[]) => Promise<void>;
+    StartNotify: () => Promise<void>;
+    StopNotify: () => Promise<void>;
+  };
+}
+
 export type Adapter = InterfaceApi<AdapterApi>;
 export type ObjectManager = InterfaceApi<ObjectManagerApi>;
 export type ManagedObjects = Record<string, Record<string, Interfaces>>;

@@ -1,5 +1,7 @@
+import Bluez from "./bluez";
 import { Characteristic as CharacteristicJSON } from "../../types/adapter";
-import { GattCharacteristic1 } from "../../types/bluez";
+import { InterfaceApi } from "../../types/dbus";
+import { GattCharacteristic1, GattCharacteristic1Api } from "../../types/bluez";
 import List from "../list";
 
 export interface Flags {
@@ -14,6 +16,7 @@ export default class Characteristic {
   public readonly serviceUUID: SUUID;
   public readonly path: string;
   public readonly gattCharacteristic1: GattCharacteristic1;
+  private api?: InterfaceApi<GattCharacteristic1Api>;
 
   static add(service: Characteristic): void {
     Characteristic.characteristics.add(service);
@@ -34,11 +37,23 @@ export default class Characteristic {
     this.gattCharacteristic1 = gattCharacteristic1;
   }
 
-  public async read(): Promise<Buffer> {}
+  public async read(): Promise<Buffer> {
+    const api = await this.getApi();
+    const valueAsArray = await api.ReadValue();
+    return Buffer.from(valueAsArray);
+  }
 
-  public async write(value: Buffer, withoutResponse: boolean): Promise<void> {}
+  public async write(value: Buffer, withoutResponse: boolean): Promise<void> {
+    const api = await this.getApi();
+    const valueAsArray = [...value];
+    await api.WriteValue(valueAsArray);
+  }
 
-  public async notify(notify: boolean): Promise<boolean> {}
+  public async notify(notify: boolean): Promise<boolean> {
+    const api = await this.getApi();
+    await (notify ? api.StartNotify() : api.StopNotify());
+    return notify;
+  }
 
   public serialize(): CharacteristicJSON {
     return { uuid: this.uuid, ...this.getFlags() };
@@ -49,5 +64,10 @@ export default class Characteristic {
     const write = this.gattCharacteristic1.Flags.includes("write");
     const notify = this.gattCharacteristic1.Flags.includes("notify");
     return { read, write, notify };
+  }
+
+  private async getApi(): Promise<InterfaceApi<GattCharacteristic1Api>> {
+    if (!this.api) this.api = await Bluez.getCharacteristic(this.path);
+    return this.api;
   }
 }

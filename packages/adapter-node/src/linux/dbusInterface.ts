@@ -13,7 +13,7 @@ export default class DBusInterface<P = {}, A = {}> {
   }
 
   static find<T, P extends keyof T>(prop: P, val: any): T | undefined {
-    return this.instances.find(i => i[prop] === val);
+    return this.instances.find((i) => i[prop] === val);
   }
 
   protected constructor(path: string, props: P) {

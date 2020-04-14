@@ -1,6 +1,11 @@
 import SystemBus from "./systemBus";
 import { InterfaceApi } from "../../types/dbus";
-import { AdapterApi, ObjectManagerApi, Device1Api } from "../../types/bluez";
+import {
+  AdapterApi,
+  ObjectManagerApi,
+  Device1Api,
+  GattCharacteristic1Api,
+} from "../../types/bluez";
 
 export default class Bluez {
   private static readonly service = "org.bluez";
@@ -25,6 +30,13 @@ export default class Bluez {
   ): Promise<InterfaceApi<Device1Api>> {
     const name = "org.bluez.Device1";
     return await Bluez.getInterface<Device1Api>(path, name);
+  }
+
+  public static async getCharacteristic(
+    path: string
+  ): Promise<InterfaceApi<GattCharacteristic1Api>> {
+    const name = "org.bluez.GattCharacteristic1";
+    return await Bluez.getInterface<GattCharacteristic1Api>(path, name);
   }
 
   public static async getInterface<A>(

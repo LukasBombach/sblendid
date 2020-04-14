@@ -1,9 +1,9 @@
-import { FindCondition, Peripheral } from "../../types/adapter";
-import { Adapter } from "../../types/bluez";
 import Bluez from "./bluez";
-import ObjectManager, { Api } from "./objectManager";
+import ObjectManager from "./objectManager";
 import Watcher from "../watcher";
-import { Params } from "../../types/noble";
+import { FindCondition, PeripheralJSON } from "../types/adapter";
+import { Adapter } from "../types/bluez";
+import { Api } from "./objectManager";
 
 export default class Scanner {
   private adapter?: Adapter;
@@ -19,7 +19,7 @@ export default class Scanner {
     await adapter.StopDiscovery();
   }
 
-  public async find(condition: FindCondition): Promise<Peripheral> {
+  public async find(condition: FindCondition): Promise<PeripheralJSON> {
     const mngr = this.objectManager;
     const watcher = new Watcher<Api, "discover">(mngr, "discover", condition);
     await this.startScanning();

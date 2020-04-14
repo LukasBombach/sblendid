@@ -1,12 +1,12 @@
-import Adapter, {
-  FindCondition,
-  Peripheral,
-  Characteristic as CharacteristicJSON,
-} from "../../types/adapter";
 import Scanner from "./scanner";
 import Device from "./device";
 import Service from "./service";
 import Characteristic from "./characteristic";
+import Adapter, {
+  FindCondition,
+  PeripheralJSON,
+  CharacteristicJSON,
+} from "../types/adapter";
 
 export default class LinuxAdapter implements Adapter {
   private scanner = new Scanner();
@@ -21,7 +21,7 @@ export default class LinuxAdapter implements Adapter {
     await this.scanner.stopScanning();
   }
 
-  public async find(condition: FindCondition): Promise<Peripheral> {
+  public async find(condition: FindCondition): Promise<PeripheralJSON> {
     return await this.scanner.find(condition);
   }
 

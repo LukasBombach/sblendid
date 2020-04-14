@@ -1,8 +1,6 @@
-import { CUUID } from "./ble";
-
 export type AddressType = "public" | "random";
 
-export interface Peripheral {
+export interface PeripheralJSON {
   uuid: string;
   address: string;
   addressType: AddressType;
@@ -14,25 +12,25 @@ export interface Peripheral {
   manufacturerData?: Buffer;
 }
 
-export interface Characteristic {
+export interface CharacteristicJSON {
   uuid: CUUID;
   read: boolean;
   write: boolean;
   notify: boolean;
 }
 
-export type FindCondition = (peripheral: Peripheral) => Promish<boolean>;
+export type FindCondition = (peripheral: PeripheralJSON) => Promish<boolean>;
 
 export default interface Adapter {
   init(): Promise<void>;
   startScanning(): Promise<void>;
   stopScanning(): Promise<void>;
-  find(condition: FindCondition): Promise<Peripheral>;
+  find(condition: FindCondition): Promise<PeripheralJSON>;
   connect(pUUID: PUUID): Promise<void>;
   disconnect(pUUID: PUUID): Promise<void>;
   getRssi(pUUID: PUUID): Promise<number>;
   getServices(pUUID: PUUID): Promise<SUUID[]>;
-  getCharacteristics(pUUID: PUUID, sUUID: SUUID): Promise<Characteristic[]>;
+  getCharacteristics(pUUID: PUUID, sUUID: SUUID): Promise<CharacteristicJSON[]>;
   read(pUUID: PUUID, sUUID: SUUID, cUUID: CUUID): Promise<Buffer>;
   write(
     pUUID: PUUID,
