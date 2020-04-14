@@ -1,28 +1,25 @@
 import { promisify } from "util";
 import DBus, { DBusInterface } from "dbus";
-import { ApiDefinition, InterfaceApi } from "../../types/dbus";
-import {
-  EventApi,
-  MethodApi,
-  EventMethod,
-  GetPropertyApi
-} from "../../types/dbus";
+import type { ApiDefinition } from "../../types/dbus";
+import type { InterfaceApi } from "../../types/dbus";
+import type { EventApi } from "../../types/dbus";
+import type { MethodApi } from "../../types/dbus";
+import type { EventMethod } from "../../types/dbus";
+import type { GetPropertyApi } from "../../types/dbus";
+
+const bus = DBus.getBus("system");
+const getInterface = promisify(bus.getInterface.bind(bus));
 
 export default class SystemBus {
-  private static bus = DBus.getBus("system");
-  public static fetchInterface = promisify(
-    SystemBus.bus.getInterface.bind(SystemBus.bus)
-  );
-
-  public async getInterface<A extends ApiDefinition>(
+  public async getInterface<I extends DBusInterface>(
     service: string,
     path: string,
     name: string
-  ): Promise<InterfaceApi<A>> {
-    const iface = await SystemBus.fetchInterface(service, path, name);
-    const methods: MethodApi<A> = this.getMethods(iface);
-    const events: EventApi<A> = this.getEvents(iface);
-    const getProperty: GetPropertyApi<A> = this.getProperties(iface);
+  ): Promise<InterfaceApi<I>> {
+    const iface = await getInterface(service, path, name);
+    const methods: MethodApi<I> = this.getMethods(iface);
+    const events: EventApi<I> = this.getEvents(iface);
+    const getProperty: GetPropertyApi<I> = this.getProperties(iface);
     return { ...events, ...methods, ...getProperty };
   }
 
