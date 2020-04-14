@@ -4,7 +4,7 @@ import {
   ObjectManager as Interface,
   ManagedObjects,
   GattService1,
-  GattCharacteristic1
+  GattCharacteristic1,
 } from "../../types/bluez";
 import { Interfaces, Device1Props } from "../../types/bluez";
 import { Emitter, Listener } from "../../types/watcher";

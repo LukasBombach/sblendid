@@ -10,41 +10,41 @@ import type { CharacteristicJSON } from "../types/adapter";
 export default class LinuxAdapter implements Adapter {
   private scanner = new Scanner();
 
-  public async init(): Promise<void> {}
+  async init(): Promise<void> {}
 
-  public async startScanning(): Promise<void> {
+  async startScanning(): Promise<void> {
     await this.scanner.startScanning();
   }
 
-  public async stopScanning(): Promise<void> {
+  async stopScanning(): Promise<void> {
     await this.scanner.stopScanning();
   }
 
-  public async find(condition: FindCondition): Promise<PeripheralJSON> {
+  async find(condition: FindCondition): Promise<PeripheralJSON> {
     return await this.scanner.find(condition);
   }
 
-  public async connect(pUUID: PUUID): Promise<void> {
+  async connect(pUUID: PUUID): Promise<void> {
     const device = this.getDevice(pUUID);
     await device.connect();
   }
 
-  public async disconnect(pUUID: PUUID): Promise<void> {
+  async disconnect(pUUID: PUUID): Promise<void> {
     const device = this.getDevice(pUUID);
     await device.disconnect();
   }
 
-  public async getRssi(pUUID: PUUID): Promise<number> {
+  async getRssi(pUUID: PUUID): Promise<number> {
     const device = this.getDevice(pUUID);
     return await device.getRssi();
   }
 
-  public async getServices(pUUID: PUUID): Promise<SUUID[]> {
+  async getServices(pUUID: PUUID): Promise<SUUID[]> {
     const device = this.getDevice(pUUID);
     return await device.getServiceUUIDs();
   }
 
-  public async getCharacteristics(
+  async getCharacteristics(
     pUUID: PUUID,
     sUUID: SUUID
   ): Promise<CharacteristicJSON[]> {
@@ -52,12 +52,12 @@ export default class LinuxAdapter implements Adapter {
     return characteristics.map((c) => c.serialize());
   }
 
-  public async read(pUUID: PUUID, sUUID: SUUID, cUUID: CUUID): Promise<Buffer> {
+  async read(pUUID: PUUID, sUUID: SUUID, cUUID: CUUID): Promise<Buffer> {
     const characteristic = this.getCharacteristic(cUUID);
     return await characteristic.read();
   }
 
-  public async write(
+  async write(
     pUUID: PUUID,
     sUUID: SUUID,
     cUUID: CUUID,
@@ -68,7 +68,7 @@ export default class LinuxAdapter implements Adapter {
     return await characteristic.write(value, withoutResponse);
   }
 
-  public async notify(
+  async notify(
     pUUID: PUUID,
     sUUID: SUUID,
     cUUID: CUUID,

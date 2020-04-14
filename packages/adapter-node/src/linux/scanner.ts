@@ -1,32 +1,39 @@
 import Bluez from "./bluez";
 import ObjectManager from "./objectManager";
 import Watcher from "../watcher";
-import { FindCondition, PeripheralJSON } from "../types/adapter";
-import { Adapter } from "../types/bluez";
-import { Api } from "./objectManager";
+import type { Api } from "./objectManager";
+import type { Adapter } from "../types/bluez";
+import type { FindCondition } from "../types/adapter";
+import type { PeripheralJSON } from "../types/adapter";
 
 export default class Scanner {
   private adapter?: Adapter;
-  private objectManager: ObjectManager = new ObjectManager();
 
-  public async startScanning(): Promise<void> {
+  async startScanning(): Promise<void> {
     const adapter = await this.getAdapter();
     await adapter.StartDiscovery();
   }
 
-  public async stopScanning(): Promise<void> {
+  async stopScanning(): Promise<void> {
     const adapter = await this.getAdapter();
     await adapter.StopDiscovery();
   }
 
-  public async find(condition: FindCondition): Promise<PeripheralJSON> {
-    const mngr = this.objectManager;
-    const watcher = new Watcher<Api, "discover">(mngr, "discover", condition);
+  async find(condition: FindCondition): Promise<PeripheralJSON> {
+    const watcher = this.getWatcher(condition);
     await this.startScanning();
     const peripheral = await watcher.resolved();
     await this.stopScanning();
     return peripheral;
   }
+
+  private getWatcher(condition: FindCondition): Watcher<Api, "discover"> {
+    const manager = new ObjectManager();
+    const discoverCondition = this.getDiscoverCondition(condition);
+    return new Watcher(manager, "discover", discoverCondition);
+  }
+
+  private getDiscoverCondition(condition: FindCondition) {}
 
   private async getAdapter(): Promise<Adapter> {
     if (!this.adapter) this.adapter = await Bluez.getAdapter();
