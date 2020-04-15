@@ -1,42 +1,28 @@
-declare module "dbus" {
-  export interface DBusInterface {
-    getProperty(
-      name: string,
-      callback: (err: Error, name: string) => void
-    ): void;
-    object: {
-      method: Record<string, any>;
-    };
-    [methodName: string]: (...args: any[]) => void;
-  }
+export interface DBusInterface {
+  methods: Record<string, (...args: any[]) => Promise<any>>;
+  events: Record<string, any[]>;
+  props: Record<string, any>;
 }
 
-export interface ApiDefinition {
-  methods?: Record<string, (...args: any[]) => Promise<any>>;
-  events?: Record<string, (...args: any[]) => void>;
-  properties?: Record<string, any>;
+export type DBusApi<I extends DBusInterface> = MethodApi<I> &
+  EventsApi<I> &
+  PropertiesApi<I>;
+
+export type MethodApi<I extends DBusInterface> = I["methods"];
+
+export interface EventsApi<I extends DBusInterface> {
+  on: EventMethod<I>;
+  off: EventMethod<I>;
 }
 
-export type InterfaceApi<A extends ApiDefinition> = EventApi<A> &
-  GetPropertyApi<A> &
-  MethodApi<A>;
-
-export type MethodApi<A extends ApiDefinition> = A["methods"];
-
-export interface GetPropertyApi<A extends ApiDefinition> {
-  getProperty: <N extends keyof A["properties"]>(
-    name: N
-  ) => Promise<A["properties"][N]>;
-  getProperties: () => Promise<A["properties"]>;
+export interface PropertiesApi<I extends DBusInterface> {
+  getProperty: <K extends keyof I["props"]>(name: K) => Promise<I["props"][K]>;
+  getProperties: () => Promise<I["props"]>;
 }
 
-export interface EventApi<A extends ApiDefinition> {
-  on: EventMethod<A>;
-  off: EventMethod<A>;
-}
-export type EventMethod<A extends ApiDefinition> = <
-  E extends keyof A["events"]
+export type EventMethod<I extends DBusInterface> = <
+  K extends keyof I["events"]
 >(
-  event: E,
-  listener: A["events"][E]
+  event: K,
+  listener: (...args: I["events"][K]) => Promish<void>
 ) => void;
