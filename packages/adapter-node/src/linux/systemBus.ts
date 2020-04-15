@@ -1,7 +1,6 @@
 import { promisify } from "util";
-import DBus, { DBusInterface } from "dbus";
-import type { ApiDefinition } from "../../types/dbus";
-import type { InterfaceApi } from "../../types/dbus";
+import DBus from "dbus";
+import type { DBusInterface } from "../../types/dbus";
 import type { EventApi } from "../../types/dbus";
 import type { MethodApi } from "../../types/dbus";
 import type { EventMethod } from "../../types/dbus";
@@ -15,7 +14,7 @@ export default class SystemBus {
     service: string,
     path: string,
     name: string
-  ): Promise<InterfaceApi<I>> {
+  ): Promise<I> {
     const iface = await getInterface(service, path, name);
     const methods: MethodApi<I> = this.getMethods(iface);
     const events: EventApi<I> = this.getEvents(iface);
@@ -23,29 +22,29 @@ export default class SystemBus {
     return { ...events, ...methods, ...getProperty };
   }
 
-  private getMethods<A extends ApiDefinition>(
-    iface: DBusInterface
-  ): MethodApi<A> {
-    return Object.keys(iface.object.method).reduce<MethodApi<A>>(
+  private getMethods<I extends DBusInterface>(
+    iface: DBus.DBusInterface
+  ): MethodApi<I> {
+    return Object.keys(iface.object.method).reduce<MethodApi<I>>(
       (api, method) => Object.assign(api, this.asPromised(iface, method)),
-      {} as MethodApi<A>
+      {} as MethodApi<I>
     );
   }
 
-  private getEvents<A extends ApiDefinition>(
-    iface: DBusInterface
-  ): EventApi<A> {
-    const on: EventMethod<A> = (event, listener) => iface.on(event, listener);
-    const off: EventMethod<A> = (event, listener) => iface.off(event, listener);
+  private getEvents<I extends DBusInterface>(
+    iface: DBus.DBusInterface
+  ): EventApi<I> {
+    const on: EventMethod<I> = (event, listener) => iface.on(event, listener);
+    const off: EventMethod<I> = (event, listener) => iface.off(event, listener);
     return { on, off };
   }
 
-  private getProperties<A extends ApiDefinition>(
-    iface: DBusInterface
-  ): GetPropertyApi<A> {
+  private getProperties<I extends DBusInterface>(
+    iface: DBus.DBusInterface
+  ): GetPropertyApi<I> {
     const getProperty = promisify(iface.getProperty.bind(iface));
     const getProperties = promisify(iface.getProperties.bind(iface));
-    return { getProperty, getProperties } as GetPropertyApi<A>;
+    return { getProperty, getProperties } as GetPropertyApi<I>;
   }
 
   private asPromised<I extends DBusInterface>(iface: I, method: keyof I) {
