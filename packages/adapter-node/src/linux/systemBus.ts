@@ -1,62 +1,33 @@
 import { promisify } from "util";
 import DBus from "dbus";
-import type { DBusInterface } from "../../types/dbus";
-import type { DBusApi } from "../../types/dbus";
-import type { Methods } from "../../types/dbus";
-import type { EventsApi } from "../../types/dbus";
-import type { EventMethod } from "../../types/dbus";
-import type { PropertiesApi } from "../../types/dbus";
+import { mapValues } from "lodash";
+import type { DBusInterface } from "dbus";
+import type { Props, Methods, Events, EventMethod } from "dbus";
 
 const bus = DBus.getBus("system");
 const getInterface = promisify(bus.getInterface.bind(bus));
 
 export default class SystemBus {
-  public async getInterface<I extends DBusInterface>(
-    service: string,
-    path: string,
-    name: string
-  ): Promise<DBusApi<I>> {
-    const iface = await getInterface(service, path, name);
-    const methods = this.getMethods(iface);
-    const eventApi = this.getEventApi(iface);
-    const propertyApi = this.getPropertyApi(iface);
-    return { ...methods, ...eventApi, ...propertyApi } as DBusApi<I>; // todo typecast
-  }
-
-  private getMethods<I extends DBusInterface>(
-    iface: DBus.DBusInterface
-  ): Methods<I> {
-    type MM = (entry: [string, any]) => [string, () => any];
-    const mapMethod: MM = ([name]) => [name, this.getMethod(iface, name)];
-    const entries = Object.entries(iface.object.method).map(mapMethod);
-    return Object.fromEntries(entries);
-  }
-
-  private getMethod<I extends DBusInterface, N extends keyof Methods<I>>(
-    iface: I,
-    name: N
-  ): Methods<I>[N] {
-    return promisify(iface[name].bind(iface));
-  }
-
-  private getEventApi<I extends DBusInterface>(
-    iface: DBus.DBusInterface
-  ): EventsApi<I> {
-    const on: EventMethod<I> = (event, listener) => iface.on(event, listener);
-    const off: EventMethod<I> = (event, listener) => iface.off(event, listener);
-    return { on, off };
-  }
-
-  private getPropertyApi<I extends DBusInterface>(
-    iface: DBus.DBusInterface
-  ): PropertiesApi<I> {
+  public async getInterface<
+    P extends Props = {},
+    M extends Methods = {},
+    E extends Events = {}
+  >(service: string, path: string, name: string) {
+    const iface = await getInterface<P, M, E>(service, path, name);
+    const on: EventMethod<E> = (event, listener) => iface.on(event, listener);
+    const off: EventMethod<E> = (event, listener) => iface.off(event, listener);
     const getProperty = promisify(iface.getProperty.bind(iface));
-    const getProperties = promisify(iface.getProperties.bind(iface));
-    return { getProperty, getProperties } as any; // todo unlawful any
+    const methods = this.getMethods(iface);
+    return { on, off, getProperty, ...methods };
   }
 
   // todo unlawful any
-  private asPromised(iface: any, method: any) {
-    return { [method]: promisify(iface[method].bind(iface)) };
+  // todo unlawful typecast as M
+  private getMethods<P extends Props, M extends Methods, E extends Events>(
+    iface: DBusInterface<P, M, E>
+  ): M {
+    return mapValues(iface.object.method, (n) =>
+      promisify(iface[n as any].bind(iface))
+    ) as M;
   }
 }

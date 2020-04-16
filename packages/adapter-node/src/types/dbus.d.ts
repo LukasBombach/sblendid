@@ -4,20 +4,24 @@ declare module "dbus" {
   export function getBus(type: busType): DBusConnection;
 
   export interface DBusConnection {
-    getInterface(
+    getInterface<
+      P extends Props = {},
+      M extends Methods = {},
+      E extends Events = {}
+    >(
       serviceName: string,
       objectPath: string,
       interfaceName: string,
-      callback: (err: Error, iface: DBusInterface) => void
+      callback: (err: Error, iface: DBusInterface<P, M, E>) => void
     ): void;
     disconnect(): void;
   }
 
-  type Props = Record<string, any>;
-  type Methods = Record<string, (...args: any[]) => Promise<any>>;
-  type Events = Record<string, any[]>;
+  export type Props = Record<string, any>;
+  export type Methods = Record<string, (...args: any[]) => Promise<any>>;
+  export type Events = Record<string, any[]>;
 
-  type EventMethod<E extends Events> = <K extends keyof E>(
+  export type EventMethod<E extends Events> = <K extends keyof E>(
     event: K,
     listener: (...args: E[K]) => Promish<void>
   ) => void;
