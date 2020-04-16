@@ -2,7 +2,7 @@ import { promisify } from "util";
 import DBus from "dbus";
 import type { DBusInterface } from "../../types/dbus";
 import type { DBusApi } from "../../types/dbus";
-import type { MethodApi } from "../../types/dbus";
+import type { Methods } from "../../types/dbus";
 import type { EventsApi } from "../../types/dbus";
 import type { EventMethod } from "../../types/dbus";
 import type { PropertiesApi } from "../../types/dbus";
@@ -17,19 +17,26 @@ export default class SystemBus {
     name: string
   ): Promise<DBusApi<I>> {
     const iface = await getInterface(service, path, name);
-    const methodApi = this.getMethodApi(iface);
+    const methods = this.getMethods(iface);
     const eventApi = this.getEventApi(iface);
     const propertyApi = this.getPropertyApi(iface);
-    return { ...methodApi, ...eventApi, ...propertyApi } as DBusApi<I>; // todo typecast
+    return { ...methods, ...eventApi, ...propertyApi } as DBusApi<I>; // todo typecast
   }
 
-  private getMethodApi<I extends DBusInterface>(
+  private getMethods<I extends DBusInterface>(
     iface: DBus.DBusInterface
-  ): MethodApi<I> {
-    return Object.keys(iface.object.method).reduce<MethodApi<I>>(
-      (api, method) => Object.assign(api, this.asPromised(iface, method)),
-      {}
-    );
+  ): Methods<I> {
+    type MM = (entry: [string, any]) => [string, () => any];
+    const mapMethod: MM = ([name]) => [name, this.getMethod(iface, name)];
+    const entries = Object.entries(iface.object.method).map(mapMethod);
+    return Object.fromEntries(entries);
+  }
+
+  private getMethod<I extends DBusInterface, N extends keyof Methods<I>>(
+    iface: I,
+    name: N
+  ): Methods<I>[N] {
+    return promisify(iface[name].bind(iface));
   }
 
   private getEventApi<I extends DBusInterface>(

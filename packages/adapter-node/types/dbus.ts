@@ -4,11 +4,11 @@ export interface DBusInterface {
   props: Record<string, any>;
 }
 
-export type DBusApi<I extends DBusInterface> = MethodApi<I> &
+export type DBusApi<I extends DBusInterface> = Methods<I> &
   EventsApi<I> &
   PropertiesApi<I>;
 
-export type MethodApi<I extends DBusInterface> = I["methods"];
+export type Methods<I extends DBusInterface> = I["methods"];
 
 export interface EventsApi<I extends DBusInterface> {
   on: EventMethod<I>;
