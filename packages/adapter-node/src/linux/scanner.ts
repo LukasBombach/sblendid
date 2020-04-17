@@ -1,8 +1,8 @@
 import Bluez from "./bluez";
 import ObjectManager from "./objectManager";
 import Watcher from "../watcher";
+import type { Adapter } from "./bluez";
 import type { Api } from "./objectManager";
-import type { Adapter } from "../types/bluez";
 import type { FindCondition } from "../types/adapter";
 import type { PeripheralJSON } from "../types/adapter";
 

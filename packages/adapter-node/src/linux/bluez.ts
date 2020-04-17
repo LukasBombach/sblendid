@@ -7,10 +7,12 @@ type AdapterMethods = {
   StopDiscovery: () => Promise<void>;
 };
 
+export type Adapter = InterfaceApi<{}, AdapterMethods, {}>;
+
 export default class Bluez {
   private static readonly service = "org.bluez";
 
-  static async getAdapter(): Promise<InterfaceApi<{}, AdapterMethods, {}>> {
+  static async getAdapter(): Promise<Adapter> {
     const path = "/org/bluez/hci0";
     const name = "org.bluez.Adapter1";
     return await Bluez.getInterface<{}, AdapterMethods, {}>(path, name);
