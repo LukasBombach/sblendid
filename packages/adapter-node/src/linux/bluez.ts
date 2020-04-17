@@ -1,25 +1,22 @@
 import SystemBus from "./systemBus";
-import type { DBusInterface, Methods } from "dbus";
-import type { DBusInterfaceApi } from "./systemBus";
+import type { Methods } from "dbus";
+import type { InterfaceApi } from "./systemBus";
 
-type Adapter = DBusInterface<
-  {},
-  {
-    StartDiscovery: () => Promise<void>;
-    StopDiscovery: () => Promise<void>;
-  }
->;
+type AdapterMethods = {
+  StartDiscovery: () => Promise<void>;
+  StopDiscovery: () => Promise<void>;
+};
 
 export default class Bluez {
   private static readonly service = "org.bluez";
 
-  public static async getAdapter(): Promise<Adapter> {
+  static async getAdapter(): Promise<InterfaceApi<{}, AdapterMethods, {}>> {
     const path = "/org/bluez/hci0";
     const name = "org.bluez.Adapter1";
-    return await Bluez.getInterface<AdapterApi>(path, name);
+    return await Bluez.getInterface<{}, AdapterMethods, {}>(path, name);
   }
 
-  public static async getObjectManager(): Promise<
+  /* static async getObjectManager(): Promise<
     InterfaceApi<ObjectManagerApi>
   > {
     const path = "/";
@@ -27,24 +24,24 @@ export default class Bluez {
     return await Bluez.getInterface<ObjectManagerApi>(path, name);
   }
 
-  public static async getDevice(
+   static async getDevice(
     path: string
   ): Promise<InterfaceApi<Device1Api>> {
     const name = "org.bluez.Device1";
     return await Bluez.getInterface<Device1Api>(path, name);
   }
 
-  public static async getCharacteristic(
+   static async getCharacteristic(
     path: string
   ): Promise<InterfaceApi<GattCharacteristic1Api>> {
     const name = "org.bluez.GattCharacteristic1";
     return await Bluez.getInterface<GattCharacteristic1Api>(path, name);
-  }
+  } */
 
-  public static async getInterface<A>(
+  static async getInterface<P, M extends Methods, E>(
     path: string,
     name: string
-  ): Promise<InterfaceApi<A>> {
-    return await SystemBus.getInterface<A>(Bluez.service, path, name);
+  ) {
+    return await SystemBus.getInterface<P, M, E>(Bluez.service, path, name);
   }
 }
