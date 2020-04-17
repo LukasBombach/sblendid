@@ -18,8 +18,41 @@ declare module "dbus" {
   }
 
   export type Props = Record<string, any>;
-  export type Methods = Record<string, (...args: any[]) => Promise<any>>;
+  export type Methods = Record<string, Method>;
   export type Events = Record<string, any[]>;
+
+  export type Method<T extends any[] = [], TResult = void> = (
+    ...args: T
+  ) => Promise<TResult>;
+
+  /* type Method = Method0 | Method1 | Method2 | Method3;
+
+  type Method0<TResult = any> = (
+    callback: (err: Error, result: TResult) => void
+  ) => void;
+
+  type Method1<T1 extends any = any, TResult = any> = (
+    arg1: T1,
+    callback: (err: Error, result: TResult) => void
+  ) => void;
+
+  type Method2<T1 extends any = any, T2 extends any = any, TResult = any> = (
+    arg1: T1,
+    arg2: T2,
+    callback: (err: Error, result: TResult) => void
+  ) => void;
+
+  type Method3<
+    T1 extends any = any,
+    T2 extends any = any,
+    T3 extends any = any,
+    TResult = any
+  > = (
+    arg1: T1,
+    arg2: T2,
+    arg3: T3,
+    callback: (err: Error, result: TResult) => void
+  ) => void; */
 
   export type EventMethod<E extends Events> = <K extends keyof E>(
     event: K,
@@ -42,7 +75,7 @@ declare module "dbus" {
     ): void;
     getProperties(callback: (err: Error, properties: P) => void): void;
     object: {
-      method: Record<keyof M, unknown>;
+      method: Record<keyof M, any>;
     };
     on: EventMethod<E>;
     off: EventMethod<E>;
