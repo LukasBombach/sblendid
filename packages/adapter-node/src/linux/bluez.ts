@@ -1,17 +1,19 @@
 import SystemBus from "./systemBus";
-import { InterfaceApi } from "../../types/dbus";
-import {
-  AdapterApi,
-  ObjectManagerApi,
-  Device1Api,
-  GattCharacteristic1Api,
-} from "../../types/bluez";
+import type { DBusInterface, Methods } from "dbus";
+import type { DBusInterfaceApi } from "./systemBus";
+
+type Adapter = DBusInterface<
+  {},
+  {
+    StartDiscovery: () => Promise<void>;
+    StopDiscovery: () => Promise<void>;
+  }
+>;
 
 export default class Bluez {
   private static readonly service = "org.bluez";
-  private static readonly systemBus = new SystemBus();
 
-  public static async getAdapter(): Promise<InterfaceApi<AdapterApi>> {
+  public static async getAdapter(): Promise<Adapter> {
     const path = "/org/bluez/hci0";
     const name = "org.bluez.Adapter1";
     return await Bluez.getInterface<AdapterApi>(path, name);
@@ -43,6 +45,6 @@ export default class Bluez {
     path: string,
     name: string
   ): Promise<InterfaceApi<A>> {
-    return await Bluez.systemBus.getInterface<A>(Bluez.service, path, name);
+    return await SystemBus.getInterface<A>(Bluez.service, path, name);
   }
 }

@@ -1,44 +1,31 @@
 import { promisify } from "util";
 import DBus from "dbus";
-import type { Props, Methods, Events, EventMethod } from "dbus";
+import type { DBusInterface, Methods } from "dbus";
 
 const bus = DBus.getBus("system");
 const getInterface = promisify(bus.getInterface.bind(bus));
 
 export default class SystemBus {
-  public async getInterface<
-    P extends Props = {},
-    M extends Methods = {},
-    E extends Events = {}
-  >(service: string, path: string, name: string) {
-    const getMethod = (n: keyof M) => promisify(iface[n].bind(iface));
+  static async getInterface<P, M extends Methods, E>(
+    service: string,
+    path: string,
+    name: string
+  ) {
     const iface = await getInterface<P, M, E>(service, path, name);
-    const on: EventMethod<E> = (event, listener) => iface.on(event, listener);
-    const off: EventMethod<E> = (event, listener) => iface.off(event, listener);
+    const on: Listener<E> = (event, listener) => iface.on(event, listener);
+    const off: Listener<E> = (event, listener) => iface.off(event, listener);
     const getProperty = promisify(iface.getProperty.bind(iface));
-    const methods = this.getMethods(iface);
+    const methods = SystemBus.getMethods(iface);
     const api = { on, off, getProperty, ...methods };
     return api;
   }
 
-  private getMethods<
-    P extends Props = {},
-    M extends Methods = {},
-    E extends Events = {}
-  >(iface: DBus.DBusInterface<P, M, E>): M {
-    const methods = {} as M;
-    const methodNames: (keyof M)[] = Object.keys(iface.object.method);
-    methodNames.forEach((n) => (methods[n] = this.getMethod(iface, n)));
-    return methods;
-  }
-
-  // todo bad typecasting here because Methods in DBusInterface is typed wrong
-  private getMethod<
-    N extends keyof M,
-    P extends Props = {},
-    M extends Methods = {},
-    E extends Events = {}
-  >(iface: DBus.DBusInterface<P, M, E>, name: N): M[N] {
-    return promisify(iface[name].bind(iface)) as M[N];
+  private static getMethods<P, M extends Methods, E>(
+    iface: DBusInterface<P, M, E>
+  ): Promisified<M> {
+    const getMethod = (n: keyof M) => promisify(iface[n].bind(iface));
+    const methodNames = Object.keys(iface.object.method) as (keyof M)[];
+    const entries = methodNames.map((n) => [n, getMethod(n)]);
+    return Object.fromEntries(entries);
   }
 }
