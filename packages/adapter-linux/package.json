@@ -1,0 +1,7 @@
+{
+  "name": "@sblendid/adapter-linux",
+  "version": "0.5.0",
+  "devDependencies": {
+    "@sblendid/types": "0.5.0"
+  }
+}

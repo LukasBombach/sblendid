@@ -1,0 +1,9 @@
+{
+  "name": "@sblendid/types",
+  "version": "0.5.0",
+  "main": "index.js",
+  "files": [
+    "adapter.ts",
+    "ble.ts"
+  ]
+}

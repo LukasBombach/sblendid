@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "strict": true,
+    "strictPropertyInitialization": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "downlevelIteration": true,
+    "module": "commonjs",
+    "target": "es2019",
+    "noImplicitAny": true,
+    "resolveJsonModule": true
+  },
+  "include": ["*.d.ts", "src/*.ts"]
+}
