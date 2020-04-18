@@ -1,43 +1,32 @@
 import { EventEmitter } from "events";
 import Bluez from "./bluez";
-import {
-  ObjectManager as Interface,
-  ManagedObjects,
-  GattService1,
-  GattCharacteristic1,
-} from "../../types/bluez";
-import { Interfaces, Device1Props } from "../../types/bluez";
-import { Emitter, Listener } from "../../types/watcher";
-import { Params } from "../../types/noble";
 import Device from "./device";
 import Service from "./service";
 import Characteristic from "./characteristic";
+import type { Interfaces } from "./bluez";
+import type { ObjectManagerEvents as Events } from "./bluez";
+import type { ObjectManager as ObjectManagerInterface } from "./bluez";
 
-export interface Api {
-  discover: (...peripheral: Params<"discover">) => void;
-  service: (service: Service) => void;
-}
-
-export default class ObjectManager implements Emitter<Api> {
+export default class ObjectManager {
   private emitter = new EventEmitter();
-  private interface?: Interface;
   private eventsAreSetUp = false;
+  private interface?: ObjectManagerInterface;
 
-  public async on<E extends keyof Api>(
-    event: E,
-    listener: Listener<Api, E>
+  async on<K extends keyof Events>(
+    event: K,
+    listener: (err: Error, value: Events[K]) => void
   ): Promise<void> {
     await this.setupEvents();
-    this.emitter.on(event, listener as any); // todo unlawful any
+    this.emitter.on(event, listener);
     this.emitManagedObjects();
   }
 
-  public async off<E extends keyof Api>(
-    event: E,
-    listener: Listener<Api, E>
+  async off<K extends keyof Events>(
+    event: K,
+    listener: (err: Error, value: Events[K]) => void
   ): Promise<void> {
     await this.setupEvents();
-    this.emitter.off(event, listener as any); // todo unlawful any
+    this.emitter.off(event, listener);
   }
 
   private onInterfacesAdded(path: string, interfaces: Interfaces): void {
@@ -49,7 +38,7 @@ export default class ObjectManager implements Emitter<Api> {
     if (characteristic) this.handleCharacteristic(path, characteristic);
   }
 
-  private handleDevice(path: string, device1: Device1Props): void {
+  private handleDevice(path: string, device1: Device1): void {
     const device = new Device(path, device1);
     Device.add(device);
     this.emitter.emit("discover", ...device.toNoble());
@@ -90,7 +79,7 @@ export default class ObjectManager implements Emitter<Api> {
     return await iface.GetManagedObjects();
   }
 
-  private async getInterface(): Promise<Interface> {
+  private async getInterface(): Promise<ObjectManagerInterface> {
     if (!this.interface) this.interface = await Bluez.getObjectManager();
     return this.interface;
   }

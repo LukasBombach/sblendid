@@ -7,9 +7,9 @@ type Promish<T> = Promise<T> | T;
 
 type AnyFunction = (...args: any[]) => any;
 
-type Listener<T> = <K extends keyof T>(
+type EventHandler<T extends Record<string, any[]>> = <K extends keyof T>(
   name: K,
-  listener: (err: Error, value: T[K]) => void
+  listener: (...args: T[K]) => void
 ) => void;
 
 type Unpacked<T> = T extends Promise<infer U> ? U : T;
