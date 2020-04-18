@@ -18,7 +18,7 @@ export default class ObjectManager {
 
   async on<K extends keyof Events>(
     event: K,
-    listener: (err: Error, value: Events[K]) => void
+    listener: (value: Events[K]) => void
   ): Promise<void> {
     await this.setupEvents();
     this.emitter.on(event, listener);
@@ -27,23 +27,14 @@ export default class ObjectManager {
 
   async off<K extends keyof Events>(
     event: K,
-    listener: (err: Error, value: Events[K]) => void
+    listener: (value: Events[K]) => void
   ): Promise<void> {
     await this.setupEvents();
     this.emitter.off(event, listener);
   }
 
-  private async setupEvents(): Promise<void> {
-    if (this.eventsAreSetUp) return;
-    this.eventsAreSetUp = true;
-    const iface = await this.getInterface();
-    iface.on("InterfacesAdded", this.onInterfacesAdded.bind(this));
-  }
-
   private onInterfacesAdded(path: string, interfaces: Interfaces): void {
-    const device = interfaces["org.bluez.Device1"];
-    const service = interfaces["org.bluez.GattService1"];
-    const characteristic = interfaces["org.bluez.GattCharacteristic1"];
+    const { device, service, characteristic } = this.getInterfaces(interfaces);
     if (device) this.handleDevice(path, device);
     if (service) this.handleService(path, service);
     if (characteristic) this.handleCharacteristic(path, characteristic);
@@ -65,6 +56,20 @@ export default class ObjectManager {
   ): void {
     this.characteristics[path] = gattCharacteristic1;
     this.emitter.emit("gattCharacteristic1", gattCharacteristic1);
+  }
+
+  private async setupEvents(): Promise<void> {
+    if (this.eventsAreSetUp) return;
+    this.eventsAreSetUp = true;
+    const iface = await this.getInterface();
+    iface.on("InterfacesAdded", this.onInterfacesAdded.bind(this));
+  }
+
+  private getInterfaces(interfaces: Interfaces) {
+    const device = interfaces["org.bluez.Device1"];
+    const service = interfaces["org.bluez.GattService1"];
+    const characteristic = interfaces["org.bluez.GattCharacteristic1"];
+    return { device, service, characteristic };
   }
 
   private async emitManagedObjects(): Promise<void> {
