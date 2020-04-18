@@ -1,15 +1,19 @@
 import { EventEmitter } from "events";
 import Bluez from "./bluez";
-import Device from "./device";
-import Service from "./service";
-import Characteristic from "./characteristic";
 import type { Interfaces } from "./bluez";
+import type { ManagedObjects } from "./bluez";
+import type { Device1 } from "./bluez";
+import type { GattService1 } from "./bluez";
+import type { GattCharacteristic1 } from "./bluez";
 import type { ObjectManagerEvents as Events } from "./bluez";
 import type { ObjectManager as ObjectManagerInterface } from "./bluez";
 
 export default class ObjectManager {
   private emitter = new EventEmitter();
   private eventsAreSetUp = false;
+  private devices: Record<string, Device1> = {};
+  private services: Record<string, GattService1> = {};
+  private characteristics: Record<string, GattCharacteristic1> = {};
   private interface?: ObjectManagerInterface;
 
   async on<K extends keyof Events>(
@@ -29,6 +33,13 @@ export default class ObjectManager {
     this.emitter.off(event, listener);
   }
 
+  private async setupEvents(): Promise<void> {
+    if (this.eventsAreSetUp) return;
+    this.eventsAreSetUp = true;
+    const iface = await this.getInterface();
+    iface.on("InterfacesAdded", this.onInterfacesAdded.bind(this));
+  }
+
   private onInterfacesAdded(path: string, interfaces: Interfaces): void {
     const device = interfaces["org.bluez.Device1"];
     const service = interfaces["org.bluez.GattService1"];
@@ -39,31 +50,21 @@ export default class ObjectManager {
   }
 
   private handleDevice(path: string, device1: Device1): void {
-    const device = new Device(path, device1);
-    Device.add(device);
-    this.emitter.emit("discover", ...device.toNoble());
+    this.devices[path] = device1;
+    this.emitter.emit("device1", device1);
   }
 
   private handleService(path: string, gattService1: GattService1): void {
-    const service = new Service(path, gattService1);
-    Service.add(service);
-    this.emitter.emit("service", service);
+    this.services[path] = gattService1;
+    this.emitter.emit("gattService1", gattService1);
   }
 
   private handleCharacteristic(
     path: string,
     gattCharacteristic1: GattCharacteristic1
   ): void {
-    const characteristic = new Characteristic(path, gattCharacteristic1);
-    Characteristic.add(characteristic);
-    this.emitter.emit("characteristic", characteristic);
-  }
-
-  private async setupEvents(): Promise<void> {
-    if (this.eventsAreSetUp) return;
-    this.eventsAreSetUp = true;
-    const iface = await this.getInterface();
-    iface.on("InterfacesAdded", this.onInterfacesAdded.bind(this));
+    this.characteristics[path] = gattCharacteristic1;
+    this.emitter.emit("gattCharacteristic1", gattCharacteristic1);
   }
 
   private async emitManagedObjects(): Promise<void> {

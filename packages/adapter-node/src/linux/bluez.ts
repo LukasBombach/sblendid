@@ -9,7 +9,7 @@ type AdapterMethods = {
 
 export type Adapter = InterfaceApi<{}, AdapterMethods, {}>;
 
-type ManagedObjects = Record<string, Record<string, Interfaces>>;
+export type ManagedObjects = Record<string, Record<string, Interfaces>>;
 
 export interface Device1 {
   Adapter: string;
