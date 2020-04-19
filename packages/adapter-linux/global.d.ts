@@ -1,7 +1,7 @@
 type PUUID = string;
-type SUUID = BluetoothServiceUUID;
-type CUUID = BluetoothCharacteristicUUID;
-type DUUID = BluetoothDescriptorUUID;
+type SUUID = string;
+type CUUID = string;
+type DUUID = string;
 
 type Promish<T> = Promise<T> | T;
 
@@ -14,7 +14,7 @@ type EventHandler<T extends Record<string, any[]>> = <K extends keyof T>(
 
 type Unpacked<T> = T extends Promise<infer U> ? U : T;
 
-type PromisifiedFunction<T extends AnyFunction> = T extends () => infer U
+/* type PromisifiedFunction<T extends AnyFunction> = T extends () => infer U
   ? () => Promise<Unpacked<U>>
   : T extends (a1: infer A1) => infer U
   ? (a1: A1) => Promise<Unpacked<U>>
@@ -24,7 +24,16 @@ type PromisifiedFunction<T extends AnyFunction> = T extends () => infer U
   ? (a1: A1, a2: A2, a3: A3) => Promise<Unpacked<U>>
   : T extends (...args: any[]) => infer U
   ? (...args: any[]) => Promise<Unpacked<U>>
-  : T;
+  : T; */
+
+type PromisifiedFunction<T extends AnyFunction> = T extends (
+  callback: (err: Error) => void
+) => void
+  ? () => Promise<void>
+  : never;
+
+// function promisify<T1, TResult>(fn: (arg1: T1, callback: (err: any, result: TResult) => void) => void): (arg1: T1) => Promise<TResult>;
+// function promisify<T1>(fn: (arg1: T1, callback: (err?: any) => void) => void): (arg1: T1) => Promise<void>;
 
 type Promisified<T> = {
   [K in keyof T]: T[K] extends AnyFunction ? PromisifiedFunction<T[K]> : never;

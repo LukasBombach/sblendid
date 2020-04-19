@@ -1,13 +1,13 @@
 import { promisify } from "util";
 import DBus from "dbus";
 import type { DBusInterface } from "dbus";
-import type { InterfaceApi, GetMethods } from "dbus";
+import type { InterfaceApi, GetMethods, GetDBusMethods } from "dbus";
 
 const bus = DBus.getBus("system");
 const getInterface = promisify(bus.getInterface.bind(bus));
 
 export default class SystemBus {
-  static async getInterface<I extends InterfaceApi>(
+  static async getInterface<I>(
     service: string,
     path: string,
     name: string
@@ -21,9 +21,10 @@ export default class SystemBus {
     return api;
   }
 
-  private static getMethods<I extends InterfaceApi, M = GetMethods<I>>(
+  private static getMethods<I>(
     iface: DBusInterface<I>
-  ): Promisified<M> {
+  ): Promisified<GetMethods<I>> {
+    type M = GetDBusMethods<DBusInterface<I>>;
     const getMethod = (n: keyof M) => promisify(iface[n].bind(iface));
     const methodNames = Object.keys(iface.object.method) as (keyof M)[];
     const entries = methodNames.map((n) => [n, getMethod(n)]);

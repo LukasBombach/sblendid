@@ -1,8 +1,3 @@
-type PUUID = string;
-type SUUID = string;
-type CUUID = string;
-type DUUID = string;
-
 interface BluezInterfaces {
   "org.bluez.Device1"?: BluezDevice;
   "org.bluez.GattService1"?: BluezService;

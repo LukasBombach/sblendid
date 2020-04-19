@@ -7,11 +7,11 @@ declare module "dbus" {
   export function getBus(type: busType): DBusConnection;
 
   export interface DBusConnection {
-    getInterface<I extends InterfaceApi>(
+    getInterface<I>(
       serviceName: string,
       objectPath: string,
       interfaceName: string,
-      callback: Callback<DBusInterface<I>>
+      callback: (err: Error, value: DBusInterface<I>) => void
     ): void;
     disconnect(): void;
   }
@@ -26,38 +26,23 @@ declare module "dbus" {
     getProperty: <K extends keyof P>(name: K) => Promise<P[K]>;
   } & Promisified<M>;
 
-  /*
-    M extends Methods = {},
-    E extends Events = {},
-    P extends {} = {}
-  */
+  export type GetMethods<I> = I extends InterfaceApi<infer M> ? M : never;
 
   export type GetMethodsDB<
     I extends DBusInterface<InterfaceApi>
   > = I extends DBusInterface<infer A> ? GetMethods<A> : never;
 
-  export type GetMethods<I extends InterfaceApi> = I extends InterfaceApi<
-    infer M
-  >
-    ? M
+  export type GetDBusMethods<I> = I extends DBusInterface<infer A>
+    ? GetMethods<A>
     : never;
 
-  export type GetEvents<I extends InterfaceApi> = I extends InterfaceApi<
-    any,
-    infer E
-  >
-    ? E
-    : never;
+  export type GetEvents<I> = I extends InterfaceApi<any, infer E> ? E : never;
 
-  export type GetProperties<I extends InterfaceApi> = I extends InterfaceApi<
-    any,
-    any,
-    infer P
-  >
+  export type GetProperties<I> = I extends InterfaceApi<any, any, infer P>
     ? P
     : never;
 
-  export type DBusInterface<I extends InterfaceApi> = {
+  export type DBusInterface<I> = {
     object: {
       method: Record<keyof GetMethods<I>, unknown>;
     };
