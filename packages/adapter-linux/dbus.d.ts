@@ -17,7 +17,7 @@ declare module "dbus" {
     disconnect(): void;
   }
 
-  export type ExtractFuncions<T> = {
+  export type ExtractFunctions<T> = {
     [K in keyof T]: T[K] extends AnyFunction ? T[K] : never;
   };
 
@@ -28,9 +28,7 @@ declare module "dbus" {
 
   export type InterfaceMethod<
     K extends keyof DBusInterfaces[ServiceName]
-  > = OmitDefaultMethods<ExtractFuncions<DBusInterfaces[ServiceName][K]>>;
-
-  type x = InterfaceMethod<"org.bluez.Adapter1">;
+  > = OmitDefaultMethods<ExtractFunctions<DBusInterfaces[ServiceName][K]>>;
 
   interface DBusInterfaces {
     "org.bluez": {
