@@ -1,12 +1,12 @@
 import SystemBus from "./systemBus";
 import type { DBusApi } from "./systemBus";
 
-export type AdapterApi = DBusApi;
+export type Adapter = DBusApi;
 
 export default class Bluez {
   private static readonly service = "org.bluez";
 
-  static async getAdapter(): Promise<AdapterApi> {
+  static async getAdapter(): Promise<Adapter> {
     const path = "/org/bluez/hci0";
     const name = "org.bluez.Adapter1";
     return await Bluez.getInterface(path, name);
