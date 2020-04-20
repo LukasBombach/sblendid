@@ -7,12 +7,28 @@ import type { InterfaceMethod } from "dbus";
 const bus = DBus.getBus("system");
 const getInterface = promisify(bus.getInterface.bind(bus));
 
+export type DBusApi = {
+  StartDiscovery: () => Promise<void>;
+  StopDiscovery: () => Promise<void>;
+  on: <K extends never>(
+    name: K,
+    listener: (value: DBus.Adapter1Events[K]) => void
+  ) => void;
+  off: <K extends never>(
+    name: K,
+    listener: (value: DBus.Adapter1Events[K]) => void
+  ) => void;
+  getProperty: <K extends never>(
+    arg1: K
+  ) => Promise<DBus.Adapter1Properties[K]>;
+};
+
 export default class SystemBus {
   static async getInterface(
     service: "org.bluez",
     path: string,
     name: "org.bluez.Adapter1"
-  ) {
+  ): Promise<DBusApi> {
     const iface = await getInterface(service, path, name);
     const on = iface.on.bind(iface);
     const off = iface.off.bind(iface);
