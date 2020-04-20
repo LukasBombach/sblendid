@@ -1,62 +1,60 @@
 declare module "dbus" {
-  export type busType = "session" | "system";
-  export type Callback<V> = (err: Error, value: V) => void;
-  export type Methods = Record<string, (...args: any[]) => void>;
-  export type Events = Record<string, any[]>;
+  export type busType = "system";
+  export type ServiceName = "org.bluez";
+  export type InterfaceName = "org.bluez.Adapter1";
+  interface Adapter1Events {}
+  interface Adapter1Properties {}
 
   export function getBus(type: busType): DBusConnection;
 
   export interface DBusConnection {
-    getInterface<I>(
-      serviceName: string,
+    getInterface<I extends InterfaceName>(
+      serviceName: ServiceName,
       objectPath: string,
-      interfaceName: string,
-      callback: (err: Error, value: DBusInterface<I>) => void
+      interfaceName: I,
+      callback: (err: Error, value: DBusInterfaces[ServiceName][I]) => void
     ): void;
     disconnect(): void;
   }
 
-  export type InterfaceApi<
-    M extends Methods = {},
-    E extends Events = {},
-    P extends {} = {}
-  > = {
-    on: <K extends keyof E>(name: K, listener: (value: E[K]) => void) => void;
-    off: <K extends keyof E>(name: K, listener: (value: E[K]) => void) => void;
-    getProperty: <K extends keyof P>(name: K) => Promise<P[K]>;
-  } & Promisified<M>;
+  export type ExtractFuncions<T> = {
+    [K in keyof T]: T[K] extends AnyFunction ? T[K] : never;
+  };
 
-  export type GetMethods<I> = I extends InterfaceApi<infer M> ? M : never;
+  export type OmitDefaultMethods<T> = Omit<
+    T,
+    "on" | "off" | "getProperty" | "object"
+  >;
 
-  export type GetMethodsDB<
-    I extends DBusInterface<InterfaceApi>
-  > = I extends DBusInterface<infer A> ? GetMethods<A> : never;
+  export type InterfaceMethod<
+    K extends keyof DBusInterfaces[ServiceName]
+  > = OmitDefaultMethods<ExtractFuncions<DBusInterfaces[ServiceName][K]>>;
 
-  export type GetDBusMethods<I> = I extends DBusInterface<infer A>
-    ? GetMethods<A>
-    : never;
+  type x = InterfaceMethod<"org.bluez.Adapter1">;
 
-  export type GetEvents<I> = I extends InterfaceApi<any, infer E> ? E : never;
+  interface DBusInterfaces {
+    "org.bluez": {
+      "org.bluez.Adapter1": {
+        on: <K extends keyof Adapter1Events>(
+          name: K,
+          listener: (value: Adapter1Events[K]) => void
+        ) => void;
+        off: <K extends keyof Adapter1Events>(
+          name: K,
+          listener: (value: Adapter1Events[K]) => void
+        ) => void;
+        getProperty: <K extends keyof Adapter1Properties>(
+          name: K,
+          callback: (err: Error, value: Adapter1Properties[K]) => void
+        ) => void;
 
-  export type GetProperties<I> = I extends InterfaceApi<any, any, infer P>
-    ? P
-    : never;
+        object: {
+          method: Record<keyof InterfaceMethod<"org.bluez.Adapter1">, unknown>;
+        };
 
-  export type DBusInterface<I> = {
-    object: {
-      method: Record<keyof GetMethods<I>, unknown>;
+        StartDiscovery(cb: (err: Error) => void): void;
+        StopDiscovery(cb: (err: Error) => void): void;
+      };
     };
-    getProperty: <K extends keyof GetProperties<I>>(
-      name: K,
-      callback: Callback<GetProperties<I>[K]>
-    ) => void;
-    on: <K extends keyof GetEvents<I>>(
-      name: K,
-      listener: (value: GetEvents<I>[K]) => void
-    ) => void;
-    off: <K extends keyof GetEvents<I>>(
-      name: K,
-      listener: (value: GetEvents<I>[K]) => void
-    ) => void;
-  } & GetMethods<I>;
+  }
 }

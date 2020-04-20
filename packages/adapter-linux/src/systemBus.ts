@@ -1,18 +1,20 @@
 import { promisify } from "util";
 import DBus from "dbus";
-import type { DBusInterface } from "dbus";
-import type { InterfaceApi, GetMethods, GetDBusMethods } from "dbus";
+import type { InterfaceName } from "dbus";
+import type { DBusInterfaces } from "dbus";
+import type { ServiceName } from "dbus";
+import type { InterfaceMethod } from "dbus";
 
 const bus = DBus.getBus("system");
 const getInterface = promisify(bus.getInterface.bind(bus));
 
 export default class SystemBus {
-  static async getInterface<I>(
-    service: string,
+  static async getInterface(
+    service: "org.bluez",
     path: string,
-    name: string
-  ): Promise<I> {
-    const iface = await getInterface<I>(service, path, name);
+    name: "org.bluez.Adapter1"
+  ) {
+    const iface = await getInterface(service, path, name);
     const on = iface.on.bind(iface);
     const off = iface.off.bind(iface);
     const getProperty = promisify(iface.getProperty.bind(iface));
@@ -21,12 +23,12 @@ export default class SystemBus {
     return api;
   }
 
-  private static getMethods<I>(
-    iface: DBusInterface<I>
-  ): Promisified<GetMethods<I>> {
-    type M = GetDBusMethods<DBusInterface<I>>;
-    const getMethod = (n: keyof M) => promisify(iface[n].bind(iface));
-    const methodNames = Object.keys(iface.object.method) as (keyof M)[];
+  private static getMethods<K extends keyof DBusInterfaces[ServiceName]>(
+    iface: DBusInterfaces[ServiceName]["org.bluez.Adapter1"]
+  ) {
+    type Method = keyof InterfaceMethod<"org.bluez.Adapter1">;
+    const getMethod = (m: Method) => promisify(iface[m].bind(m));
+    const methodNames = Object.keys(iface.object.method) as Method[];
     const entries = methodNames.map((n) => [n, getMethod(n)]);
     return Object.fromEntries(entries);
   }
