@@ -12,6 +12,12 @@ export default class Bluez {
     return await Bluez.getInterface(path, name);
   }
 
+  static async getObjectManager(): Promise<Adapter> {
+    const path = "/";
+    const name = "org.freedesktop.DBus.ObjectManager";
+    return await Bluez.getInterface(path, name);
+  }
+
   static async getInterface(
     path: string,
     name: "org.bluez.Adapter1"

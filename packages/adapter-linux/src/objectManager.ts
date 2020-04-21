@@ -1,6 +1,8 @@
 import { EventEmitter } from "events";
 import Bluez from "./bluez";
 
+import type { Adapter1Events } from "dbus";
+
 export default class ObjectManager {
   private emitter = new EventEmitter();
   private eventsAreSetUp = false;
@@ -9,18 +11,18 @@ export default class ObjectManager {
   private characteristics: Record<string, BluezCharacteristic> = {};
   private interface?: ObjectManagerInterface;
 
-  async on<K extends keyof Events>(
+  async on<K extends keyof Adapter1Events>(
     event: K,
-    listener: (value: Events[K]) => void
+    listener: (value: Adapter1Events[K]) => void
   ): Promise<void> {
     await this.setupEvents();
     this.emitter.on(event, listener);
     this.emitManagedObjects();
   }
 
-  async off<K extends keyof Events>(
+  async off<K extends keyof Adapter1Events>(
     event: K,
-    listener: (value: Events[K]) => void
+    listener: (value: Adapter1Events[K]) => void
   ): Promise<void> {
     await this.setupEvents();
     this.emitter.off(event, listener);
