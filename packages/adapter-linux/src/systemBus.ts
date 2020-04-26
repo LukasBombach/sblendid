@@ -2,7 +2,6 @@ import { promisify } from "util";
 import DBus from "dbus";
 
 import type { DBusBluezInterfaces, Methods } from "dbus";
-import type { Promisify, PromisifyAll } from "./types/promisify";
 
 type GetProperty<K extends keyof DBusBluezInterfaces> = Promisify<
   DBusBluezInterfaces[K]["getProperty"]

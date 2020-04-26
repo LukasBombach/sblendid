@@ -1,6 +1,6 @@
-export type Callback<T> = (err: Error | null, reply: T) => void;
+type Callback<T> = (err: Error | null, reply: T) => void;
 // prettier-ignore
-export type PromisifyOne<T extends any[]> =
+type PromisifyOne<T extends any[]> =
     T extends [Callback<infer U>?] ? () => Promise<U> :
     T extends [infer T1, Callback<infer P>?] ? (arg1: T1) => Promise<P> :
     T extends [infer T1, infer T2, Callback<infer U>?] ? (arg1: T1, arg2: T2) => Promise<U> :
@@ -9,7 +9,7 @@ export type PromisifyOne<T extends any[]> =
     never;
 
 // prettier-ignore
-export type GetOverloadArgs<T> = 
+type GetOverloadArgs<T> = 
     T extends {
         (...o: infer U) : void,
         (...o: infer U2) : void,
@@ -57,8 +57,6 @@ export type GetOverloadArgs<T> =
 // prettier-ignore
 type UnionToIntersection<U> = (U extends any ? (k: U)=>void : never) extends ((k: infer I)=>void) ? I : never
 
-export type Promisify<T> = UnionToIntersection<
-  PromisifyOne<GetOverloadArgs<T>>
->;
+type Promisify<T> = UnionToIntersection<PromisifyOne<GetOverloadArgs<T>>>;
 
-export type PromisifyAll<T extends {}> = { [J in keyof T]: Promisify<T[J]> };
+type PromisifyAll<T extends {}> = { [J in keyof T]: Promisify<T[J]> };
