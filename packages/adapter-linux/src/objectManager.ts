@@ -1,7 +1,8 @@
 import { EventEmitter } from "events";
 import Bluez from "./bluez";
 
-import type { Adapter1Events } from "dbus";
+import type { ManagedObjects } from "dbus";
+import type { ObjectManager as BluezObjectManager } from "./bluez";
 
 export default class ObjectManager {
   private emitter = new EventEmitter();
@@ -9,7 +10,7 @@ export default class ObjectManager {
   private devices: Record<string, BluezDevice> = {};
   private services: Record<string, BluezService> = {};
   private characteristics: Record<string, BluezCharacteristic> = {};
-  private interface?: ObjectManagerInterface;
+  private interface?: BluezObjectManager;
 
   async on<K extends keyof Adapter1Events>(
     event: K,
@@ -80,7 +81,7 @@ export default class ObjectManager {
     return await iface.GetManagedObjects();
   }
 
-  private async getInterface(): Promise<ObjectManagerInterface> {
+  private async getInterface(): Promise<BluezObjectManager> {
     if (!this.interface) this.interface = await Bluez.getObjectManager();
     return this.interface;
   }

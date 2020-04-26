@@ -9,7 +9,7 @@ declare module "dbus" {
       service: ServiceName,
       path: string,
       name: I,
-      callback: (err: Error, value: DBusBluezInterfaces[I]) => void
+      callback: (err: Error | null, value: DBusBluezInterfaces[I]) => void
     ): void;
     disconnect(): void;
   }
@@ -26,8 +26,8 @@ declare module "dbus" {
       object: {
         method: Record<keyof Methods<"org.bluez.Adapter1">, unknown>;
       };
-      StartDiscovery: (cb: (err: Error) => void) => void;
-      StopDiscovery: (cb: (err: Error) => void) => void;
+      StartDiscovery: (cb: (err: Error | null) => void) => void;
+      StopDiscovery: (cb: (err: Error | null) => void) => void;
     };
     "org.freedesktop.DBus.ObjectManager": {
       on: <K extends keyof Events["ObjectManager"]>(
@@ -45,6 +45,9 @@ declare module "dbus" {
           unknown
         >;
       };
+      GetManagedObjects: (
+        cb: (err: Error | null, managedObjects: ManagedObjects) => void
+      ) => void;
     };
   }
 
@@ -54,10 +57,10 @@ declare module "dbus" {
     };
   }
 
-  export type BluezMethod = (cb: (err: Error) => void) => void;
-
   export type Methods<K extends keyof DBusBluezInterfaces> = Omit<
     DBusBluezInterfaces[K],
     "on" | "off" | "getProperty" | "object"
   >;
+
+  export type ManagedObjects = Record<string, Record<string, BluezInterfaces>>;
 }

@@ -27,8 +27,7 @@ export default class SystemBus {
     const off = iface.off.bind(iface);
     const getProperty = SystemBus.getGetProperty(iface);
     const methods = SystemBus.getMethods(iface);
-    const api = { on, off, getProperty, ...methods };
-    return api;
+    return { on, off, getProperty, ...methods };
   }
 
   private static getGetProperty<K extends keyof DBusBluezInterfaces>(
@@ -40,12 +39,35 @@ export default class SystemBus {
   private static getMethods<K extends keyof DBusBluezInterfaces>(
     iface: DBusBluezInterfaces[K]
   ): PromisifyAll<Methods<K>> {
-    const names = Object.keys(iface.object.method) as (keyof Methods<K>)[];
-    const promisedMethods = {} as PromisifyAll<Methods<K>>;
+    const methods = SystemBus.extractMethods(iface);
+    const entries = (Object.entries(methods) as any) as [
+      keyof Methods<K>,
+      Methods<K>
+    ][];
+    const mapped = (entries.map(([name, method]) => [
+      name,
+      promisify((method as any).bind(iface)),
+    ]) as any) as [keyof Methods<K>, Promisify<Methods<K>>][];
+    return (Object.fromEntries(mapped) as any) as PromisifyAll<Methods<K>>;
+    /* const promisedMethods = {} as PromisifyAll<Methods<K>>;
     for (const name of names) {
-      const method = iface[name] as any; // todo unlawful any
+      const method = iface[name]; // as any; // todo unlawful any
       promisedMethods[name] = promisify(method.bind(iface)) as any; // todo unlawful any
     }
-    return promisedMethods;
+    return promisedMethods; */
+  }
+
+  private static extractMethods<K extends keyof DBusBluezInterfaces>(
+    iface: DBusBluezInterfaces[K]
+  ): Methods<K> {
+    const names = Object.keys(iface.object.method) as (keyof Methods<K>)[];
+    return names.reduce((methods, name) => {
+      const method = iface[name];
+      if (typeof method !== "function") {
+        throw new Error(`Cannot find method ${name} in interface`);
+      }
+      methods[name] = iface[name];
+      return methods;
+    }, {} as Methods<K>);
   }
 }
