@@ -1,7 +1,10 @@
 import SystemBus from "./systemBus";
-import type { DBusApi } from "./systemBus";
+import type { SystemBusApi } from "./systemBus";
 
-export type Adapter = DBusApi;
+import type { DBusBluezInterfaces } from "dbus";
+
+export type Adapter = SystemBusApi<"org.bluez.Adapter1">;
+export type ObjectManager = SystemBusApi<"org.freedesktop.DBus.ObjectManager">;
 
 export default class Bluez {
   private static readonly service = "org.bluez";
@@ -12,16 +15,16 @@ export default class Bluez {
     return await Bluez.getInterface(path, name);
   }
 
-  static async getObjectManager(): Promise<Adapter> {
+  static async getObjectManager(): Promise<ObjectManager> {
     const path = "/";
     const name = "org.freedesktop.DBus.ObjectManager";
     return await Bluez.getInterface(path, name);
   }
 
-  static async getInterface(
+  static async getInterface<K extends keyof DBusBluezInterfaces>(
     path: string,
-    name: "org.bluez.Adapter1"
-  ): Promise<DBusApi> {
+    name: K
+  ): Promise<SystemBusApi<K>> {
     return await SystemBus.getInterface(Bluez.service, path, name);
   }
 }

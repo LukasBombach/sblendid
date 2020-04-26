@@ -1,63 +1,52 @@
 import { promisify } from "util";
 import DBus from "dbus";
-import type { DBusInterface } from "dbus";
-import type { BluezInterfaces } from "dbus";
-// import type { ServiceName } from "dbus";
-// import type { InterfaceMethod } from "dbus";
+
+import type { DBusBluezInterfaces, Methods } from "dbus";
+import type { Promisify, PromisifyAll } from "./types/promisify";
+
+type GetProperty<K extends keyof DBusBluezInterfaces> = Promisify<
+  DBusBluezInterfaces[K]["getProperty"]
+>;
+
+export type SystemBusApi<K extends keyof DBusBluezInterfaces> = {
+  on: DBusBluezInterfaces[K]["on"];
+  off: DBusBluezInterfaces[K]["off"];
+  getProperty: GetProperty<K>;
+} & PromisifyAll<Methods<K>>;
 
 const bus = DBus.getBus("system");
 const getInterface = promisify(bus.getInterface.bind(bus));
 
-/* export type DBusApi = {
-  StartDiscovery: () => Promise<void>;
-  StopDiscovery: () => Promise<void>;
-  on: <K extends never>(
-    name: K,
-    listener: (value: DBus.Adapter1Events[K]) => void
-  ) => void;
-  off: <K extends never>(
-    name: K,
-    listener: (value: DBus.Adapter1Events[K]) => void
-  ) => void;
-  getProperty: <K extends never>(
-    arg1: K
-  ) => Promise<DBus.Adapter1Properties[K]>;
-}; */
-
-export type OmitDefaults<T> = Omit<T, "on" | "off" | "getProperty" | "object">;
-
-export type ExtractMethods<T> = {
-  [K in keyof T]: Extract<T[K], CallableFunction>;
-};
-
-type Methods<I> = ExtractMethods<OmitDefaults<I>>;
-type Reducer<I> = (acc: Methods<I>, n: keyof Methods<I>) => Methods<I>;
-
 export default class SystemBus {
-  static async getInterface(
+  static async getInterface<K extends keyof DBusBluezInterfaces>(
     service: "org.bluez",
     path: string,
-    name: keyof BluezInterfaces
-  ) {
+    name: K
+  ): Promise<SystemBusApi<K>> {
     const iface = await getInterface(service, path, name);
     const on = iface.on.bind(iface);
     const off = iface.off.bind(iface);
-    const getProperty = promisify(iface.getProperty.bind(iface));
+    const getProperty = SystemBus.getGetProperty(iface);
     const methods = SystemBus.getMethods(iface);
-    return { on, off, getProperty, ...methods };
+    const api = { on, off, getProperty, ...methods };
+    return api;
   }
 
-  private static getMethods<
-    I extends DBusInterface<BluezInterfaces[keyof BluezInterfaces]>
-  >(iface: I) {
-    const methods = SystemBus.extractMethods(iface);
-    const getMethod = (m: keyof Methods<I>) => promisify(iface[m].bind(m));
-    const reducer: Reducer<I> = (acc, n) => ({ ...acc, [n]: getMethod(n) });
-    const methodNames = Object.keys(methods) as (keyof Methods<I>)[];
-    return methodNames.reduce(reducer, {} as Promisified<Methods<I>>);
+  private static getGetProperty<K extends keyof DBusBluezInterfaces>(
+    iface: DBusBluezInterfaces[K]
+  ): GetProperty<K> {
+    return promisify(iface.getProperty.bind(iface)) as GetProperty<K>;
   }
 
-  private static extractMethods<
-    I extends DBusInterface<BluezInterfaces[keyof BluezInterfaces]>
-  >(iface: I): Methods<I> {}
+  private static getMethods<K extends keyof DBusBluezInterfaces>(
+    iface: DBusBluezInterfaces[K]
+  ): PromisifyAll<Methods<K>> {
+    const names = Object.keys(iface.object.method) as (keyof Methods<K>)[];
+    const promisedMethods = {} as PromisifyAll<Methods<K>>;
+    for (const name of names) {
+      const method = iface[name] as any; // todo unlawful any
+      promisedMethods[name] = promisify(method.bind(iface)) as any; // todo unlawful any
+    }
+    return promisedMethods;
+  }
 }
