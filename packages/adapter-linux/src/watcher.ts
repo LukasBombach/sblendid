@@ -1,6 +1,6 @@
 export interface EventEmitter {
-  on: (event: string, listener: (...args: any[]) => void) => void;
-  off: (event: string, listener: (...args: any[]) => void) => void;
+  on: (event: any, listener: (...args: any[]) => void) => void;
+  off: (event: any, listener: (...args: any[]) => void) => void;
 }
 
 export type Condition = (...args: any[]) => Promish<boolean>;
