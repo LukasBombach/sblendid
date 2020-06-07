@@ -8,7 +8,20 @@ export interface AdapterInterface {
   };
 }
 
-export type BluezInterfaces = AdapterInterface;
+export interface ObjectManagerInterface {
+  name: "org.freedesktop.DBus.ObjectManager";
+  events: {
+    InterfacesAdded: (path: string, interfaces: BluezDBusInterfaces) => void;
+  };
+  properties: {};
+  methods: {
+    GetManagedObjects: (
+      callback: (err: Error | null, managedObjects: ManagedObjects) => void
+    ) => void;
+  };
+}
+
+export type BluezInterfaces = AdapterInterface | ObjectManagerInterface;
 
 export type Name<T extends BluezInterfaces> = T["name"];
 
@@ -43,3 +56,45 @@ export type PropertyValue<
   T extends BluezInterfaces,
   N extends PropertyName<T>
 > = keyof T["properties"][N];
+
+export interface BluezDBusInterfaces {
+  "org.bluez.Device1"?: BluezDevice;
+  "org.bluez.GattService1"?: BluezService;
+  "org.bluez.GattCharacteristic1"?: BluezCharacteristic;
+}
+
+export type ManagedObjects = Record<
+  string,
+  Record<string, BluezDBusInterfaces>
+>;
+
+export interface BluezDevice {
+  Adapter: string;
+  Address: string;
+  AddressType: "public" | "random";
+  Alias: string;
+  Blocked: boolean;
+  Connected: boolean;
+  LegacyPairing: boolean;
+  ManufacturerData: Record<string, number[]>;
+  Name: string;
+  Paired: boolean;
+  RSSI: number;
+  ServiceData: Record<string, number[]>;
+  ServicesResolved: boolean;
+  Trusted: boolean;
+  TxPower: number;
+  UUIDs: string[];
+}
+
+export interface BluezService {
+  Device: string;
+  Primary: boolean;
+  UUID: SUUID;
+}
+
+export interface BluezCharacteristic {
+  UUID: CUUID;
+  Service: BluezService;
+  Flags: ("read" | "write" | "notify")[];
+}
