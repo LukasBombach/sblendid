@@ -4,7 +4,8 @@ import DBus from "dbus";
 import type { DBusInterface } from "dbus";
 import type { BluezInterfaces } from "../types/bluez";
 import type { Name, EventName, EventCallback } from "../types/bluez";
-import type { Methods, Method, MethodName } from "../types/bluez";
+import type { Methods, MethodName } from "../types/bluez";
+import type { Properties, PropertyName, PropertyValue } from "../types/bluez";
 
 const bus = DBus.getBus("system");
 const getInterface = promisify(bus.getInterface.bind(bus));
@@ -35,23 +36,22 @@ export default class BluezInterface<T extends BluezInterfaces> {
     api.off(event, callback);
   }
 
-  async call(
-    method: MethodName<T>,
-    ...params: Parameters<
-      Promisify<Method<BluezInterfaces, MethodName<BluezInterfaces>>>
-    >
-  ): Promise<any> {
+  async call(method: MethodName<T>, ...params: any[]): Promise<any> {
     const api = await this.getApi<Methods<T>>();
     const m = ((api[method] as any) as CallableFunction).bind(api);
     return await promisify(m)(...params);
   }
 
-  async getProperty(name: string): Promise<any> {
+  async getProperty<N extends PropertyName<T>>(
+    name: N
+  ): Promise<PropertyValue<T, N>> {
     const api = await this.getApi();
-    return await promisify(api.getProperty.bind(api))(name);
+    return (await promisify(api.getProperty.bind(api))(
+      name as string
+    )) as PropertyValue<T, N>;
   }
 
-  async getProperties(): Promise<Record<string, any>> {
+  async getProperties(): Promise<Properties<T>> {
     const api = await this.getApi();
     return await promisify(api.getProperties.bind(api))();
   }

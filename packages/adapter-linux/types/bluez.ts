@@ -35,8 +35,11 @@ export type MethodParameters<
   M extends MethodName<T>
 > = Method<T, M> extends (...args: infer P) => any ? P : never;
 
-export type PromisedParams = Parameters<
-  Promisify<Method<BluezInterfaces, MethodName<BluezInterfaces>>>
->;
+export type Properties<T extends BluezInterfaces> = T["properties"];
 
-const x: PromisedParams = "x" as any;
+export type PropertyName<T extends BluezInterfaces> = keyof T["properties"];
+
+export type PropertyValue<
+  T extends BluezInterfaces,
+  N extends PropertyName<T>
+> = keyof T["properties"][N];
