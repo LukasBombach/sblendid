@@ -2,7 +2,7 @@ import { promisify } from "util";
 import DBus from "dbus";
 
 import type { DBusInterface } from "dbus";
-import type { BluezInterfaces } from "../types/bluez";
+import type { BluezInterfaces, Method } from "../types/bluez";
 import type { Name, EventName, EventCallback } from "../types/bluez";
 import type { Methods, MethodName } from "../types/bluez";
 import type { Properties, PropertyName, PropertyValue } from "../types/bluez";
@@ -36,7 +36,10 @@ export default class BluezInterface<T extends BluezInterfaces> {
     api.off(event, callback);
   }
 
-  async call(method: MethodName<T>, ...params: any[]): Promise<any> {
+  async call<M extends MethodName<T>>(
+    method: M,
+    ...params: any[]
+  ): Promise<UnpromiseReturn<Promisify<Method<T, M>>>> {
     const api = await this.getApi<Methods<T>>();
     const m = ((api[method] as any) as CallableFunction).bind(api);
     return await promisify(m)(...params);
