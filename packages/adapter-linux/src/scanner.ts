@@ -31,15 +31,9 @@ export default class Scanner {
   }
 
   private getWatcher(findCondition: FindCondition): Watcher {
-    const condition = this.getDiscoverCondition(findCondition);
-    return new Watcher(this.manager, "device1", condition);
-  }
-
-  private getDiscoverCondition(findCondition: FindCondition) {
-    return async (device: BluezDevice) => {
-      const peripheralJSON = this.getPeripheralJSON(device);
-      return await findCondition(peripheralJSON);
-    };
+    return new Watcher(this.manager, "device1", (device) => {
+      return findCondition(this.getPeripheralJSON(device));
+    });
   }
 
   private getPeripheralJSON(device: BluezDevice): PeripheralJSON {
@@ -52,7 +46,6 @@ export default class Scanner {
       blocked: device.Blocked,
       name: device.Name,
       serviceUuids: device.UUIDs,
-      //manufacturerData: device.ManufacturerData,
     };
   }
 }
