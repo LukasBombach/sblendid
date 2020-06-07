@@ -19,25 +19,4 @@ export default class LinuxAdapter implements Adapter {
   async find(condition: FindCondition): Promise<PeripheralJSON> {
     return await this.scanner.find(condition);
   }
-
-  async connect(pUUID: PUUID): Promise<void> {
-    const device = this.getDevice(pUUID);
-    await device.connect();
-  }
-
-  async disconnect(pUUID: PUUID): Promise<void> {
-    const device = this.getDevice(pUUID);
-    await device.disconnect();
-  }
-
-  private getDevice(pUUID: PUUID): Device {
-    const device = Device.find(pUUID);
-    if (!device) throw this.notFoundError("device", pUUID);
-    return device;
-  }
-
-  private notFoundError(iface: string, uuid: PUUID | SUUID | CUUID): Error {
-    const msg = `Could not find the ${iface} with the uuid "${uuid}"`;
-    return new Error(msg);
-  }
 }

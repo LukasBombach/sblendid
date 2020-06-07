@@ -13,5 +13,5 @@
     "noImplicitAny": true,
     "resolveJsonModule": true
   },
-  "include": ["*.d.ts", "src/*.ts", "src2/*.ts"]
+  "include": ["src/*.ts", "src2/*.ts", "types/*.d.ts"]
 }
