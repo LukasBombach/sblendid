@@ -80,7 +80,7 @@ export default class ObjectManager {
   }
 
   private async emitManagedObjects(): Promise<void> {
-    const managedObjects = await await this.manager.call("GetManagedObjects");
+    const managedObjects = await this.manager.call("GetManagedObjects");
     const entries = Object.entries(managedObjects);
     for (const [path, interfaces] of entries) {
       this.onInterfacesAdded(path, interfaces);
