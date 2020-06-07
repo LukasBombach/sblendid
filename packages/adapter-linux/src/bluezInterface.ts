@@ -4,12 +4,12 @@ import DBus from "dbus";
 import type { DBusInterface } from "dbus";
 import type { BluezInterfaces } from "../types/bluez";
 import type { Name, EventName, EventCallback } from "../types/bluez";
-import type { Methods, MethodName, MethodParameters } from "../types/bluez";
+import type { Methods, Method, MethodName } from "../types/bluez";
 
 const bus = DBus.getBus("system");
 const getInterface = promisify(bus.getInterface.bind(bus));
 
-export default class BluezInterface<T extends OneOf<BluezInterfaces>> {
+export default class BluezInterface<T extends BluezInterfaces> {
   private readonly name: Name<T>;
   private readonly path: string;
   private api?: DBusInterface;
@@ -35,9 +35,11 @@ export default class BluezInterface<T extends OneOf<BluezInterfaces>> {
     api.off(event, callback);
   }
 
-  async call<M extends MethodName<T>>(
-    method: M,
-    ...params: MethodParameters<T, M>
+  async call(
+    method: MethodName<T>,
+    ...params: Parameters<
+      Promisify<Method<BluezInterfaces, MethodName<BluezInterfaces>>>
+    >
   ): Promise<any> {
     const api = await this.getApi<Methods<T>>();
     const m = ((api[method] as any) as CallableFunction).bind(api);
