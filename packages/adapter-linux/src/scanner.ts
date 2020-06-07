@@ -5,10 +5,13 @@ import Watcher from "./watcher";
 
 import type { FindCondition } from "@sblendid/types/adapter";
 import type { PeripheralJSON } from "@sblendid/types/adapter";
-import type { BluezDevice } from "../types/bluez";
+import type { BluezDevice, AdapterInterface } from "../types/bluez";
+
+const name = "org.bluez.Adapter1";
+const path = "/org/bluez/hci0";
 
 export default class Scanner {
-  private adapter = new BluezInterface("org.bluez.Adapter1", "/org/bluez/hci0");
+  private adapter = new BluezInterface<AdapterInterface>(name, path);
   private manager = new ObjectManager();
 
   async startScanning(): Promise<void> {

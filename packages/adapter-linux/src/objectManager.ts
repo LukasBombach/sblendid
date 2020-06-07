@@ -14,7 +14,7 @@ const name = "org.freedesktop.DBus.ObjectManager";
 const path = "/";
 
 export default class ObjectManager {
-  private manager = new BluezInterface(name, path);
+  private manager = new BluezInterface<ObjectManagerInterface>(name, path);
   private emitter = new EventEmitter();
   private eventsAreSetUp = false;
 
